@@ -1,0 +1,26 @@
+{
+  "name": "spartan",
+  "version": "1.0.0",
+  "description": "npm project to package and configure common security middleware. Adds security.js file to code repo",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ysmithND/spartan.git"
+  },
+  "keywords": [
+    "security",
+    "npm",
+    "security-headers",
+    "node-security",
+    "appsec"
+  ],
+  "author": "Yolonda N. Smith",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ysmithND/spartan/issues"
+  },
+  "homepage": "https://github.com/ysmithND/spartan#readme"
+}
