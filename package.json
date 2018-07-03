@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/ysmithND/spartan/issues"
   },
-  "homepage": "https://github.com/ysmithND/spartan#readme"
+  "homepage": "https://github.com/ysmithND/spartan#readme",
+  "dependencies": {
+    "npm": "^6.1.0"
+  }
 }

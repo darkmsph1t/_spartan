@@ -1,0 +1,168 @@
+{
+  "_policyNumber" : ,
+  "accessControlsPolicy": {
+    "authenticationPolicy" : {
+      "authenticationRequired" : true,
+      "supportedTypes":["password", "oauth", "saml"],
+      "passwordPolicy" : {
+        "notEmpty" : true,
+        "matches" : ["(?=,*[a-zA-Z]+)(?=.*[0-9]+)(?=.*[!*&^$#@()+ ]+).*", "g"],
+        "minLen" : 12,
+        "expires?" : false,
+        "supportedHashes" : ["bcrypt", "sha256", "md5"],
+        "mfaRequired" : false,
+        "lockout" : {
+          "attempts" : 3,
+          "automaticReset" : false,
+          "tarpitDefault" :  1000
+        }
+      },
+    },
+    "authorization" : {
+      "authorizationRequired" : false,
+      "supportedTypes" : ["flat", "rbac", "none"],
+      "rbacPolicy" : {
+        "roles" : ["user", "moderator", "admin"],
+        "permissions" : ["read", "write", "create", "delete", "approve", "reject"]
+      }
+    }
+  },
+  "sessionPolicy" : {
+    "sid" : {
+      "length" : 128,
+      "entropy" : [64, "prng", "sha1"],
+      "invalidOnLogout" : true,
+      "regenerateOnAuth" : true
+    },
+    "duration" : {
+      "idle" : 300000,
+      "ttl" : 600000,
+      "automaticRenewal" : false
+    },
+    "cookies": {
+      "maxAge" : ,
+      "httpOnly" : true,
+      "secure" : true,
+      "sameSite" : true,
+      "domain" : ["same-origin", "parent"],
+      "path" :["same-origin", "parent"]
+    },
+    "forceHttps" : true
+  },
+  "headerConfig" : {
+    "securityHeaders" : {
+      "csp" : {
+        "directives" : {
+          "defaultSrc" : ["self"],
+          "mediaSrc" : ["self"],
+          "frameSrc" : ["self"],
+          "frameAncestors" : ["none"],
+          "scriptSrc" : ["self"],
+          "styleSrc" : ["self"],
+          "upgradeInsecureRequests" : true,
+          "blockAllMixedContent" : true,
+          "reportUri" : {
+            "default" : "disabled",
+            "uri" : ""
+          }
+        },
+        "reportOnly" : true,
+        "useNonce" : false,
+        "useHash" : false
+      },
+      "strictTransportSecurity" : {
+        "enabled": true,
+        "includeSubDomains": true,
+        "preload" : false,
+        "maxAge" : 31536000
+      },
+      "preventClickJacking" : true,
+      "referrals" : {
+        "enabled" : true,
+        "allowFrom" : "same-origin",
+        "hidden" : true
+      },
+      "xssProtection" : {
+        "enabled" : true,
+        "mode" : "block",
+      }
+    },
+    "cachePolicy" : {
+      "enabled" : true,
+      "cacheControl" : ["private", "no-cache", "no-store", "no-transform", "max-age=0"],
+      "pragma" : "no-cache",
+      "eTagsEnabled" : true,
+      "vary" : ["origin", "host", "referer"],
+    }
+  },
+  "inputValidation" : {
+    "enabled" : true,
+    "sessions" : {
+      "validateID": true
+    },
+    "url" : {
+      "encodeUrls" : true,
+
+    },
+    "files" : {
+      "maxSize" : "10Mb",
+      "randomizeFilename" : true,
+      "fileTypesAllowed" : [".jpg", ".gif", ".png"]
+    },
+    "html" : {
+
+    }
+  },
+  "dbSecurityPolicy" :{
+    "enabled" : true,
+    "disableJsExecution" : true,
+    "globalOperatorsDisabled" : true,
+    "encryptionEnabled" : true
+  },
+  "connectionPolicy" : {
+    "redirectSecure" : true,
+    "rejectWeakCiphers" : true,
+    "rejectInsecureTLS" : true
+  },
+  "resourceSharingPolicy" : {
+    "default" : "same-origin",
+    "corsEnabled" : false,
+    "corsSettings" : {
+      "preflightRequests" : {
+        "onMethod" : ["put", "delete", "connect", "options", "trace", "patch"],
+        "onHeader" : ["accept", "accept-language", "content-language", "dpr", "save-data", "viewpot-width", "width"],
+        "maxAge" : 3600
+      },
+      "responseHeaders" : {
+        "allowCredentials" : true,
+        "validateHeaders" : ["origin", "expose-headers"]
+      }
+    },
+    "validateHeaders" : ["origin", "host", "referer"],
+    "validateWhitelist" : true
+  },
+  "loggingPolicy" : {
+    "enabled" : true,
+    "levels" : ["info", "warn", "error", "debug", "verbose"],
+    "logCollection" : {
+      "storage" : "/var/log/${appName}/",
+      "retentionPeriod" : 4,
+      "port" : 5601
+    },
+    "analytics" : {
+      "enabled" : false,
+      "config" : {
+        "host" : "localhost",
+        "type" : "telegraf",
+        "port" : 8125
+      }
+    }
+  },
+  "formProtection" : {
+    "enabled" : true,
+    "autocompleteAllowed" : false,
+    "csrfSettings" : {
+
+    }
+  }
+}
