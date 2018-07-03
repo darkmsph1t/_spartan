@@ -1,10 +1,13 @@
 {
-  "_policyNumber" : ,
+  "_policyId" : "",
   "accessControlsPolicy": {
+    "enabled" : true,
     "authenticationPolicy" : {
       "authenticationRequired" : true,
-      "supportedTypes":["password", "oauth", "saml"],
-      "passwordPolicy" : {
+      "usernames" : {
+
+      },
+      "passwords" : {
         "notEmpty" : true,
         "matches" : ["(?=,*[a-zA-Z]+)(?=.*[0-9]+)(?=.*[!*&^$#@()+ ]+).*", "g"],
         "minLen" : 12,
@@ -28,11 +31,12 @@
     }
   },
   "sessionPolicy" : {
-    "sid" : {
+    "id" : {
       "length" : 128,
       "entropy" : [64, "prng", "sha1"],
       "invalidOnLogout" : true,
-      "regenerateOnAuth" : true
+      "regenerateOnAuth" : true,
+      "forceLogoutOnWindowClose" : true
     },
     "duration" : {
       "idle" : 300000,
@@ -47,7 +51,8 @@
       "domain" : ["same-origin", "parent"],
       "path" :["same-origin", "parent"]
     },
-    "forceHttps" : true
+    "forceHttps" : true,
+    "concurrentLogins" : false
   },
   "headerConfig" : {
     "securityHeaders" : {
@@ -98,11 +103,12 @@
   "inputValidation" : {
     "enabled" : true,
     "sessions" : {
-      "validateID": true
+      "validateID": true,
+      "tlsVersionCheck" : true,
+      "httpsCheck" : true
     },
     "url" : {
       "encodeUrls" : true,
-
     },
     "files" : {
       "maxSize" : "10Mb",
@@ -111,7 +117,12 @@
     },
     "html" : {
 
-    }
+    },
+    "requests": {
+      "headerCheck" : ["origin", "host", "referer", "x-forwarded-host"],
+
+    },
+    "blockOnFail" : true
   },
   "dbSecurityPolicy" :{
     "enabled" : true,
@@ -138,7 +149,6 @@
         "validateHeaders" : ["origin", "expose-headers"]
       }
     },
-    "validateHeaders" : ["origin", "host", "referer"],
     "validateWhitelist" : true
   },
   "loggingPolicy" : {
@@ -161,7 +171,13 @@
   "formProtection" : {
     "enabled" : true,
     "autocompleteAllowed" : false,
+    "acceptJsonContent" : true,
+    "allowMethodOverride" : false,
     "csrfSettings" : {
+      "token" : ,
+      "salt" : ,
+      "ignoreMethods" : ["head", "options", "get"],
+      "allowHiddenToken" : false
 
     }
   }
