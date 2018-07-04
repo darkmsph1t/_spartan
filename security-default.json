@@ -5,7 +5,8 @@
     "authenticationPolicy" : {
       "authenticationRequired" : true,
       "usernames" : {
-
+        "notEmpty" : true,
+        "matches" : ["(?=,*[a-zA-Z]+)(?=.*[0-9]+)(?=.*[!*&^$#@()+ ]+).*", "g"]
       },
       "passwords" : {
         "notEmpty" : true,
@@ -13,13 +14,13 @@
         "minLen" : 12,
         "expires?" : false,
         "supportedHashes" : ["bcrypt", "sha256", "md5"],
-        "mfaRequired" : false,
         "lockout" : {
           "attempts" : 3,
           "automaticReset" : false,
           "tarpitDefault" :  1000
         }
       },
+      "mfaRequired" : false
     },
     "authorization" : {
       "authorizationRequired" : false,
@@ -30,6 +31,17 @@
       }
     }
   },
+  "formProtection" : {
+    "enabled" : true,
+    "autocompleteAllowed" : false,
+    "acceptJsonContent" : true,
+    "allowMethodOverride" : false,
+    "csrfSettings" : {
+      "secretLength" : 64,
+      "saltLength" : 24,
+      "ignoreMethods" : ["head", "options", "get"],
+      "allowHiddenToken" : false
+    },
   "sessionPolicy" : {
     "id" : {
       "length" : 128,
@@ -100,8 +112,49 @@
       "vary" : ["origin", "host", "referer"],
     }
   },
-  "inputValidation" : {
+  "contentValidation" : {
     "enabled" : true,
+    "syntaxValidation" : {
+      "integers" : {
+        "defaulRange" : ,
+        "isInt" : true,
+        "forceInt" : true,
+        "maxLength" : 8,
+        "errorMessage" : "sorry. Need a number."
+      },
+      ""
+      "strings" : {
+        "isString" : true,
+        "forceString" : true,
+        "toLowercase" : true,
+        "isEmpty" : false,
+        "maxLength" : 30,
+        "errorMessage" : "sorry. Need a string"
+      },
+      "dates" : {
+        "defaultFormat" : ,
+        "isBlank" : false,
+        "isDate" : true,
+        "realDate" : true,
+        "forceDate" : false,
+        "startBeforeEnd" : true,
+        "errorMessage" : "sorry. invalid date"
+      },
+      "inputFields" : {
+        "defaultChars" : ,
+        "maxLength" : 250,
+        "errorMessage" : "sorry. please try again"
+      },
+      "regexFormats" : {
+        "alphanumeric" : ,
+        "numbersOnly" :,
+        "email" : ,
+        ""
+      }
+
+    },
+
+
     "sessions" : {
       "validateID": true,
       "tlsVersionCheck" : true,
@@ -116,7 +169,7 @@
       "fileTypesAllowed" : [".jpg", ".gif", ".png"]
     },
     "html" : {
-
+      "inputValues"
     },
     "requests": {
       "headerCheck" : ["origin", "host", "referer", "x-forwarded-host"],
@@ -165,20 +218,8 @@
         "host" : "localhost",
         "type" : "telegraf",
         "port" : 8125
+        }
       }
-    }
-  },
-  "formProtection" : {
-    "enabled" : true,
-    "autocompleteAllowed" : false,
-    "acceptJsonContent" : true,
-    "allowMethodOverride" : false,
-    "csrfSettings" : {
-      "token" : ,
-      "salt" : ,
-      "ignoreMethods" : ["head", "options", "get"],
-      "allowHiddenToken" : false
-
     }
   }
 }
