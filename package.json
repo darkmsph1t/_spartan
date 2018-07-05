@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ysmithND/spartan.git"
+    "url": "git+https://github.com/ysmithND/_spartan.git"
   },
   "keywords": [
     "security",
@@ -20,9 +20,9 @@
   "author": "Yolonda N. Smith",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/ysmithND/spartan/issues"
+    "url": "https://github.com/ysmithND/_spartan/issues"
   },
-  "homepage": "https://github.com/ysmithND/spartan#readme",
+  "homepage": "https://github.com/ysmithND/_spartan#readme",
   "dependencies": {
     "npm": "^6.1.0"
   }
