@@ -10,11 +10,11 @@ A clear and concise description of what the problem is. Ex. I'm always frustrate
 **Describe the solution you'd like**
 A clear and concise description of what you want to happen.
 
-**Why does this feature belong in _spartan?**
-What makes _spartan uniquely suited to solve this problem?
+**Why does this feature belong in \_spartan?**
+What makes \_spartan uniquely suited to solve this problem?
 
 **Describe alternatives you've considered**
 A clear and concise description of any alternative solutions or features you've considered.
- 
+
 **Additional context**
 Add any other context or screenshots about the feature request here.

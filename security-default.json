@@ -2,15 +2,11 @@
   "_policyId" : "",
   "accessControlsPolicy": {
     "enabled" : true,
+    "compensatingControl" : false,
     "authenticationPolicy" : {
       "authenticationRequired" : true,
-      "usernames" : {
-        "notEmpty" : true,
-        "matches" : ["(?=,*[a-zA-Z]+)(?=.*[0-9]+)(?=.*[!*&^$#@()+ ]+).*", "g"]
-      },
+      "supportedMethods" : ["uname/passwd", "oauth", "saml"],
       "passwords" : {
-        "notEmpty" : true,
-        "matches" : ["(?=,*[a-zA-Z]+)(?=.*[0-9]+)(?=.*[!*&^$#@()+ ]+).*", "g"],
         "minLen" : 12,
         "expires?" : false,
         "supportedHashes" : ["bcrypt", "sha256", "md5"],
@@ -33,41 +29,50 @@
   },
   "formProtection" : {
     "enabled" : true,
-    "autocompleteAllowed" : false,
-    "acceptJsonContent" : true,
-    "allowMethodOverride" : false,
-    "csrfSettings" : {
-      "secretLength" : 64,
-      "saltLength" : 24,
-      "ignoreMethods" : ["head", "options", "get"],
-      "allowHiddenToken" : false
-    },
-  "sessionPolicy" : {
-    "id" : {
-      "length" : 128,
-      "entropy" : [64, "prng", "sha1"],
-      "invalidOnLogout" : true,
-      "regenerateOnAuth" : true,
-      "forceLogoutOnWindowClose" : true
-    },
-    "duration" : {
-      "idle" : 300000,
-      "ttl" : 600000,
-      "automaticRenewal" : false
-    },
-    "cookies": {
-      "maxAge" : ,
-      "httpOnly" : true,
-      "secure" : true,
-      "sameSite" : true,
-      "domain" : ["same-origin", "parent"],
-      "path" :["same-origin", "parent"]
-    },
-    "forceHttps" : true,
-    "concurrentLogins" : false
+    "compensatingControl" : false,
+    "config" : {
+      "autocompleteAllowed" : false,
+      "acceptJsonContent" : true,
+      "allowMethodOverride" : false,
+      "csrfSettings" : {
+        "secretLength" : 64,
+        "saltLength" : 24,
+        "ignoreMethods" : ["head", "options", "get"],
+        "allowHiddenToken" : false
+      }
+    }
   },
-  "headerConfig" : {
-    "securityHeaders" : {
+  "sessionPolicy" : {
+    "enabled" : true,
+    "compensatingControl" : false,
+    "config" : {
+      "id" : {
+        "length" : 128,
+        "entropy" : [64, "prng", "sha1"],
+        "invalidOnLogout" : true,
+        "regenerateOnAuth" : true,
+        "forceLogoutOnWindowClose" : true
+      },
+      "duration" : {
+        "idle" : 300000,
+        "ttl" : 600000,
+        "automaticRenewal" : false
+      },
+      "cookies": {
+        "maxAge" : ,
+        "httpOnly" : true,
+        "secure" : true,
+        "sameSite" : true,
+        "domain" : ["same-origin", "parent"],
+        "path" :["same-origin", "parent"]
+      },
+      "concurrentLogins" : false
+    }
+  },
+  "securityHeaders" : {
+    "enabled" : true,
+    "compensatingControl" : false,
+    "config" : {
       "csp" : {
         "directives" : {
           "defaultSrc" : ["self"],
@@ -104,7 +109,7 @@
         "mode" : "block",
       }
     },
-    "cachePolicy" : {
+    "caching" : {
       "enabled" : true,
       "cacheControl" : ["private", "no-cache", "no-store", "no-transform", "max-age=0"],
       "pragma" : "no-cache",
@@ -112,100 +117,62 @@
       "vary" : ["origin", "host", "referer"],
     }
   },
-  "contentValidation" : {
+  "contentValidationPolicy" : {
     "enabled" : true,
+    "compensatingControl" : false,
     "syntaxValidation" : {
-      "integers" : {
-        "defaulRange" : ,
-        "isInt" : true,
-        "forceInt" : true,
-        "maxLength" : 8,
-        "errorMessage" : "sorry. Need a number."
+        "checkLength" : true,
+        "checkFormat" : true
       },
-      ""
-      "strings" : {
-        "isString" : true,
-        "forceString" : true,
-        "toLowercase" : true,
-        "isEmpty" : false,
-        "maxLength" : 30,
-        "errorMessage" : "sorry. Need a string"
+      "semanticValidation" : {
+        "allowBlankValues" : false,
+        "orderMakesSense?" : true,
+        "valueInRange?" : true,
+        "whitelistRequired" : ["cors", "csp", "headers", ""]
       },
-      "dates" : {
-        "defaultFormat" : ,
-        "isBlank" : false,
-        "isDate" : true,
-        "realDate" : true,
-        "forceDate" : false,
-        "startBeforeEnd" : true,
-        "errorMessage" : "sorry. invalid date"
+      "sanitizeValues" : {
+        "enableEncoding" : ["url", "body", "javascript", "html", "css"],
+        "convertToType" : true
       },
-      "inputFields" : {
-        "defaultChars" : ,
-        "maxLength" : 250,
-        "errorMessage" : "sorry. please try again"
-      },
-      "regexFormats" : {
-        "alphanumeric" : ,
-        "numbersOnly" :,
-        "email" : ,
-        ""
-      }
-
-    },
-
-
-    "sessions" : {
-      "validateID": true,
-      "tlsVersionCheck" : true,
-      "httpsCheck" : true
-    },
-    "url" : {
-      "encodeUrls" : true,
-    },
-    "files" : {
-      "maxSize" : "10Mb",
-      "randomizeFilename" : true,
-      "fileTypesAllowed" : [".jpg", ".gif", ".png"]
-    },
-    "html" : {
-      "inputValues"
-    },
-    "requests": {
-      "headerCheck" : ["origin", "host", "referer", "x-forwarded-host"],
-
-    },
     "blockOnFail" : true
   },
   "dbSecurityPolicy" :{
     "enabled" : true,
-    "disableJsExecution" : true,
-    "globalOperatorsDisabled" : true,
-    "encryptionEnabled" : true
+    "compensatingControl" : false,
+    "config" : {
+      "disableJsExecution" : true,
+      "globalOperatorsDisabled" : true,
+      "encryptionEnabled" : true
+    }
   },
   "connectionPolicy" : {
+    "enabled" : true,
     "redirectSecure" : true,
     "rejectWeakCiphers" : true,
-    "rejectInsecureTLS" : true
+    "rejectInsecureTLS" : true,
+    "forceHttps" : true,
   },
   "resourceSharingPolicy" : {
     "default" : "same-origin",
-    "corsEnabled" : false,
+    "compensatingControl" : false,
     "corsSettings" : {
-      "preflightRequests" : {
-        "onMethod" : ["put", "delete", "connect", "options", "trace", "patch"],
-        "onHeader" : ["accept", "accept-language", "content-language", "dpr", "save-data", "viewpot-width", "width"],
-        "maxAge" : 3600
-      },
-      "responseHeaders" : {
-        "allowCredentials" : true,
-        "validateHeaders" : ["origin", "expose-headers"]
+      "enabled" : false,
+      "config" : {
+        "preflightRequests" : {
+          "onMethod" : ["put", "delete", "connect", "options", "trace", "patch"],
+          "onHeader" : ["accept", "accept-language", "content-language", "dpr", "save-data", "viewpot-width", "width"],
+          "maxAge" : 3600
+        },
+        "responseHeaders" : {
+          "allowCredentials" : true,
+          "validateHeaders" : ["origin", "allow-method","expose-headers"]
+        }
       }
-    },
-    "validateWhitelist" : true
+    }
   },
   "loggingPolicy" : {
     "enabled" : true,
+    "compensatingControl" : false,
     "levels" : ["info", "warn", "error", "debug", "verbose"],
     "logCollection" : {
       "storage" : "/var/log/${appName}/",
