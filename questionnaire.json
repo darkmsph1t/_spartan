@@ -39,6 +39,8 @@
       - which special chars allowed? (string) => remember to check type && content (e.g. ["a-zA-Z0-9"] not allowed...consider converting to string)
     - how many tries before lockout?
     - log failed attempts?
+    - Does your application require multifactor authentication?
+      - If yes, which one? (string)
   2. Will your application offer multiple access levels/permissions (y/n)?
     - if yes:
       - what roles will be supported? (comma separated string) ["viewer", "reviewer", "moderator", "administrator"] => check type...consider converting to string
@@ -58,6 +60,7 @@
         - If yes, what is the path to your certificate?
         - which ciphers do you want to allow?
         - Which TLS versions do you want to allow?
+      -
       - Do you want to force cookies to be transmitted over secure transport?
       - Do you want to allow other scripts to access cookies?
       - Do you want to allow other sites to receive your application's cookies
