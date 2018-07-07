@@ -1,0 +1,77 @@
+{
+  "access-controls" : {
+    "authentication" : {
+      "question" :"How will users authenticate to your application?",
+      "answers": {
+        "options" : ["no authentication required", "username/password", "saml", "this is handled somewhere else in the technology stack"],
+        "subquestion1" : "what kind of usernames?", "options" : ["email"]
+      }
+    },
+    "authorization" : {
+      "question" :,
+      "options" : []
+    }
+  }
+}
+
+
+1. How will users log in to your application?
+- username/passwords
+- oauth
+- saml
+- no log in required
+- if username/password:
+  - username specification
+    - blank usernames allowed? (y/n)
+    - how generated?
+      - email?
+      - app will generate randomly (recommended)
+      - user created (like twitter)
+      - phone number
+      - other
+      - combination (user can log in via multiple methods)
+  - password policy specification
+    - blank passwords allowed? (y/n)
+    - minimum length of passwords? (integer)
+    - # uppercase chars required (integer)
+    - # lowercase chars allowed (integer)
+    - # special chars required (integer) =>
+      - which special chars allowed? (string) => remember to check type && content (e.g. ["a-zA-Z0-9"] not allowed...consider converting to string)
+    - how many tries before lockout?
+    - log failed attempts?
+    - Does your application require multifactor authentication?
+      - If yes, which one? (string)
+  2. Will your application offer multiple access levels/permissions (y/n)?
+    - if yes:
+      - what roles will be supported? (comma separated string) ["viewer", "reviewer", "moderator", "administrator"] => check type...consider converting to string
+      - what permissions will these roles have (json)?
+        {
+          "viewer" : "read-only",
+          "user" : "viewer+write",
+          "reviewer" : "user+approve/reject",
+          "moderator" : "reviewer+grant/revoke access",
+          "administrator" : "moderator+create/delete roles"
+        }
+    3. Will your application or API allow other domains to make requests for resources on your host? (y/n)
+      - Which other domains you want to allow access and what do you want to allow them to do? (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. 'Enter' after each. Type "done" when complete)
+        - format: "https://domain.com:443", "GET, POST, PUT, DELETE"
+    4. Data transport
+      - Do you plan to use secure transport (HTTPS) everywhere?
+        - If yes, what is the path to your certificate?
+        - which ciphers do you want to allow?
+        - Which TLS versions do you want to allow?
+      -
+      - Do you want to force cookies to be transmitted over secure transport?
+      - Do you want to allow other scripts to access cookies?
+      - Do you want to allow other sites to receive your application's cookies
+
+    5. Databases
+    6. Logging
+
+    5. Will your application utilize forms to collect user input (e.g. guest reviews)? (y/n):
+      - If yes: will any of it be "sensitive" or "PII" (e.g. credit card numbers, email, mailing address) (y/n):
+        - If yes should we disable caching of this information? (y/n)
+        - should this information be transmitted over secure transport (HTTPS) (yes/no):
+          - Path to certificate (string):
+      - Do you want to enable cross site request forgery (csrf) protections? (y/n)
+        - How do
