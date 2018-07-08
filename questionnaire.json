@@ -17,7 +17,7 @@
 
 1. How will users log in to your application?
 - username/passwords
-- oauth
+- oauth/openid
 - saml
 - no log in required
 - if username/password:
@@ -37,7 +37,9 @@
     - # lowercase chars allowed (integer)
     - # special chars required (integer) =>
       - which special chars allowed? (string) => remember to check type && content (e.g. ["a-zA-Z0-9"] not allowed...consider converting to string)
-    - how many tries before lockout?
+    - how many attempts before lockout? (integer)
+    - how long (in seconds) between attempts? (integer)
+    - allow automatic account reset? (yes/no)
     - log failed attempts?
     - Does your application require multifactor authentication?
       - If yes, which one? (string)
@@ -55,20 +57,57 @@
     3. Will your application or API allow other domains to make requests for resources on your host? (y/n)
       - Which other domains you want to allow access and what do you want to allow them to do? (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. 'Enter' after each. Type "done" when complete)
         - format: "https://domain.com:443", "GET, POST, PUT, DELETE"
-    4. Data transport
-      - Do you plan to use secure transport (HTTPS) everywhere?
-        - If yes, what is the path to your certificate?
-        - which ciphers do you want to allow?
-        - Which TLS versions do you want to allow?
-      -
-      - Do you want to force cookies to be transmitted over secure transport?
+    4. Session Management
+      - Where is session management handled?
+        - The application handles sessions
+        - This is being handled somewhere else in my technology stack
+        - Using some other scheme to manage sessions/no sessions to manage
+      - How long (in seconds) should user sessions last? (integer)
+      - How long (in seconds) should sessions idle? (integer)
+      - Do you want to force cookies to be transmitted over secure transport? (yes/no)
+      - How long in seconds will cookies be valid? (integer)
       - Do you want to allow other scripts to access cookies?
-      - Do you want to allow other sites to receive your application's cookies
-
+      - Do you want to allow other sites to receive your application's cookies? (yes/no)
+      - Do you want to allow concurrent/simultaneous logins? (yes/no)
+      - When should users reauthenticate?
+        {
+          "ttlExpiration" : true,
+          "privilegeEscalation" : true,
+          "idleExpiration" : true
+        }
+      - When should the application automatically logout?
+        {
+          "ttlExpiration" : true,
+          "idleExpiration" : true,
+          "windowOrTabClose" : true
+        }
+    5. Response headers
+      - Where are response headers set?
+        - The application will handle responses
+        - This is being handled somewhere else in the technology stack
+        - Using other scheme to manage responses
+      - Content Security Policy
+        - What are the default sources of all content for your application? (string array)
+          - Will your application allow any inline definition or evaluation of sources? (yes/no)
+        - What are the sources of media for your application? (string array)
+        - What are the sources of fonts for your application? (string array)
+        - What are the sources of scripts for your application? (string array)
+          - Will your application allow scripts inline? (yes/no)
+        - What are the sources of styles for your application? (string array)
+          - Will your application allow styles to be defined inline? (yes/no)
+        - Which sites are allowed to frame your application? (string array)
+        - Which locations in your app can be used for form submissions?
+        - Should we start in report-only phase? (yes/no)
+          - If yes, what is your report uri? (string)
     5. Databases
     6. Logging
+    7. Data transport
+    - Do you plan to use secure transport (HTTPS) everywhere?
+      - If yes, what is the path to your certificate?
+      - which ciphers do you want to allow?
+      - Which TLS versions do you want to allow?
 
-    5. Will your application utilize forms to collect user input (e.g. guest reviews)? (y/n):
+    8. Will your application utilize forms to collect user input (e.g. guest reviews)? (y/n):
       - If yes: will any of it be "sensitive" or "PII" (e.g. credit card numbers, email, mailing address) (y/n):
         - If yes should we disable caching of this information? (y/n)
         - should this information be transmitted over secure transport (HTTPS) (yes/no):
