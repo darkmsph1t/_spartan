@@ -77,8 +77,13 @@
         "directives" : {
           "defaultSrc" : ["self"],
           "mediaSrc" : ["self"],
+          "imageSrc" : ["self"],
+          "fontSrc" : ["self"],
+          "connectSrc" : ["self"],
+          "objectSrc" : ["self"],
           "frameSrc" : ["self"],
           "frameAncestors" : ["none"],
+          "workerSrc" : ["none"],
           "scriptSrc" : ["self"],
           "styleSrc" : ["self"],
           "upgradeInsecureRequests" : true,
@@ -86,6 +91,20 @@
           "subResourceIntegrity" : {
             "scripts" : false,
             "styles" : false
+          },
+          "sandbox" : {
+            "setAll" : false,
+            "allowPopUps" : true,
+            "allowTopNavigation" : true,
+            "allowSameOrigin" : true,
+            "allowForms" : true,
+            "allowPointerLock" : true,
+            "allowScripts" : true
+          },
+          "reflectedXSS" : {
+            "allow" : false,
+            "block" : true,
+            "filter" : false
           },
           "reportUri" : {
             "default" : "disabled",
@@ -106,8 +125,13 @@
       "preventClickJacking" : true,
       "referrals" : {
         "enabled" : true,
-        "allowFrom" : "same-origin",
-        "hidden" : true
+        "options" : {
+          "noReferer" : true,
+          "noOnDowngrade" : false,
+          "originOnly" : false,
+          "originOnCross" : false,
+          "unsafeUrl" : false
+        },
       },
       "xssProtection" : {
         "enabled" : true,
