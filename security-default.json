@@ -85,7 +85,8 @@
           "blockAllMixedContent" : true,
           "reportUri" : {
             "default" : "disabled",
-            "uri" : ""
+            "uriLocation" : "/cspviolations",
+            "port" : 3030
           }
         },
         "reportOnly" : true,
