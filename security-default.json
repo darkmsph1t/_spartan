@@ -83,6 +83,10 @@
           "styleSrc" : ["self"],
           "upgradeInsecureRequests" : true,
           "blockAllMixedContent" : true,
+          "subResourceIntegrity" : {
+            "scripts" : false,
+            "styles" : false
+          },
           "reportUri" : {
             "default" : "disabled",
             "uriLocation" : "/cspviolations",

@@ -93,12 +93,15 @@
         - What are the sources of fonts for your application? (string array)
         - What are the sources of scripts for your application? (string array)
           - Will your application allow scripts inline? (yes/no)
+          - Do scripts require subresource integrity (SRI)? (yes/no)
         - What are the sources of styles for your application? (string array)
           - Will your application allow styles to be defined inline? (yes/no)
+          - Do stylesheets require subresource integrity (SRI)? (yes/no)
         - Which sites are allowed to frame your application? (string array)
-        - Which locations in your app can be used for form submissions?
+        - Which locations in your app can be used to post form submissions? (string array)
         - Should we start in report-only phase? (yes/no)
-          - If yes, what is your report uri? (string)
+          - If yes, what is your report uri (default: /cspviolations:3030)? (string)
+        - Should the application upgrade Insecure Requests? (yes/no)
     5. Databases
     6. Logging
     7. Data transport
