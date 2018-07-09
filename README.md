@@ -42,4 +42,8 @@ For the time being, logs are stored in the local directory. I'll eventually do a
 1. _Can I define multiple policies?_
 Sure. For now, \_spartan will only generate `security.js` from **the most recent** policy. I _have_ been giving some thought to adding a `-r [policy_number]` option to allow \_spartan to regenerate `security.js` based upon the reference number in each policy.
 1. _What if I want to use different modules than the ones added in during the policy spec phase?_
-Do you boo. \_spartan was developed and tested to work with a handful of specific modules with known configuration options. If you want to add/modify/delete configuration options in your app, or if you want to utilize other middleware, feel free! Results may vary.  
+Do you boo. \_spartan was developed and tested to work with a handful of specific modules with known configuration options. If you want to add/modify/delete configuration options in your app, or if you want to utilize other middleware, feel free! Results may vary.
+1. _Can I just arbitrarily change `security.json` without making any real changes to the code base?_
+Sure, but I would recommend running `_spartan -f` when you're done to regenerate security.js to avoid confusion down the line. _Best case_ scenario there is failing a code audit.
+1. _If I decide later on to disable certain parts of the security policy, will this also be refelected in my main code base?_
+Kinda. `security.js` will be regenerated and it will be missing the middleware from the disabled portions of the policy. If your code base references that missing middleware _anywhere_ you'll end up with a breaking error. As a general rule, anything you wire up, you'll need to be able to unwire. This was a purposeful design decision to encourage people to make policy changes with care/caution
