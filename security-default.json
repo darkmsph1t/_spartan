@@ -1,5 +1,13 @@
 {
   "_policyId" : "",
+  "applicationName" : "from package.json",
+  "appDependencies" : {
+    "enabled" : true,
+    "compensatingControl" : false,
+    "auditOptions" : ["npm audit", "snyk"],
+    "autoFix" : false,
+    "pathToReport" : "/var/log/npm-audits/"
+  },
   "accessControlsPolicy": {
     "enabled" : true,
     "compensatingControl" : false,
@@ -171,7 +179,7 @@
     "config" : {
       "disableJsExecution" : true,
       "globalOperatorsDisabled" : true,
-      "encryptionEnabled" : true
+      "encryptBeforeStore" : true
     }
   },
   "connectionPolicy" : {
@@ -202,7 +210,7 @@
   "loggingPolicy" : {
     "enabled" : true,
     "compensatingControl" : false,
-    "levels" : ["info", "warn", "error", "debug", "verbose"],
+    "levels" : ["trace","info", "warn", "error", "fatal","debug", "verbose"],
     "logCollection" : {
       "storage" : "/var/log/${appName}/",
       "retentionPeriod" : 4,

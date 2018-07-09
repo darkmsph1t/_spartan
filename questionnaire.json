@@ -15,35 +15,80 @@
 }
 
 
-1. How will users log in to your application?
-- username/passwords
-- oauth/openid
-- saml
-- no log in required
-- if username/password:
-  - username specification
-    - blank usernames allowed? (y/n)
-    - how generated?
-      - email?
-      - app will generate randomly (recommended)
-      - user created (like twitter)
-      - phone number
-      - other
-      - combination (user can log in via multiple methods)
-  - password policy specification
-    - blank passwords allowed? (y/n)
-    - minimum length of passwords? (integer)
-    - # uppercase chars required (integer)
-    - # lowercase chars allowed (integer)
-    - # special chars required (integer) =>
-      - which special chars allowed? (string) => remember to check type && content (e.g. ["a-zA-Z0-9"] not allowed...consider converting to string)
-    - how many attempts before lockout? (integer)
-    - how long (in seconds) between attempts? (integer)
-    - allow automatic account reset? (yes/no)
-    - log failed attempts?
-    - Does your application require multifactor authentication?
-      - If yes, which one? (string)
-  2. Will your application offer multiple access levels/permissions (y/n)?
+- input validation
+
+- forms/csrf
+
+
+- response headers
+  - caching
+
+Thanks for using _spartan! We're going to build your application's security policy from the inside out. Let's go!
+1. App Dependencies
+  - How do you want to handle vulnerabilities in app dependencies?
+    - Track vulnerabilities discovered in application dependencies in the context of the application
+      - Which utility do you want to use? (npm-audit/snyk)
+      - How should we handle found vulnerabilities?
+        - Fix automatically (may introduce breaking changes)
+        - Save audit report for later review
+          - Path to audit reports:
+    - This is handled elsewhere in the technology stack (compensatingControl)
+    - Not dealing with this right now (no controls)
+2. Database Interaction
+  - How is interaction with databases handled?
+    - The application manages database Interaction
+    - This is handled someplace else in the techology stack (compensatingControl)
+    - Not dealing with this right now (no controls)
+  - Does your application directly access (read, write, update, delete) any local or remote database? (yes/no)
+    - If yes, what database(s) are in use and for what purpose? (JSON) Ex:
+      {
+        "MongoDB" : ["sessions", "whitelisting"],
+        "Cassandra" : ["accounts", "items"],
+        "Postgress" : ["transactions", "credit-cards"]
+      }
+      - are the database(s) configured to accept connections over TLS/SSL only?
+      - do the database(s) enforce role based access control?
+    - Validate data prior to storage? (yes/no)
+    - Encrypt data prior to storage? (yes/no)
+3. Input Validation
+  - How is user input being validated?
+    - The application will validate user input
+    - This is being handled someplace else in the technology stack (compensatingControl)
+    - Not handling this right now (no control)
+4. Access Control
+  - Where is access control handled?
+    - The application handles access control
+    - This is handled elsewhere in the technology stack (compensatingControl)
+    - Not handling this right now (no control)
+  - How will users log in to your application?
+    - username/passwords
+    - oauth/openid
+    - saml
+    - no log in required
+    - if username/password:
+      - username specification
+        - blank usernames allowed? (y/n)
+        - how generated?
+          - email?
+          - app will generate randomly (recommended)
+          - user created (like twitter)
+          - phone number
+          - other
+          - combination (user can log in via multiple methods)
+      - password policy specification
+        - blank passwords allowed? (y/n)
+        - minimum length of passwords? (integer)
+        - # uppercase chars required (integer)
+        - # lowercase chars allowed (integer)
+        - # special chars required (integer) =>
+          - which special chars allowed? (string) => remember to check type && content (e.g. ["a-zA-Z0-9"] not allowed...consider converting to string)
+        - how many attempts before lockout? (integer)
+        - how long (in seconds) between attempts? (integer)
+        - allow automatic account reset? (yes/no)
+        - log failed attempts?
+        - Does your application require multifactor authentication?
+          - If yes, which one? (string)
+  - Will your application offer multiple access levels/permissions (y/n)?
     - if yes:
       - what roles will be supported? (comma separated string) ["viewer", "reviewer", "moderator", "administrator"] => check type...consider converting to string
       - what permissions will these roles have (json)?
@@ -52,102 +97,138 @@
           "user" : "viewer+write",
           "reviewer" : "user+approve/reject",
           "moderator" : "reviewer+grant/revoke access",
-          "administrator" : "moderator+create/delete roles"
+          "administrator" : "moderator+create/delete roles+view logs"
         }
-    3. Will your application or API allow other domains to make requests for resources on your host? (y/n)
-      - Which other domains you want to allow access and what do you want to allow them to do? (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. 'Enter' after each. Type "done" when complete)
-        - format: "https://domain.com:443", "GET, POST, PUT, DELETE"
-    4. Session Management
-      - Where is session management handled?
-        - The application handles sessions
-        - This is being handled somewhere else in my technology stack
-        - Using some other scheme to manage sessions/no sessions to manage
-      - How long (in seconds) should user sessions last? (integer)
-      - How long (in seconds) should sessions idle? (integer)
-      - Do you want to force cookies to be transmitted over secure transport? (yes/no)
-      - How long in seconds will cookies be valid? (integer)
-      - Do you want to allow other scripts to access cookies?
-      - Do you want to allow other sites to receive your application's cookies? (yes/no)
-      - Do you want to allow concurrent/simultaneous logins? (yes/no)
-      - When should users reauthenticate?
-        {
-          "ttlExpiration" : true,
-          "privilegeEscalation" : true,
-          "idleExpiration" : true
-        }
-      - When should the application automatically logout?
-        {
-          "ttlExpiration" : true,
-          "idleExpiration" : true,
-          "windowOrTabClose" : true
-        }
-    5. Response headers
-      - Where are response headers set?
-        - The application will handle responses
-        - This is being handled somewhere else in the technology stack
-        - Using other scheme to manage responses
-      - Content Security Policy
-        - I don't want to use a content security policy?
-        - What are the default sources of all content for your application? (string array)
-          - Will your application allow any inline definition or evaluation of sources? (yes/no)
-        - What are the sources of media for your application?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - What are the sources of fonts for your application?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - What are valid sources for fetch, XMLHttpRequest, WebSocket and EventSource connections?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - What are valid sources for the <object>, <embed> and <applet> elements?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - What are valid sources for Worker, SharedWorker or ServiceWorker scripts?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - What are the sources of scripts for your application?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-            - Will your application allow scripts inline? (yes/no)
-            - Do scripts require subresource integrity (SRI)? (yes/no)
-        - What are the sources of styles for your application?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-            - Will your application allow styles to be defined inline? (yes/no)
-            - Do stylesheets require subresource integrity (SRI)? (yes/no)
-        - Which sites are allowed to frame your application?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - Which locations in your app can be used to post form submissions?
-          - I don't want to spec this directive (default to default-src)
-          - (string array)
-        - Do you want to enable sandbox protections? (yes/no)
-          - Allow popups? (yes/no)
-          - Allow top navigation? (yes/no)
-          - Allow same origin? (yes/no)
-          - Allow scripts? (yes/no)
-          - Allow pointer lock? (yes/no)
-        - Should we start this whole thing in report-only phase? (yes/no)
-          - If yes, what is your report uri (default: /cspviolations:3030)? (string)
-        - Should the application upgrade Insecure Requests? (yes/no)
-        - How should the application handle referrals?
-          - "noReferer" => Prevents the UA sending a referrer header.
-          - "noOnDowngrade" => Prevents the UA sending a referrer header when navigating from https to http.
-          - "originOnly" => Allows the UA to only send the origin in the referrer header.
-          - "originOnCross" => Allows the UA to only send the origin in the referrer header when making cross-origin requests.
-          - "unsafeUrl" => Allows the UA to send the full URL in the referrer header with same-origin and cross-origin requests. This is unsafe.
-    5. Databases
-    6. Logging
-    7. Data transport
-    - Do you plan to use secure transport (HTTPS) everywhere?
-      - If yes, what is the path to your certificate?
-      - which ciphers do you want to allow?
-      - Which TLS versions do you want to allow?
-
-    8. Will your application utilize forms to collect user input (e.g. guest reviews)? (y/n):
+5. Forms
+  - How are forms created/
+  - Will your application utilize forms to collect user input (e.g. guest reviews)? (y/n):
       - If yes: will any of it be "sensitive" or "PII" (e.g. credit card numbers, email, mailing address) (y/n):
         - If yes should we disable caching of this information? (y/n)
         - should this information be transmitted over secure transport (HTTPS) (yes/no):
           - Path to certificate (string):
       - Do you want to enable cross site request forgery (csrf) protections? (y/n)
         - How do
+6. Session Management
+  - Where is session management handled?
+    - The application handles sessions
+    - This is being handled somewhere else in my technology stack (compensatingControl)
+    - Not handling this right now (no control)
+  - How long (in seconds) should user sessions last? (integer)
+  - How long (in seconds) should sessions idle? (integer)
+  - Do you want to force cookies to be transmitted over secure transport? (yes/no)
+  - How long in seconds will cookies be valid? (integer)
+  - Do you want to allow other scripts to access cookies?
+  - Do you want to allow other sites to receive your application's cookies? (yes/no)
+  - Do you want to allow concurrent/simultaneous logins? (yes/no)
+  - When should users reauthenticate?
+    {
+      "ttlExpiration" : true,
+      "privilegeEscalation" : true,
+      "idleExpiration" : true
+    }
+  - When should the application automatically logout?
+    {
+      "ttlExpiration" : true,
+      "idleExpiration" : true,
+      "windowOrTabClose" : true
+    }
+7. Cross Origin Resource Sharing
+  - How are cross-origin requests handled?
+    - The application will moderate cross-origin requests
+      - Which other domains you want to allow access and what do you want to allow them to do? (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. 'Enter' after each. Type "done" when complete)
+        - format: "https://domain.com:443", "GET, POST, PUT, DELETE"
+      - Will the application allow responses to requests to be exposed to the page with credentials? (yes/no)
+      - Will the application expose any custom headers? (string array)
+    - This is handled somewhere else in the technolgy stack (compensatingControl)
+    - Not dealing with this right now (same-origin or no control)
+
+8. Response headers
+  - Where are response headers set?
+    - The application will generate responses
+    - This is being handled somewhere else in the technology stack (compensatingControl)
+    - Not dealing with this right now (no control)
+  - Content Security Policy
+    - I don't want to use a content security policy?
+    - What are the default sources of all content for your application? (string array)
+      - Will your application allow any inline definition or evaluation of sources? (yes/no)
+    - What are the sources of media for your application?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - What are the sources of fonts for your application?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - What are valid sources for fetch, XMLHttpRequest, WebSocket and EventSource connections?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - What are valid sources for the <object>, <embed> and <applet> elements?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - What are valid sources for Worker, SharedWorker or ServiceWorker scripts?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - What are the sources of scripts for your application?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+        - Will your application allow scripts inline? (yes/no)
+        - Do scripts require subresource integrity (SRI)? (yes/no)
+    - What are the sources of styles for your application?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+        - Will your application allow styles to be defined inline? (yes/no)
+        - Do stylesheets require subresource integrity (SRI)? (yes/no)
+    - Which sites are allowed to frame your application?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - Which locations in your app can be used to post form submissions?
+      - I don't want to spec this directive (default to default-src)
+      - (string array)
+    - Do you want to enable sandbox protections? (yes/no)
+      - Allow popups? (yes/no)
+      - Allow top navigation? (yes/no)
+      - Allow same origin? (yes/no)
+      - Allow scripts? (yes/no)
+      - Allow pointer lock? (yes/no)
+    - Should we start this whole thing in report-only phase? (yes/no)
+      - If yes, what is your report uri (default: /cspviolations:3030)? (string)
+    - Should the application upgrade Insecure Requests? (yes/no)
+    - How should the application handle referrals?
+      - "noReferer" => Prevents the UA sending a referrer header.
+      - "noOnDowngrade" => Prevents the UA sending a referrer header when navigating from https to http.
+      - "originOnly" => Allows the UA to only send the origin in the referrer header.
+      - "originOnCross" => Allows the UA to only send the origin in the referrer header when making cross-origin requests.
+      - "unsafeUrl" => Allows the UA to send the full URL in the referrer header with same-origin and cross-origin requests. This is unsafe.
+7. Data transport
+  - Where are connections negotiated?
+    - The application will manage connections
+    - This is handled somewhere else in the technology stack (compensatingControl)
+    - Don't want to handle this now (no control/all connections allowed)
+  - Do you plan to use secure transport (HTTPS) everywhere?
+    - If yes, what is the path to your certificate?
+    - which ciphers do you want to allow?
+    - Which TLS versions do you want to allow?
+  - Force requests to HTTPS via strict transport security? (yes/no)
+    - If yes, do you want to include subdomains?
+    - How long (in seconds) do you want to keep this in effect? (integer)
+8. Logging and Analytics
+  - How do you want to handle application and web logs?
+    - Use the _spartan recommended platforms (kibana and grafana). I understand that this may require some additional set up and configuration
+    - Use local storage.
+    - This is handled elsewhere in the technology stack (compensatingControl)
+    - I do not want to deal with this right now (No logging or analytics). I understand that this may expose details of application failure states and configuration to untrusted parties.
+  - What log levels do you want to have?
+    {
+      "trace" : "Only when I would be \"tracing\" the code and trying to find one part of a function specifically.",
+      "info" : "Generally useful information to log (service start/stop, configuration assumptions, etc)",
+      "warn" : "Anything that can potentially cause application oddities, but for which I am automatically recovering.",
+      "debug" : "Information that is diagnostically helpful to people more than just developers (IT, sysadmins, etc.)",
+      "error" : "Any error which is fatal to the operation, but not the service or application (can't open a required file, missing data, etc.). These errors will force user (administrator, or direct user) intervention",
+      "fatal" : "Any error that is forcing a shutdown of the service or application to prevent data loss (or further data loss)",
+      "verbose" : "show everything, regardless of log level"
+    }
+    - Where should application logs be stored? (default /var/log/{"$applicationName"})
+    - For kibana set up
+      - How long (in weeks) do you want to retain logs? (integer)
+      - What port do you want kibana to listen on? (integer)
+    - For grafana set up
+      - What database do you have set up? (default: telegraf)
+      - What port do you want grafana to listen on? (integer)
