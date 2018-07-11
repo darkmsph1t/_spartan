@@ -1,132 +1,161 @@
 Thanks for using _spartan! We're going to build your application's security policy from the inside out. Let's go!
-1. App Dependencies
-  - How do you want to handle vulnerabilities in app dependencies?
-    - Track vulnerabilities discovered in application dependencies in the context of the application
-      - Which utility do you want to use? (npm-audit/snyk)
-      - How should we handle found vulnerabilities?
-        - Fix automatically (may introduce breaking changes)
-        - Save audit report for later review
-          - Path to audit reports:
-    - This is handled elsewhere in the technology stack (compensatingControl)
-    - Not dealing with this right now (no controls)
-2. Database Interaction
-  - How is interaction with databases handled?
-    - The application manages database Interaction
-    - This is handled someplace else in the techology stack (compensatingControl)
-    - Not dealing with this right now (no controls)
-  - Does your application directly access (read, write, update, delete) any local or remote database? (yes/no)
-    - If yes, what database(s) are in use and for what purpose? (JSON) Ex:
+{
+  "App Dependencies" : {
+    "How do you want to handle vulnerabilities in app dependencies?\n" :[
       {
-        "MongoDB" : ["sessions", "whitelisting"],
-        "Cassandra" : ["accounts", "items"],
-        "Postgress" : ["transactions", "credit-cards"]
-      }
-      - are the database(s) configured to accept connections over TLS/SSL only?
-      - do the database(s) enforce role based access control?
-    - Validate data prior to storage? (yes/no)
-    - Encrypt data prior to storage? (yes/no)
-3. Input Validation
-  - How is user input being validated?
-    - The application will validate user input
-    - This is being handled someplace else in the technology stack (compensatingControl)
-    - Not handling this right now (no control)
-  - Enable syntax (length, type, etc...) validation? (yes/no)?
-  - How does the application define and interact with data models?
-    - JSON Schema
-    - middleware
-  - What in the application is subject to encoding? (string array)
-  - Which application components require whitelists for validation (e.g. 'cors')? (string array)
-  - Attempt sanitization on inputs? (yes/no)
-    - Convert type inconsistencies? (yes/no)
-  - How should the application handle validation failures?
-    - Reroute with error message
-    - Kill authenticated sessions (aggressive)
-4. Access Control
-  - Where is access control handled?
-    - The application handles access control
-    - This is handled elsewhere in the technology stack (compensatingControl)
-    - Not handling this right now (no control)
-  - How will users log in to your application?
-    - username/passwords
-    - oauth/openid
-    - saml
-    - no log in required
-    - if username/password:
-      - username specification
-        - blank usernames allowed? (y/n)
-        - how generated?
-          - email?
-          - app will generate randomly (recommended)
-          - user created (like twitter)
-          - phone number
-          - other
-          - combination (user can log in via multiple methods)
-      - password policy specification
-        - blank passwords allowed? (y/n)
-        - minimum length of passwords? (integer)
-        - # uppercase chars required (integer)
-        - # lowercase chars allowed (integer)
-        - # special chars required (integer) =>
-          - which special chars allowed? (string) => remember to check type && content (e.g. ["a-zA-Z0-9"] not allowed...consider converting to string)
-        - how many attempts before lockout? (integer)
-        - how long (in seconds) between attempts? (integer)
-        - allow automatic account reset? (yes/no)
-        - log failed attempts?
-        - Does your application require multifactor authentication?
-          - If yes, which one? (string)
-  - Will your application offer multiple access levels/permissions (y/n)?
-    - if yes:
-      - what roles will be supported? (comma separated string) ["viewer", "reviewer", "moderator", "administrator"] => check type...consider converting to string
-      - what permissions will these roles have (json)?
-        {
-          "viewer" : "read-only",
-          "user" : "viewer+write",
-          "reviewer" : "user+approve/reject",
-          "moderator" : "reviewer+grant/revoke access",
-          "administrator" : "moderator+create/delete roles+view logs"
+        "Track vulnerabilities discovered in application dependencies in the context of the application\n" : {
+          "How should we handle found vulnerabilities?\n" : ["Fix automatically (may introduce breaking changes)", {
+            "Save audit report for later review\n" : {
+              "Path to audit reports" : ""
+              }}]
         }
-5. Forms
-  - How is form data handled?
-    - The application will generate forms and validate form data
-    - Form creation/validation is handled somewhere else in the technology stack (compensatingControl)
-    - Don't want to handle this (no control)
-  - Accept form data as JSON (set content-type to 'application/json')? (yes/no)
-  - Disable autocomplete? (yes/no)
-  - Enable Cross Site Request Forgery Protections? (yes/no)
+      },
+      "This is handled elsewhere in the technology stack (compensatingControl)\n",
+      "Not dealing with this right now (no controls)\n"
+    ]
+  },
+  "Database Interaction" : {
+    "How is interaction with databases handled?\n" : [
+      {
+        "The application manages database interaction\n" : {
+          "What database(s) are in use and for what purpose? (JSON) Ex:
+            {
+              \"MongoDB\" : [\"sessions\", \"whitelisting\"],
+              \"Cassandra\" : [\"accounts\", \"items\"],
+              \"Postgress\" : [\"transactions\", \"credit-cards\"]
+            }" : "",
+            "Does your application directly access (read, write, update, delete) any local or remote database?" : ["yes", "no"],
+            "Are the database(s) configured to accept connections over TLS/SSL only?" : ["yes", "no"],
+            "Do the database(s) enforce role based access control?" : ["yes", "no"],
+            "Validate data prior to storage?" : ["yes", "no"],
+            "Encrypt data prior to storage?" : ["yes", "no"]
+        },
 
-6. Session Management
-  - Where is session management handled?
-    - The application handles sessions
-    - This is being handled somewhere else in my technology stack (compensatingControl)
-    - Not handling this right now (no control)
-  - How long (in seconds) should user sessions last? (integer)
-  - How long (in seconds) should sessions idle? (integer)
-  - Do you want to force cookies to be transmitted over secure transport? (yes/no)
-  - How long in seconds will cookies be valid? (integer)
-  - Do you want to allow other scripts to access cookies?
-  - Do you want to allow other sites to receive your application's cookies? (yes/no)
-  - Do you want to allow concurrent/simultaneous logins? (yes/no)
-  - When should users reauthenticate?
-    {
-      "ttlExpiration" : true,
-      "privilegeEscalation" : true,
-      "idleExpiration" : true
-    }
-  - When should the application automatically logout?
-    {
-      "ttlExpiration" : true,
-      "idleExpiration" : true,
-      "windowOrTabClose" : true
-    }
-7. Cross Origin Resource Sharing
-  - How are cross-origin requests handled?
-    - The application will moderate cross-origin requests
-      - Which other domains you want to allow access and what do you want to allow them to do? (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. 'Enter' after each. Type "done" when complete)
-        - format: "https://domain.com:443", "GET, POST, PUT, DELETE"
-      - Will the application allow responses to requests to be exposed to the page with credentials? (yes/no)
-      - Will the application expose any custom headers? (string array)
-    - This is handled somewhere else in the technolgy stack (compensatingControl)
-    - Not dealing with this right now (same-origin or no control)
+      },
+      "This is handled someplace else in the techology stack (compensatingControl)\n",
+      "Not dealing with this right now (no controls)\n"
+    ]
+  },
+  "Input Validation" : {
+    "How is user input being validated?" : [
+      {
+        "The application will validate user input" : {
+          "Enable syntax (length, type, etc...) validation?" : ["yes", "no"],
+          "How does the application define and interact with data models?" : ["JSON Schema", "middleware"],
+          "What in the application is subject to encoding? (string array)" : [],
+          "Which application components require whitelists for validation (e.g. 'cors')? (string array)" : [],
+          "Attempt sanitization on inputs?" : ["yes", "no"],
+          "Convert type inconsistencies?" : ["yes", "no"],
+          "How should the application handle validation failures?" : ["Reroute with error message", "Kill authenticated sessions (aggressive)"]
+        }
+      },
+      "This is being handled someplace else in the technology stack (compensatingControl)",
+      "Not handling this right now (no control)"
+    ]
+  },
+  "Access Control" : {
+    "Where is access control handled?" : [
+      {
+        "The application handles access control" : {
+          "How will users log in to your application?" : [{
+            "username/passwords": {
+                "usernames": {
+                  "Blank usernames allowed?" : ["yes", "no"],
+                  "How generated?" : ["email","app will generate randomly (recommended)", "user created (like twitter)", "phone number", "other","combination (user can log in via multiple methods)"]
+                },
+                "passwords" : {
+                  "Blank passwords allowed?" : ["yes", "no"],
+                  "Minimum length of passwords? (integer)" : ,
+                  "# uppercase chars required (integer)" : ,
+                  "# lowercase chars allowed (integer)" : ,
+                  "# special chars": {
+                    "Minimum special characters required? (integer)" : ,
+                    "Which special chars allowed? (string)" : ""
+                  },
+                  "How many attempts before lockout? (integer)" : ,
+                  "How long (in seconds) between attempts? (integer)" : ,
+                  "Allow automatic account reset?" : ["yes", "no"],
+                  "Log failed attempts?" : ["yes", "no"]
+                }
+              }
+            },
+            "oauth/openid", "saml", "no log in required"
+          ],
+          "Does your application require multifactor authentication?" : ["yes", "no"],
+          "Which one(s)? (string array)" : ""
+        },
+        "Will your application offer multiple access levels/permissions" : [{
+            "What roles will be supported? (comma separated string) [\"viewer\", \"reviewer\", \"moderator\", \"administrator\"]" : [],
+            "What permissions will these roles have (JSON)? Ex:
+              {
+                \"viewer\" : \"read-only\",
+                \"user\" : \"viewer+write\",
+                \"reviewer\" : \"user+approve/reject\",
+                \"moderator\" : \"reviewer+grant/revoke access\",
+                \"administrator\" : \"moderator+create/delete roles+view logs\"
+              }" : {}
+          },
+          "no"]
+      },
+      "This is handled elsewhere in the technology stack (compensatingControl)",
+      "Not handling this right now (no control)"
+    ]
+  },
+  "Forms" : {
+    "How is form data handled?" : [
+      {
+        "The application will generate forms and validate form data" : {
+          "Accept form data as JSON (set content-type to 'application/json')?" : ["yes", "no"],
+          "Disable autocomplete?" : ["yes", "no"],
+          "Enable Cross Site Request Forgery Protections?" : ["yes", "no"]
+      }
+    },
+    "Form creation/validation is handled somewhere else in the technology stack (compensatingControl)",
+    "Don't want to handle this (no control)"
+    ]
+  },
+  "Session Management" : {
+    "Where is session management handled?" : [
+      {
+        "The application handles sessions" : {
+          "How long (in seconds) should user sessions last? (integer)" : ,
+          "How long (in seconds) should sessions idle? (integer)" : ,
+          "Do you want to force cookies to be transmitted over secure transport?" : ["yes", "no"],
+          "How long in seconds will cookies be valid? (integer)" : ,
+          "Do you want to allow other scripts to access cookies?" : ["yes", "no"],
+          "Do you want to allow other sites to receive your application's cookies?" : ["yes", "no"],
+          "Do you want to allow concurrent/simultaneous logins?" : ["yes", "no"],
+          "When should users reauthenticate?" : {
+            "On TTL Expiration?" : ["yes", "no"],
+            "Upon privilege escalation" : ["yes", "no"],
+            "On idle time expiration" : ["yes", "no"]
+          },
+          "When should the application automatically logout?" : {
+            "On TTL Expiration" : ["yes", "no"],
+            "On idle time expiration" : ["yes", "no"],
+            "Window or Tab Closure" : ["yes", "no"]
+          }
+        }
+    },
+    "This is being handled somewhere else in my technology stack (compensatingControl)",
+    "Not handling this right now (no control)"
+    ]
+  },
+  "Cross Origin Resource Sharing" : {
+    "How are cross-origin requests handled?" : [
+      {
+        "The application will moderate cross-origin requests" : {
+          "Which other domains you want to allow access and what do you want to allow them to do?
+          (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. Format is: \"https://domain.com:443\", \"GET, POST, PUT, DELETE\".
+          Type 'Enter' after each. Type \"done\" when complete)" : "",
+          "Will the application allow responses to requests to be exposed to the page with credentials?" : ["yes", "no"],
+          "Which custom headers will the application expose? (string array)" : []
+        }
+      },
+      "This is handled somewhere else in the technolgy stack (compensatingControl)",
+      "Not dealing with this right now (same-origin or no control)"
+    ]
+  },
 
 8. Response headers
   - Where are response headers set?
