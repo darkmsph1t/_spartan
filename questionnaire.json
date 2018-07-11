@@ -14,15 +14,6 @@
   }
 }
 
-
-- input validation
-
-- forms/csrf
-
-
-- response headers
-  - caching
-
 Thanks for using _spartan! We're going to build your application's security policy from the inside out. Let's go!
 1. App Dependencies
   - How do you want to handle vulnerabilities in app dependencies?
@@ -55,6 +46,17 @@ Thanks for using _spartan! We're going to build your application's security poli
     - The application will validate user input
     - This is being handled someplace else in the technology stack (compensatingControl)
     - Not handling this right now (no control)
+  - Enable syntax (length, type, etc...) validation? (yes/no)?
+  - How does the application define and interact with data models?
+    - JSON Schema
+    - middleware
+  - What in the application is subject to encoding? (string array)
+  - Which application components require whitelists for validation (e.g. 'cors')? (string array)
+  - Attempt sanitization on inputs? (yes/no)
+    - Convert type inconsistencies? (yes/no)
+  - How should the application handle validation failures?
+    - Reroute with error message
+    - Kill authenticated sessions (aggressive)
 4. Access Control
   - Where is access control handled?
     - The application handles access control
@@ -100,14 +102,14 @@ Thanks for using _spartan! We're going to build your application's security poli
           "administrator" : "moderator+create/delete roles+view logs"
         }
 5. Forms
-  - How are forms created/
-  - Will your application utilize forms to collect user input (e.g. guest reviews)? (y/n):
-      - If yes: will any of it be "sensitive" or "PII" (e.g. credit card numbers, email, mailing address) (y/n):
-        - If yes should we disable caching of this information? (y/n)
-        - should this information be transmitted over secure transport (HTTPS) (yes/no):
-          - Path to certificate (string):
-      - Do you want to enable cross site request forgery (csrf) protections? (y/n)
-        - How do
+  - How is form data handled?
+    - The application will generate forms and validate form data
+    - Form creation/validation is handled somewhere else in the technology stack (compensatingControl)
+    - Don't want to handle this (no control)
+  - Accept form data as JSON (set content-type to 'application/json')? (yes/no)
+  - Disable autocomplete? (yes/no)
+  - Enable Cross Site Request Forgery Protections? (yes/no)
+
 6. Session Management
   - Where is session management handled?
     - The application handles sessions
@@ -197,19 +199,33 @@ Thanks for using _spartan! We're going to build your application's security poli
       - "originOnly" => Allows the UA to only send the origin in the referrer header.
       - "originOnCross" => Allows the UA to only send the origin in the referrer header when making cross-origin requests.
       - "unsafeUrl" => Allows the UA to send the full URL in the referrer header with same-origin and cross-origin requests. This is unsafe.
-7. Data transport
+7. Caching Strategy
+  - Where will caching be handled?
+    - The application will handle caching decisions
+    - This is handled elsewhere in the technology stack (compensatingControl)
+    - Don't want to handle this now (no control or caching scheme defined)
+  - Will your application utilize a public cache? (yes/no)
+  - What is the base strategy for the 'Cache-Control' header? (string array)
+    - how long (in seconds) should pages be cached for? (integer)
+  - Allow cache settings override on a per-route basis? (yes/no)
+  - Set legacy caching headers (e.g. 'Pragma')? (yes/no)
+  - Set up eTagging? (yes/no)
+    - Use strong eTags? (yes/no)
+  - Which headers are subject to 'Vary'? (string array)
+
+8. Data transport
   - Where are connections negotiated?
     - The application will manage connections
     - This is handled somewhere else in the technology stack (compensatingControl)
     - Don't want to handle this now (no control/all connections allowed)
-  - Do you plan to use secure transport (HTTPS) everywhere?
+  - Do you plan to use secure transport (HTTPS) everywhere? (yes/no)
     - If yes, what is the path to your certificate?
     - which ciphers do you want to allow?
     - Which TLS versions do you want to allow?
   - Force requests to HTTPS via strict transport security? (yes/no)
     - If yes, do you want to include subdomains?
     - How long (in seconds) do you want to keep this in effect? (integer)
-8. Logging and Analytics
+9. Logging and Analytics
   - How do you want to handle application and web logs?
     - Use the _spartan recommended platforms (kibana and grafana). I understand that this may require some additional set up and configuration
     - Use local storage.

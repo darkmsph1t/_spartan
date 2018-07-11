@@ -46,7 +46,8 @@
         "secretLength" : 64,
         "saltLength" : 24,
         "ignoreMethods" : ["head", "options", "get"],
-        "allowHiddenToken" : false
+        "allowHiddenToken" : true,
+        "validateToken" : true
       }
     }
   },
@@ -124,6 +125,12 @@
         "useNonce" : false,
         "useHash" : false
       },
+      "mimeSettings" : {
+        "mimeTypes" : ["text/html", "application/json", "image/jpg", "image/png"],
+        "contentEncoding" : "gzip",
+        "characterEncoding" : "utf-8",
+        "xContentTypeOptions" : "nosniff"
+      },
       "strictTransportSecurity" : {
         "enabled": true,
         "includeSubDomains": true,
@@ -143,14 +150,18 @@
       },
       "xssProtection" : {
         "enabled" : true,
-        "mode" : "block",
+        "mode" : [1, "block"],
       }
     },
     "caching" : {
       "enabled" : true,
-      "cacheControl" : ["private", "no-cache", "no-store", "no-transform", "max-age=0"],
+      "routeOverload" : false,
+      "cacheControl" : ["no-cache", "no-store", "no-transform", "must-revalidate", "max-age=0"],
       "pragma" : "no-cache",
-      "eTagsEnabled" : true,
+      "eTags" : {
+        "enabled" : true,
+        "strength" : "strong"
+      },
       "vary" : ["origin", "host", "referer"],
     }
   },
@@ -159,7 +170,8 @@
     "compensatingControl" : false,
     "syntaxValidation" : {
         "checkLength" : true,
-        "checkFormat" : true
+        "checkFormat" : true,
+        "checkType" : true
       },
       "semanticValidation" : {
         "allowBlankValues" : false,
