@@ -156,108 +156,95 @@ Thanks for using _spartan! We're going to build your application's security poli
       "Not dealing with this right now (same-origin or no control)"
     ]
   },
-
-8. Response headers
-  - Where are response headers set?
-    - The application will generate responses
-    - This is being handled somewhere else in the technology stack (compensatingControl)
-    - Not dealing with this right now (no control)
-  - Content Security Policy
-    - I don't want to use a content security policy?
-    - What are the default sources of all content for your application? (string array)
-      - Will your application allow any inline definition or evaluation of sources? (yes/no)
-    - What are the sources of media for your application?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - What are the sources of fonts for your application?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - What are valid sources for fetch, XMLHttpRequest, WebSocket and EventSource connections?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - What are valid sources for the <object>, <embed> and <applet> elements?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - What are valid sources for Worker, SharedWorker or ServiceWorker scripts?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - What are the sources of scripts for your application?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-        - Will your application allow scripts inline? (yes/no)
-        - Do scripts require subresource integrity (SRI)? (yes/no)
-    - What are the sources of styles for your application?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-        - Will your application allow styles to be defined inline? (yes/no)
-        - Do stylesheets require subresource integrity (SRI)? (yes/no)
-    - Which sites are allowed to frame your application?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - Which locations in your app can be used to post form submissions?
-      - I don't want to spec this directive (default to default-src)
-      - (string array)
-    - Do you want to enable sandbox protections? (yes/no)
-      - Allow popups? (yes/no)
-      - Allow top navigation? (yes/no)
-      - Allow same origin? (yes/no)
-      - Allow scripts? (yes/no)
-      - Allow pointer lock? (yes/no)
-    - Should we start this whole thing in report-only phase? (yes/no)
-      - If yes, what is your report uri (default: /cspviolations:3030)? (string)
-    - Should the application upgrade Insecure Requests? (yes/no)
-    - How should the application handle referrals?
-      - "noReferer" => Prevents the UA sending a referrer header.
-      - "noOnDowngrade" => Prevents the UA sending a referrer header when navigating from https to http.
-      - "originOnly" => Allows the UA to only send the origin in the referrer header.
-      - "originOnCross" => Allows the UA to only send the origin in the referrer header when making cross-origin requests.
-      - "unsafeUrl" => Allows the UA to send the full URL in the referrer header with same-origin and cross-origin requests. This is unsafe.
-7. Caching Strategy
-  - Where will caching be handled?
-    - The application will handle caching decisions
-    - This is handled elsewhere in the technology stack (compensatingControl)
-    - Don't want to handle this now (no control or caching scheme defined)
-  - Will your application utilize a public cache? (yes/no)
-  - What is the base strategy for the 'Cache-Control' header? (string array)
-    - how long (in seconds) should pages be cached for? (integer)
-  - Allow cache settings override on a per-route basis? (yes/no)
-  - Set legacy caching headers (e.g. 'Pragma')? (yes/no)
-  - Set up eTagging? (yes/no)
-    - Use strong eTags? (yes/no)
-  - Which headers are subject to 'Vary'? (string array)
-
-8. Data transport
-  - Where are connections negotiated?
-    - The application will manage connections
-    - This is handled somewhere else in the technology stack (compensatingControl)
-    - Don't want to handle this now (no control/all connections allowed)
-  - Do you plan to use secure transport (HTTPS) everywhere? (yes/no)
-    - If yes, what is the path to your certificate?
-    - which ciphers do you want to allow?
-    - Which TLS versions do you want to allow?
-  - Force requests to HTTPS via strict transport security? (yes/no)
-    - If yes, do you want to include subdomains?
-    - How long (in seconds) do you want to keep this in effect? (integer)
-9. Logging and Analytics
-  - How do you want to handle application and web logs?
-    - Use the _spartan recommended platforms (kibana and grafana). I understand that this may require some additional set up and configuration
-    - Use local storage.
-    - This is handled elsewhere in the technology stack (compensatingControl)
-    - I do not want to deal with this right now (No logging or analytics). I understand that this may expose details of application failure states and configuration to untrusted parties.
-  - What log levels do you want to have?
-    {
-      "trace" : "Only when I would be \"tracing\" the code and trying to find one part of a function specifically.",
-      "info" : "Generally useful information to log (service start/stop, configuration assumptions, etc)",
-      "warn" : "Anything that can potentially cause application oddities, but for which I am automatically recovering.",
-      "debug" : "Information that is diagnostically helpful to people more than just developers (IT, sysadmins, etc.)",
-      "error" : "Any error which is fatal to the operation, but not the service or application (can't open a required file, missing data, etc.). These errors will force user (administrator, or direct user) intervention",
-      "fatal" : "Any error that is forcing a shutdown of the service or application to prevent data loss (or further data loss)",
-      "verbose" : "show everything, regardless of log level"
+  "Response headers" : {
+    "Where are response headers set?" : [
+      {
+        "The application will generate responses" : {
+          "Content Security Policy" : [
+            "I don't want to use a content security policy",
+            {"What are the default sources of all content for your application? (string array)" : []},
+            {"Will your application allow any inline definition or evaluation of sources?": ["yes", "no"]},
+            {"What are the sources of media for your application?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are the sources of fonts for your application?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are valid sources for fetch, XMLHttpRequest, WebSocket and EventSource connections?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are valid sources for the <object>, <embed> and <applet> elements?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are valid sources for Worker, SharedWorker or ServiceWorker scripts?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are the sources of scripts for your application?" : ["I don't want to spec this directive (default to default-src)", { "sources" : [],
+              "Will your application allow scripts inline?" : ["yes", "no"], "Do scripts require subresource integrity (SRI)?" : ["yes", "no"]}]},
+              {"What are the sources of styles for your application?" : ["I don't want to spec this directive (default to default-src)", { "sources" : [],
+                "Will your application allow styles inline?" : ["yes", "no"], "Do styles require subresource integrity (SRI)?" : ["yes", "no"]}]},
+            {"Which sites are allowed to frame your application?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"Which locations in your app can be used to post form submissions?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"Do you want to enable sandbox protections?" : [{"Allow popups?" : ["yes", "no"], "Allow top navigation?" : ["yes", "no"], "Allow same origin?" : ["yes", "no"], "Allow scripts?" : ["yes", "no"], "Allow pointer lock?" : ["yes", "no"]}, "no"]},
+            {"Should we start this whole thing in report-only phase?" : [{"what is your report uri (default: /cspviolations:3030)? (string)" : ""}, "no"]}
+          ],
+          "Should the application upgrade Insecure Requests?" : ["yes", "no"],
+          "How should the application handle referrals?" : ["\"noReferer\" => Prevents the UA sending a referrer header.",
+            "\"No On Downgrade\" => Prevents the UA sending a referrer header when navigating from https to http."
+            "\"Origin Only\" => Allows the UA to only send the origin in the referrer header.",
+            "\"Origin On Cross Origin\" => Allows the UA to only send the origin in the referrer header when making cross-origin requests.",
+            "\"unsafeUrl\" => Allows the UA to send the full URL in the referrer header with same-origin and cross-origin requests. This is unsafe."
+          ]
+        }
+      },
+      "This is being handled somewhere else in the technology stack (compensatingControl)",
+      "Not dealing with this right now (no control)"
+    ]
+  },
+"Caching Strategy" : {
+  "Where will caching be handled?" : [{
+    "The application will handle caching decisions" : {
+      "Will your application utilize a public cache?" : ["yes", "no"],
+      "What is the base strategy for the 'Cache-Control' header?" : ["default", [{"directives" : [], "how long (in seconds) should pages be cached for? (integer)" : }]],
+      "Allow cache settings override on a per-route basis?" : ["yes", "no"],
+      "Set legacy caching headers (e.g. 'Pragma')?" : ["yes", "no"],
+      "Set up eTagging?" : [{"Use strong eTags?" : ["yes", "no"]}, "no"],
+      "Which headers are subject to 'Vary'?" : []
     }
-    - Where should application logs be stored? (default /var/log/{"$applicationName"})
-    - For kibana set up
-      - How long (in weeks) do you want to retain logs? (integer)
-      - What port do you want kibana to listen on? (integer)
-    - For grafana set up
-      - What database do you have set up? (default: telegraf)
-      - What port do you want grafana to listen on? (integer)
+  },
+  "This is handled elsewhere in the technology stack (compensatingControl)",
+  "Don't want to handle this now (no control or caching scheme defined)"
+  ]
+},
+"Data transport" : {
+  "Where are connections negotiated?" : [
+    {
+      "The application will manage connections" : {
+        "Do you plan to use secure transport (HTTPS) everywhere?" : [{"Path to Certificate" : "", "Allowed Ciphers" : "", "Allowed TLS Versions" : "",
+          "Force requests to HTTPS via strict transport security?" : [{"Include Subdomains": ["yes", "no"], "How long (in seconds) do you want to keep this in effect? (integer)" : }, "no"]
+          }, "no"],
+
+      }
+    },
+    "This is handled somewhere else in the technology stack (compensatingControl)",
+    "Don't want to handle this now (no control/all connections allowed)"
+  ]
+},
+"Logging and Analytics" : {
+  "How do you want to handle application and web logs?" : [
+    {"Use the _spartan recommended platforms (kibana and grafana). I understand that this may require some additional set up and configuration":
+      {
+        "Kibana Config" : {
+          "How long (in weeks) do you want to retain logs? (integer)" : ,
+          "What port do you want kibana to listen on? (integer)" :
+        },
+        "Grafana Config" : {
+          "What database do you have set up? (default: telegraf)" : "",
+          "What port do you want grafana to listen on? (integer)" :
+        }
+      }
+    }
+    {"Use local storage." : "(default /var/log/{\"$applicationName\"})"},
+    "This is handled elsewhere in the technology stack (compensatingControl)",
+    "I do not want to deal with this right now (No logging or analytics). I understand that this may expose details of application failure states and configuration to untrusted parties."
+  ],
+  "What log levels do you want to have?\n {
+        \"trace\" : \"Only when I would be \"tracing\" the code and trying to find one part of a function specifically.\",
+        \"info\" : \"Generally useful information to log (service start/stop, configuration assumptions, etc)\",
+        \"warn\" : \"Anything that can potentially cause application oddities, but for which I am automatically recovering.\",
+        \"debug\" : \"Information that is diagnostically helpful to people more than just developers (IT, sysadmins, etc.)\",
+        \"error\" : \"Any error which is fatal to the operation, but not the service or application (can't open a required file, missing data, etc.).\n These errors will force user (administrator, or direct user) intervention\",
+        \"fatal\" : \"Any error that is forcing a shutdown of the service or application to prevent data loss (or further data loss)\",
+        \"verbose\" : \"show everything, regardless of log level\"
+      }" : []
+}
