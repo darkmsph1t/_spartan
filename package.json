@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/ysmithND/_spartan#readme",
   "dependencies": {
+    "inquirer": "^6.0.0",
     "npm": "^6.1.0",
     "snyk": "^1.88.2"
   },
