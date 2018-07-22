@@ -1,7 +1,7 @@
 'use strict';
 var inquirer = require('inquirer');
 
- function question(){
+function question(){
 
      console.log("Thanks for using _spartan! Here's how it works: \n\n * After answering a few questions, _spartan will generate a policy file (security.json).\n\n * Based upon the contents, _spartan generates the basic boilerplate code (security.js) which can be referenced in your application.\n\n * _spartan will also update the application's package.json file if additional dependencies are required.\n\n");
 
@@ -44,11 +44,11 @@ var inquirer = require('inquirer');
       {
         type : 'list',
         name : 'content',
-        message : "Q5. Content Acquisition : Is all of the data/content generated and processed within your application? \n **Hint** if you plan to use externally sourced APIs at any point, choose the second answer. You'll have the opportunity to specify these sources later\n",
+        message : "Q5. Content Acquisition : Is all of the data/content generated and processed within your application? \n **Hint** if you plan to use externally sourced APIs at any point, choose the second answer. You'll have the opportunity to specify these sources later",
         default : 0,
         choices : [
-          "All of the data and content comes from sources that I own or control\n",
-          "Some of the data and content comes from sources that I don't own or control\n"
+          "All of the data and content comes from sources that I own or control",
+          "Some of the data and content comes from sources that I don't own or control"
         ]
       },
       {
@@ -57,7 +57,7 @@ var inquirer = require('inquirer');
         message : "Q5.1. Content Sources: Sweet! What are those sources? (JSON)\n **Hint** While specificity is more secure, it's also limiting. Use '*' operand for more flexible options. Use the formatting in the default",
         default : '{"default" : ["self", "www.redit.com"], "media" : ["self, *.pinterest.com", "https://*.flickr.com", "ftp://video.domain.com:21"], "images" : ["self"], "styles" : ["*.bootstrap.com", "https://materializecss.com", "self"], "scripts" : ["self"], "frames" : ["none"]}',
         when : function(answers){
-          return answers.content == "Some of the data and content comes from sources that I don't own or control\n"
+          return answers.content == "Some of the data and content comes from sources that I don't own or control"
         },
         filter : function(value, e){
           try {
@@ -71,7 +71,7 @@ var inquirer = require('inquirer');
       {
         type : 'confirm',
         name : 'forms',
-        message : "Q6. Forms: Will your application utilize input forms for data collection?\n **Hint** Consider collection of ratings, feedback, reviews, search, profiles etc...\n",
+        message : "Q6. Forms: Will your application utilize input forms for data collection?\n **Hint** Consider collection of ratings, feedback, reviews, search, profiles etc...",
         default : true
       },
       {
@@ -103,10 +103,15 @@ var inquirer = require('inquirer');
         default : '/var/log/appName/'
       },
     ]
-    inquirer.prompt(nq).then(answers => {
-      console.log('\n Here is your application security policy:\n');
-      console.log(JSON.stringify(answers, null, '  '));
+    // inquirer.prompt(nq).then(answers => {
+    //   console.log('\n Here is your application security policy:\n');
+    //   console.log(JSON.stringify(answers, null, '  '));
+    //   foo = JSON.stringify(answers, null, '  ');
+    // });
+    var foo = inquirer.prompt(nq).then(answers => {
+      return answers;
     });
+    //console.log(JSON.stringify(foo, null, '  '));
     // .then(inquirer.prompt([
     //     {
     //       type : 'confirm',
@@ -122,5 +127,6 @@ var inquirer = require('inquirer');
     //       console.log("security.json was not written")
     //     }
     //   })
+    return foo;
 }
 module.exports.question = question;
