@@ -1,5 +1,5 @@
 {
-  "name": "spartan",
+  "name": "_spartan",
   "version": "1.0.0",
   "description": "npm project to package and configure common security middleware. Adds security.js file to code repo",
   "main": "index.js",
@@ -27,8 +27,9 @@
   "homepage": "https://github.com/ysmithND/_spartan#readme",
   "dependencies": {
     "inquirer": "^6.0.0",
-    "npm": "^6.1.0",
-    "snyk": "^1.88.2"
+    "npm": "^6.2.0",
+    "snyk": "^1.88.2",
+    "uniqid": "^5.0.3"
   },
   "snyk": true
 }
