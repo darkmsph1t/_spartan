@@ -68,7 +68,7 @@
         "automaticRenewal" : false
       },
       "cookies": {
-        "maxAge" : ,
+        "maxAge" : 600000,
         "httpOnly" : true,
         "secure" : true,
         "sameSite" : true,
@@ -146,11 +146,11 @@
           "originOnly" : false,
           "originOnCross" : false,
           "unsafeUrl" : false
-        },
+        }
       },
       "xssProtection" : {
         "enabled" : true,
-        "mode" : [1, "block"],
+        "mode" : [1, "block"]
       }
     },
     "caching" : {
@@ -162,7 +162,7 @@
         "enabled" : true,
         "strength" : "strong"
       },
-      "vary" : ["origin", "host", "referer"],
+      "vary" : ["origin", "host", "referer"]
     }
   },
   "contentValidationPolicy" : {
@@ -199,7 +199,7 @@
     "redirectSecure" : true,
     "rejectWeakCiphers" : true,
     "rejectInsecureTLS" : true,
-    "forceHttps" : true,
+    "forceHttps" : true
   },
   "resourceSharingPolicy" : {
     "default" : "same-origin",
@@ -238,4 +238,3 @@
       }
     }
   }
-}

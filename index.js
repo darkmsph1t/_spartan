@@ -2,7 +2,7 @@
 var ask = require("./questions.js");
 var fs = require("fs");
 var inquirer = require("inquirer");
-var wp = ('./write-policy.js');
+var wp = require('./write-policy.js');
 
 /*
 1. Ask the user the questions and store in a temporary variable, tmp. Should this be a function?
@@ -26,12 +26,18 @@ async function confirm () {
   var a = await ans();
   console.log(JSON.stringify(a, null, '  '));
   var foo = await inquirer.prompt(confirmPolicy);
-  if (foo.confirmValues){
-    console.log("writing policy...\n");
-    wp.writePolicy(a);
-  }else {
-    confirm();
+  try {
+    if (foo.confirmValues){
+      console.log("writing policy...\n");
+      wp.writePolicy(a);
+    } else {
+      confirm();
+    }
+  } catch (err) {
+    console.log("Sad Face! :-( something went wrong writing your policy\n");
+    console.log (err);
   }
+
 }
 
 confirm();
