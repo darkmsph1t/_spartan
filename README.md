@@ -2,7 +2,7 @@
 npm command line utility to package &amp; configure common security middleware into your application
 
 ## AUDIENCE
-\_spartan was created for developers, not security people. I am 100% convinced that no developer wants to be the one to write the line(s) of code that leads to innocent people having their credit ruined (amongst other things). I'm also 100% convinced that developers don't always know what they need to add/change/remove in their applications to make it "secure". And, selfishly, I made \_spartan for me, because I got tired of whack-a-mole security, hope-and-pray security and playing the 'is it a risk _really_?' game with developers.
+\_spartan was created for developers of node.js applications, not security people. I am 100% convinced that no developer wants to be the one to write the line(s) of code that leads to innocent people having their credit ruined (amongst other things). I'm also 100% convinced that developers don't always know what they need to add/change/remove in their applications to make it "secure". And, selfishly, I made \_spartan for me, because I'm tired of "whack-a-mole" security, "hope-and-pray" security and playing the "is it a risk _really_?" game with developers.
 
 ## THIS. IS.\_SPARTAN!
 1. You define and configure your application's security policy by answering a series of questions about the app
@@ -55,3 +55,5 @@ Do you boo. \_spartan was developed and tested to work with a handful of specifi
 I mean, you can...but why? That kind of defeats the whole purpose. I would recommend running `_spartan -f` when you're done to regenerate security.js to avoid confusion down the line.
 1. _If I decide later on to disable certain parts of the security policy, will this also be refelected in my main code base?_
 Kinda. `security.js` will be regenerated and it will be missing the middleware from the disabled portions of the policy. If your code base references that missing middleware _anywhere_ you'll end up with a breaking error. As a general rule, anything you wire up, you'll need to be able to unwire. This was a purposeful design decision to encourage people to make policy changes with care/caution
+1. _What's your problem with JWT?_
+Not so much a _problem_ per se, but more of a concern with the ability to easily revoke JWTs in the event something goes awry. You're far awesomer than me if you want to build and implement your own revocation scheme for JWT in your application. I'd say if your app won't be internet-facing or doesn't have _any_ sensitive information to process or present back to users, then, sure, enjoy your JWT. I'm not planning on building any kind of support in for JWT policy configuration, though.
