@@ -1,43 +1,31 @@
 'use strict';
-var ask = require("./questions.js");
-var fs = require("fs");
-var inquirer = require("inquirer");
+var start = require("./start.js");
+var spartan = require("./spartan.js");
 var wp = require('./write-policy.js');
 
-/*
-1. Ask the user the questions and store in a temporary variable, tmp. Should this be a function?
-2. Ask the user if this is ok
-  - if it is ok, then begin the process of transposing the answers
-  - if it is not ok, then ask the users the questions again
-*/
-var confirmPolicy = [{
-    type : 'confirm',
-    name : 'confirmValues',
-    message : 'Is this ok?',
-    default : true
-  }];
-
-async function ans () {
-  var a = await ask.question();
-  return a;
-}
-
-async function confirm () {
-  var a = await ans();
-  console.log(JSON.stringify(a, null, '  '));
-  var foo = await inquirer.prompt(confirmPolicy);
+async function begin (){
   try {
-    if (foo.confirmValues){
-      console.log("writing policy...\n");
-      wp.writePolicy(a);
+    var a = await start.ans();
+    if (typeof a == 'object'){
+      var b = JSON.stringify(a, null, "  ");
+      console.log(b);
+      var c = await start.confirm();
+      if (!c) {
+        await begin();
+      } else {
+        wp.writePolicy(b);
+        console.log("Security artifacts are located in: your mom's house");
+      }
     } else {
-      confirm();
+      console.log ("there was a problem with this request, yo!");
     }
-  } catch (err) {
-    console.log("Sad Face! :-( something went wrong writing your policy\n");
-    console.log (err);
+  } catch (e) {
+    console.log ("no work\n" + e);
   }
 
 }
 
-confirm();
+console.log("Thanks for using _spartan! Here's how it works: \n * After answering a few questions, _spartan will generate a policy file (security.json).\n * Based upon the contents, _spartan generates the basic boilerplate code (security.js) which can be referenced in your application.\n * _spartan will also update the application's package.json file if additional dependencies are required.\n\n");
+
+//spartan.banner("_spartan");
+begin();

@@ -1,6 +1,9 @@
 {
   "_policyId" : "",
   "applicationName" : "from package.json",
+  "applicationType" : "",
+  "appExposure" : "",
+  "hostname" : "localhost",
   "appDependencies" : {
     "enabled" : true,
     "compensatingControl" : false,
@@ -41,14 +44,7 @@
     "config" : {
       "autocompleteAllowed" : false,
       "acceptJsonContent" : true,
-      "allowMethodOverride" : false,
-      "csrfSettings" : {
-        "secretLength" : 64,
-        "saltLength" : 24,
-        "ignoreMethods" : ["head", "options", "get"],
-        "allowHiddenToken" : true,
-        "validateToken" : true
-      }
+      "allowMethodOverride" : false
     }
   },
   "sessionPolicy" : {
@@ -75,6 +71,13 @@
         "domain" : ["same-origin", "parent"],
         "path" :["same-origin", "parent"]
       },
+      "csrfSettings" : {
+        "secretLength" : 64,
+        "saltLength" : 24,
+        "ignoreMethods" : ["head", "options", "get"],
+        "allowHiddenToken" : true,
+        "validateToken" : true
+      },
       "concurrentLogins" : false
     }
   },
@@ -90,7 +93,7 @@
           "fontSrc" : ["self"],
           "connectSrc" : ["self"],
           "objectSrc" : ["self"],
-          "frameSrc" : ["self"],
+          "childSrc" : ["self"],
           "frameAncestors" : ["none"],
           "workerSrc" : ["none"],
           "scriptSrc" : ["self"],
@@ -102,7 +105,7 @@
             "styles" : false
           },
           "sandbox" : {
-            "setAll" : false,
+            "enable" : true,
             "allowPopUps" : true,
             "allowTopNavigation" : true,
             "allowSameOrigin" : true,
@@ -116,7 +119,7 @@
             "filter" : false
           },
           "reportUri" : {
-            "default" : "disabled",
+            "default" : "enabled",
             "uriLocation" : "/cspviolations",
             "port" : 3030
           }
