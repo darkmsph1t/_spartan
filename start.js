@@ -75,7 +75,7 @@ var nq = [
     type : 'editor',
     name : 'contentSources',
     message : "Q6.1. Content Sources: Sweet! What are those sources? (JSON)\n * Tip: While specificity is more secure, it's also limiting. Use '*' operand for more flexible options. Use the formatting in the default",
-    default : '{"default" : ["self", "www.redit.com"], "media" : ["self, *.pinterest.com", "https://*.flickr.com", "ftp://video.domain.com:21"], "images" : ["self"], "styles" : ["*.bootstrap.com", "https://materializecss.com", "self"], "scripts" : ["self"], "frames" : ["none"]}',
+    default : '{"default" : ["self", "www.redit.com"], "media" : ["self", "*.pinterest.com", "https://*.flickr.com", "ftp://video.domain.com:21"], "images" : ["self"], "styles" : ["*.bootstrap.com", "https://materializecss.com", "self"], "scripts" : ["self"], "frames" : ["none"]}',
     when : function(answers){
       return answers.content == "Some of the data and content comes from sources that I don't own or control"
     },
@@ -98,9 +98,8 @@ var nq = [
     //why ask about cache? Because some generated data and user-provided data may be considered sensitive, and we want to make sure that we DON'T cache that information
     type : 'confirm',
     name : 'cacheStrategy',
-    message : "Q8. Caching Strategy: Is any of the data or pages generated in your application publicly accessible via caching services or geographically dispersed Content Delivery Network (CDN)?\n * Tip : If this is a possibility in the future, choose 'yes'.",
-    default : false
-
+    message : "Q8. Caching Strategy: Do you have any intention of introducing a caching layer or using a Content Delivery Network (CDN)?\n * Tip : If this is a possibility in the future, choose 'yes'.",
+    default : true
   },
   {
     type : 'input',

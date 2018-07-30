@@ -2,6 +2,7 @@
 var start = require("./start.js");
 var spartan = require("./spartan.js");
 var wp = require('./write-policy.js');
+var path = require('path');
 
 async function begin (){
   try {
@@ -13,8 +14,8 @@ async function begin (){
       if (!c) {
         await begin();
       } else {
-        wp.writePolicy(b);
-        console.log("Security artifacts are located in: your mom's house");
+        wp.writePolicy(a);
+        console.log("Security artifacts are located in the current working directory");
       }
     } else {
       console.log ("there was a problem with this request, yo!");

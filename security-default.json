@@ -2,8 +2,9 @@
   "_policyId" : "",
   "applicationName" : "from package.json",
   "applicationType" : "",
-  "appExposure" : "",
+  "internetFacing" : "",
   "hostname" : "localhost",
+  "deployment" : "locally hosted",
   "appDependencies" : {
     "enabled" : true,
     "compensatingControl" : false,
@@ -19,7 +20,7 @@
       "supportedMethods" : ["uname/passwd", "oauth", "saml"],
       "passwords" : {
         "minLen" : 12,
-        "expires?" : false,
+        "expires" : 0,
         "supportedHashes" : ["bcrypt", "sha256", "md5"],
         "lockout" : {
           "attempts" : 3,
@@ -64,12 +65,13 @@
         "automaticRenewal" : false
       },
       "cookies": {
+        "prefixes" : ["_Host", "_Secure"],
         "maxAge" : 600000,
         "httpOnly" : true,
         "secure" : true,
-        "sameSite" : true,
-        "domain" : ["same-origin", "parent"],
-        "path" :["same-origin", "parent"]
+        "sameSite" : "strict",
+        "domain" : false,
+        "path" : "/"
       },
       "csrfSettings" : {
         "secretLength" : 64,
@@ -87,17 +89,17 @@
     "config" : {
       "csp" : {
         "directives" : {
-          "defaultSrc" : ["self"],
-          "mediaSrc" : ["self"],
-          "imageSrc" : ["self"],
-          "fontSrc" : ["self"],
-          "connectSrc" : ["self"],
-          "objectSrc" : ["self"],
-          "childSrc" : ["self"],
-          "frameAncestors" : ["none"],
-          "workerSrc" : ["none"],
-          "scriptSrc" : ["self"],
-          "styleSrc" : ["self"],
+          "default" : ["self"],
+          "media" : ["self"],
+          "images" : ["self"],
+          "fonts" : ["self"],
+          "connections" : ["self"],
+          "objects" : ["self"],
+          "child-sources" : ["self"],
+          "frame-ancestors" : ["none"],
+          "worker-sources" : ["none"],
+          "scripts" : ["self"],
+          "styles" : ["self"],
           "upgradeInsecureRequests" : true,
           "blockAllMixedContent" : true,
           "subResourceIntegrity" : {
@@ -158,6 +160,7 @@
     },
     "caching" : {
       "enabled" : true,
+      "compensatingControl" : false,
       "routeOverload" : false,
       "cacheControl" : ["no-cache", "no-store", "no-transform", "must-revalidate", "max-age=0"],
       "pragma" : "no-cache",
@@ -180,7 +183,7 @@
         "allowBlankValues" : false,
         "orderMakesSense?" : true,
         "valueInRange?" : true,
-        "whitelistRequired" : ["cors", "csp", "headers", ""]
+        "whitelistRequired" : ["cors", "csp", "headers"]
       },
       "sanitizeValues" : {
         "enableEncoding" : ["url", "body", "javascript", "html", "css"],
@@ -199,6 +202,7 @@
   },
   "connectionPolicy" : {
     "enabled" : true,
+    "compensatingControl" : false,
     "redirectSecure" : true,
     "rejectWeakCiphers" : true,
     "rejectInsecureTLS" : true,
@@ -210,6 +214,7 @@
     "corsSettings" : {
       "enabled" : false,
       "config" : {
+        "whitelist" : [],
         "preflightRequests" : {
           "onMethod" : ["put", "delete", "connect", "options", "trace", "patch"],
           "onHeader" : ["accept", "accept-language", "content-language", "dpr", "save-data", "viewpot-width", "width"],
