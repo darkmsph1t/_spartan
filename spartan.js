@@ -11,5 +11,5 @@ function banner (input) {
     }
   });
 }
-
+//banner("_spartan!");
 module.exports.banner = banner;

@@ -73,6 +73,16 @@ function sbConnections(obj, tmp){
 function sbCors(obj, tmp){
   //securityHeaders first
   if(obj.type == "Embedded/IoT (Controller)" || obj.type == "API"){
+    var zing = tmp.securityHeaders.config.csp.directives;
+    for (var h in zing){
+      if (h == 'default' || h == 'upgradeInsecureRequests' || h == 'blockAllMixedContent' ||
+          h == 'subResourceIntegrity'){
+        //skip
+      }
+      else {
+        delete zing[h];
+      }
+    }
     setValue(tmp.securityHeaders, "directives", "default", "none");
   } else {
     for(var k in obj.contentSources){
@@ -80,18 +90,24 @@ function sbCors(obj, tmp){
     }
   }
   //cors next
-  const result = [];
-  for(var j in obj.contentSources){
-    var bloop = Object.values(obj.contentSources[j]);
-    for (var i = 0; i <= bloop.length; i++){
-      if ( bloop[i] == "self" || bloop[i] == "none" || bloop[i] == null){
-        // console.log("found : " + bloop[i]);
-      } else {
-        result.push(bloop[i]);
+  if(obj.type == "Embedded/IoT (Controller)" || obj.type == "API"){
+    setValue(tmp.resourceSharingPolicy, "corsSettings", "config", {});
+  }
+  else {
+    const result = [];
+    for(var j in obj.contentSources){
+      var bloop = Object.values(obj.contentSources[j]);
+      for (var i = 0; i <= bloop.length; i++){
+        if ( bloop[i] == "self" || bloop[i] == "none" || bloop[i] == null){
+          // console.log("found : " + bloop[i]);
+        } else {
+          result.push(bloop[i]);
+        }
       }
     }
+    setValue(tmp.resourceSharingPolicy, "corsSettings", "enabled", true);
+    setValue(tmp.resourceSharingPolicy, "config", "whitelist", result);
   }
-  setValue(tmp.resourceSharingPolicy, "config", "whitelist", result);
 }
 function sbCache(obj, tmp){
   var cache = tmp.securityHeaders.caching.cacheControl;
@@ -175,7 +191,7 @@ try {  //Administrative Stuff
     }
 
     //Session Management
-    if (!input.sessions){
+    if (input.sessions !== "User sessions have a set timeout"){
       tmp.sessionPolicy = removeSection(tmp.sessionPolicy)
     } else {
       sbSessions(input, tmp);
@@ -198,6 +214,7 @@ try {  //Administrative Stuff
       setValue(tmp.securityHeaders, "directives", "media", ["self"]);
       setValue(tmp.securityHeaders, "directives", "frame-ancestors", ["self"]);
       setValue(tmp.securityHeaders, "directives", "child-sources", ["none"]);
+      setValue(tmp.resourceSharingPolicy, "corsSettings", "config", {});
     } else {
       sbCors(input, tmp);
     }
@@ -230,38 +247,3 @@ try {  //Administrative Stuff
   }
 }
 module.exports.writePolicy = writePolicy;
-
-
-
-
-
-
-// function toObj(object){
-//   const result = {};
-//   for (const prop in object){
-//     if (typeof object[prop] == "object"){
-//       result[prop] = toObj(object[prop]);
-//     } else if (typeof object[prop] == "array"){
-//       result[prop] = toArray(object[prop]);
-//     } else {
-//       result[prop] = object[prop];
-//     }
-//   }
-//   return result;
-// }
-//
-// function toArray(object) {
-//     const result = [];
-//     for (const prop in obj) {
-//         const value = obj[prop];
-//         if (typeof value == 'array') {
-//             result.push(toArray(value)); // <- recursive call
-//         } else if (typeof value == 'object'){
-//           result.push(toObj(value));
-//         }
-//         else {
-//             result.push(value);
-//         }
-//     }
-//     return result;
-// }

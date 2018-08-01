@@ -69,7 +69,16 @@ var nq = [
     choices : [
       "All of the data and content comes from sources that I own or control",
       "Some of the data and content comes from sources that I don't own or control"
-    ]
+    ],
+    when : function (answers){
+      var ask;
+        if (answers.type == "API" || answers.type == "Embedded/IoT (Controller)"){
+          ask = false;
+        } else {
+          ask = true;
+        }
+      return ask;
+    }
   },
   {
     type : 'editor',
@@ -77,7 +86,8 @@ var nq = [
     message : "Q6.1. Content Sources: Sweet! What are those sources? (JSON)\n * Tip: While specificity is more secure, it's also limiting. Use '*' operand for more flexible options. Use the formatting in the default",
     default : '{"default" : ["self", "www.redit.com"], "media" : ["self", "*.pinterest.com", "https://*.flickr.com", "ftp://video.domain.com:21"], "images" : ["self"], "styles" : ["*.bootstrap.com", "https://materializecss.com", "self"], "scripts" : ["self"], "frames" : ["none"]}',
     when : function(answers){
-      return answers.content == "Some of the data and content comes from sources that I don't own or control"
+      var floop =  "Some of the data and content comes from sources that I don't own or control";
+      return answers.content == floop;
     },
     filter : function(value, e){
       try {
