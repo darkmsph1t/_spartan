@@ -175,7 +175,7 @@ try {  //Administrative Stuff
     }
 
     //Session Management
-    if (!input.sessions){
+    if (input.sessions !== "User sessions have a set timeout"){
       tmp.sessionPolicy = removeSection(tmp.sessionPolicy)
     } else {
       sbSessions(input, tmp);
