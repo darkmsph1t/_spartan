@@ -1,6 +1,10 @@
 {
   "_policyId" : "",
   "applicationName" : "from package.json",
+  "applicationType" : "",
+  "internetFacing" : "",
+  "hostname" : "localhost",
+  "deployment" : "locally hosted",
   "appDependencies" : {
     "enabled" : true,
     "compensatingControl" : false,
@@ -16,7 +20,7 @@
       "supportedMethods" : ["uname/passwd", "oauth", "saml"],
       "passwords" : {
         "minLen" : 12,
-        "expires?" : false,
+        "expires" : 0,
         "supportedHashes" : ["bcrypt", "sha256", "md5"],
         "lockout" : {
           "attempts" : 3,
@@ -41,13 +45,7 @@
     "config" : {
       "autocompleteAllowed" : false,
       "acceptJsonContent" : true,
-      "allowMethodOverride" : false,
-      "csrfSettings" : {
-        "secretLength" : 64,
-        "saltLength" : 24,
-        "ignoreMethods" : ["head", "options", "get"],
-        "allowHiddenToken" : false
-      }
+      "allowMethodOverride" : false
     }
   },
   "sessionPolicy" : {
@@ -67,12 +65,20 @@
         "automaticRenewal" : false
       },
       "cookies": {
-        "maxAge" : ,
+        "prefixes" : ["_Host", "_Secure"],
+        "maxAge" : 600000,
         "httpOnly" : true,
         "secure" : true,
-        "sameSite" : true,
-        "domain" : ["same-origin", "parent"],
-        "path" :["same-origin", "parent"]
+        "sameSite" : "strict",
+        "domain" : false,
+        "path" : "/"
+      },
+      "csrfSettings" : {
+        "secretLength" : 64,
+        "saltLength" : 24,
+        "ignoreMethods" : ["head", "options", "get"],
+        "allowHiddenToken" : true,
+        "validateToken" : true
       },
       "concurrentLogins" : false
     }
@@ -83,17 +89,17 @@
     "config" : {
       "csp" : {
         "directives" : {
-          "defaultSrc" : ["self"],
-          "mediaSrc" : ["self"],
-          "imageSrc" : ["self"],
-          "fontSrc" : ["self"],
-          "connectSrc" : ["self"],
-          "objectSrc" : ["self"],
-          "frameSrc" : ["self"],
-          "frameAncestors" : ["none"],
-          "workerSrc" : ["none"],
-          "scriptSrc" : ["self"],
-          "styleSrc" : ["self"],
+          "default" : ["self"],
+          "media" : ["self"],
+          "images" : ["self"],
+          "fonts" : ["self"],
+          "connections" : ["self"],
+          "objects" : ["self"],
+          "child-sources" : ["self"],
+          "frame-ancestors" : ["none"],
+          "worker-sources" : ["none"],
+          "scripts" : ["self"],
+          "styles" : ["self"],
           "upgradeInsecureRequests" : true,
           "blockAllMixedContent" : true,
           "subResourceIntegrity" : {
@@ -101,7 +107,7 @@
             "styles" : false
           },
           "sandbox" : {
-            "setAll" : false,
+            "enable" : true,
             "allowPopUps" : true,
             "allowTopNavigation" : true,
             "allowSameOrigin" : true,
@@ -115,7 +121,7 @@
             "filter" : false
           },
           "reportUri" : {
-            "default" : "disabled",
+            "default" : "enabled",
             "uriLocation" : "/cspviolations",
             "port" : 3030
           }
@@ -123,6 +129,12 @@
         "reportOnly" : true,
         "useNonce" : false,
         "useHash" : false
+      },
+      "mimeSettings" : {
+        "mimeTypes" : ["text/html", "application/json", "image/jpg", "image/png"],
+        "contentEncoding" : "gzip",
+        "characterEncoding" : "utf-8",
+        "xContentTypeOptions" : "nosniff"
       },
       "strictTransportSecurity" : {
         "enabled": true,
@@ -139,19 +151,24 @@
           "originOnly" : false,
           "originOnCross" : false,
           "unsafeUrl" : false
-        },
+        }
       },
       "xssProtection" : {
         "enabled" : true,
-        "mode" : "block",
+        "mode" : [1, "block"]
       }
     },
     "caching" : {
       "enabled" : true,
-      "cacheControl" : ["private", "no-cache", "no-store", "no-transform", "max-age=0"],
+      "compensatingControl" : false,
+      "routeOverload" : false,
+      "cacheControl" : ["no-cache", "no-store", "no-transform", "must-revalidate", "max-age=0"],
       "pragma" : "no-cache",
-      "eTagsEnabled" : true,
-      "vary" : ["origin", "host", "referer"],
+      "eTags" : {
+        "enabled" : true,
+        "strength" : "strong"
+      },
+      "vary" : ["origin", "host", "referer"]
     }
   },
   "contentValidationPolicy" : {
@@ -159,13 +176,14 @@
     "compensatingControl" : false,
     "syntaxValidation" : {
         "checkLength" : true,
-        "checkFormat" : true
+        "checkFormat" : true,
+        "checkType" : true
       },
       "semanticValidation" : {
         "allowBlankValues" : false,
         "orderMakesSense?" : true,
         "valueInRange?" : true,
-        "whitelistRequired" : ["cors", "csp", "headers", ""]
+        "whitelistRequired" : ["cors", "csp", "headers"]
       },
       "sanitizeValues" : {
         "enableEncoding" : ["url", "body", "javascript", "html", "css"],
@@ -184,10 +202,11 @@
   },
   "connectionPolicy" : {
     "enabled" : true,
+    "compensatingControl" : false,
     "redirectSecure" : true,
     "rejectWeakCiphers" : true,
     "rejectInsecureTLS" : true,
-    "forceHttps" : true,
+    "forceHttps" : true
   },
   "resourceSharingPolicy" : {
     "default" : "same-origin",
@@ -195,6 +214,7 @@
     "corsSettings" : {
       "enabled" : false,
       "config" : {
+        "whitelist" : [],
         "preflightRequests" : {
           "onMethod" : ["put", "delete", "connect", "options", "trace", "patch"],
           "onHeader" : ["accept", "accept-language", "content-language", "dpr", "save-data", "viewpot-width", "width"],
@@ -226,4 +246,3 @@
       }
     }
   }
-}

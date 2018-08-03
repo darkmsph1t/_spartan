@@ -1,0 +1,250 @@
+Thanks for using _spartan! We're going to build your application's security policy from the inside out. Let's go!
+{
+  "App Dependencies" : {
+    "How do you want to handle vulnerabilities in app dependencies?\n" :[
+      {
+        "Track vulnerabilities discovered in application dependencies in the context of the application\n" : {
+          "How should we handle found vulnerabilities?\n" : ["Fix automatically (may introduce breaking changes)", {
+            "Save audit report for later review\n" : {
+              "Path to audit reports" : ""
+              }}]
+        }
+      },
+      "This is handled elsewhere in the technology stack (compensatingControl)\n",
+      "Not dealing with this right now (no controls)\n"
+    ]
+  },
+  "Database Interaction" : {
+    "How is interaction with databases handled?\n" : [
+      {
+        "The application manages database interaction\n" : {
+          "What database(s) are in use and for what purpose? (JSON) Ex:
+            {
+              \"MongoDB\" : [\"sessions\", \"whitelisting\"],
+              \"Cassandra\" : [\"accounts\", \"items\"],
+              \"Postgress\" : [\"transactions\", \"credit-cards\"]
+            }" : "",
+            "Does your application directly access (read, write, update, delete) any local or remote database?" : ["yes", "no"],
+            "Are the database(s) configured to accept connections over TLS/SSL only?" : ["yes", "no"],
+            "Do the database(s) enforce role based access control?" : ["yes", "no"],
+            "Validate data prior to storage?" : ["yes", "no"],
+            "Encrypt data prior to storage?" : ["yes", "no"]
+        },
+
+      },
+      "This is handled someplace else in the techology stack (compensatingControl)\n",
+      "Not dealing with this right now (no controls)\n"
+    ]
+  },
+  "Input Validation" : {
+    "How is user input being validated?" : [
+      {
+        "The application will validate user input" : {
+          "Enable syntax (length, type, etc...) validation?" : ["yes", "no"],
+          "How does the application define and interact with data models?" : ["JSON Schema", "middleware"],
+          "What in the application is subject to encoding? (string array)" : [],
+          "Which application components require whitelists for validation (e.g. 'cors')? (string array)" : [],
+          "Attempt sanitization on inputs?" : ["yes", "no"],
+          "Convert type inconsistencies?" : ["yes", "no"],
+          "How should the application handle validation failures?" : ["Reroute with error message", "Kill authenticated sessions (aggressive)"]
+        }
+      },
+      "This is being handled someplace else in the technology stack (compensatingControl)",
+      "Not handling this right now (no control)"
+    ]
+  },
+  "Access Control" : {
+    "Where is access control handled?" : [
+      {
+        "The application handles access control" : {
+          "How will users log in to your application?" : [{
+            "username/passwords": {
+                "usernames": {
+                  "Blank usernames allowed?" : ["yes", "no"],
+                  "How generated?" : ["email","app will generate randomly (recommended)", "user created (like twitter)", "phone number", "other","combination (user can log in via multiple methods)"]
+                },
+                "passwords" : {
+                  "Blank passwords allowed?" : ["yes", "no"],
+                  "Minimum length of passwords? (integer)" : ,
+                  "# uppercase chars required (integer)" : ,
+                  "# lowercase chars allowed (integer)" : ,
+                  "# special chars": {
+                    "Minimum special characters required? (integer)" : ,
+                    "Which special chars allowed? (string)" : ""
+                  },
+                  "How many attempts before lockout? (integer)" : ,
+                  "How long (in seconds) between attempts? (integer)" : ,
+                  "Allow automatic account reset?" : ["yes", "no"],
+                  "Log failed attempts?" : ["yes", "no"]
+                }
+              }
+            },
+            "oauth/openid", "saml", "no log in required"
+          ],
+          "Does your application require multifactor authentication?" : ["yes", "no"],
+          "Which one(s)? (string array)" : ""
+        },
+        "Will your application offer multiple access levels/permissions" : [{
+            "What roles will be supported? (comma separated string) [\"viewer\", \"reviewer\", \"moderator\", \"administrator\"]" : [],
+            "What permissions will these roles have (JSON)? Ex:
+              {
+                \"viewer\" : \"read-only\",
+                \"user\" : \"viewer+write\",
+                \"reviewer\" : \"user+approve/reject\",
+                \"moderator\" : \"reviewer+grant/revoke access\",
+                \"administrator\" : \"moderator+create/delete roles+view logs\"
+              }" : {}
+          },
+          "no"]
+      },
+      "This is handled elsewhere in the technology stack (compensatingControl)",
+      "Not handling this right now (no control)"
+    ]
+  },
+  "Forms" : {
+    "How is form data handled?" : [
+      {
+        "The application will generate forms and validate form data" : {
+          "Accept form data as JSON (set content-type to 'application/json')?" : ["yes", "no"],
+          "Disable autocomplete?" : ["yes", "no"],
+          "Enable Cross Site Request Forgery Protections?" : ["yes", "no"]
+      }
+    },
+    "Form creation/validation is handled somewhere else in the technology stack (compensatingControl)",
+    "Don't want to handle this (no control)"
+    ]
+  },
+  "Session Management" : {
+    "Where is session management handled?" : [
+      {
+        "The application handles sessions" : {
+          "How long (in seconds) should user sessions last? (integer)" : ,
+          "How long (in seconds) should sessions idle? (integer)" : ,
+          "Do you want to force cookies to be transmitted over secure transport?" : ["yes", "no"],
+          "How long in seconds will cookies be valid? (integer)" : ,
+          "Do you want to allow other scripts to access cookies?" : ["yes", "no"],
+          "Do you want to allow other sites to receive your application's cookies?" : ["yes", "no"],
+          "Do you want to allow concurrent/simultaneous logins?" : ["yes", "no"],
+          "When should users reauthenticate?" : {
+            "On TTL Expiration?" : ["yes", "no"],
+            "Upon privilege escalation" : ["yes", "no"],
+            "On idle time expiration" : ["yes", "no"]
+          },
+          "When should the application automatically logout?" : {
+            "On TTL Expiration" : ["yes", "no"],
+            "On idle time expiration" : ["yes", "no"],
+            "Window or Tab Closure" : ["yes", "no"]
+          }
+        }
+    },
+    "This is being handled somewhere else in my technology stack (compensatingControl)",
+    "Not handling this right now (no control)"
+    ]
+  },
+  "Cross Origin Resource Sharing" : {
+    "How are cross-origin requests handled?" : [
+      {
+        "The application will moderate cross-origin requests" : {
+          "Which other domains you want to allow access and what do you want to allow them to do?
+          (if you have this information in a flatfile include the path to the file here, otherwise, use the fully qualified domain including scheme, host and port. Format is: \"https://domain.com:443\", \"GET, POST, PUT, DELETE\".
+          Type 'Enter' after each. Type \"done\" when complete)" : "",
+          "Will the application allow responses to requests to be exposed to the page with credentials?" : ["yes", "no"],
+          "Which custom headers will the application expose? (string array)" : []
+        }
+      },
+      "This is handled somewhere else in the technolgy stack (compensatingControl)",
+      "Not dealing with this right now (same-origin or no control)"
+    ]
+  },
+  "Response headers" : {
+    "Where are response headers set?" : [
+      {
+        "The application will generate responses" : {
+          "Content Security Policy" : [
+            "I don't want to use a content security policy",
+            {"What are the default sources of all content for your application? (string array)" : []},
+            {"Will your application allow any inline definition or evaluation of sources?": ["yes", "no"]},
+            {"What are the sources of media for your application?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are the sources of fonts for your application?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are valid sources for fetch, XMLHttpRequest, WebSocket and EventSource connections?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are valid sources for the <object>, <embed> and <applet> elements?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are valid sources for Worker, SharedWorker or ServiceWorker scripts?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"What are the sources of scripts for your application?" : ["I don't want to spec this directive (default to default-src)", { "sources" : [],
+              "Will your application allow scripts inline?" : ["yes", "no"], "Do scripts require subresource integrity (SRI)?" : ["yes", "no"]}]},
+              {"What are the sources of styles for your application?" : ["I don't want to spec this directive (default to default-src)", { "sources" : [],
+                "Will your application allow styles inline?" : ["yes", "no"], "Do styles require subresource integrity (SRI)?" : ["yes", "no"]}]},
+            {"Which sites are allowed to frame your application?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"Which locations in your app can be used to post form submissions?" : ["I don't want to spec this directive (default to default-src)", []]},
+            {"Do you want to enable sandbox protections?" : [{"Allow popups?" : ["yes", "no"], "Allow top navigation?" : ["yes", "no"], "Allow same origin?" : ["yes", "no"], "Allow scripts?" : ["yes", "no"], "Allow pointer lock?" : ["yes", "no"]}, "no"]},
+            {"Should we start this whole thing in report-only phase?" : [{"what is your report uri (default: /cspviolations:3030)? (string)" : ""}, "no"]}
+          ],
+          "Should the application upgrade Insecure Requests?" : ["yes", "no"],
+          "How should the application handle referrals?" : ["\"noReferer\" => Prevents the UA sending a referrer header.",
+            "\"No On Downgrade\" => Prevents the UA sending a referrer header when navigating from https to http."
+            "\"Origin Only\" => Allows the UA to only send the origin in the referrer header.",
+            "\"Origin On Cross Origin\" => Allows the UA to only send the origin in the referrer header when making cross-origin requests.",
+            "\"unsafeUrl\" => Allows the UA to send the full URL in the referrer header with same-origin and cross-origin requests. This is unsafe."
+          ]
+        }
+      },
+      "This is being handled somewhere else in the technology stack (compensatingControl)",
+      "Not dealing with this right now (no control)"
+    ]
+  },
+"Caching Strategy" : {
+  "Where will caching be handled?" : [{
+    "The application will handle caching decisions" : {
+      "Will your application utilize a public cache?" : ["yes", "no"],
+      "What is the base strategy for the 'Cache-Control' header?" : ["default", [{"directives" : [], "how long (in seconds) should pages be cached for? (integer)" : }]],
+      "Allow cache settings override on a per-route basis?" : ["yes", "no"],
+      "Set legacy caching headers (e.g. 'Pragma')?" : ["yes", "no"],
+      "Set up eTagging?" : [{"Use strong eTags?" : ["yes", "no"]}, "no"],
+      "Which headers are subject to 'Vary'?" : []
+    }
+  },
+  "This is handled elsewhere in the technology stack (compensatingControl)",
+  "Don't want to handle this now (no control or caching scheme defined)"
+  ]
+},
+"Data transport" : {
+  "Where are connections negotiated?" : [
+    {
+      "The application will manage connections" : {
+        "Do you plan to use secure transport (HTTPS) everywhere?" : [{"Path to Certificate" : "", "Allowed Ciphers" : "", "Allowed TLS Versions" : "",
+          "Force requests to HTTPS via strict transport security?" : [{"Include Subdomains": ["yes", "no"], "How long (in seconds) do you want to keep this in effect? (integer)" : }, "no"]
+          }, "no"],
+
+      }
+    },
+    "This is handled somewhere else in the technology stack (compensatingControl)",
+    "Don't want to handle this now (no control/all connections allowed)"
+  ]
+},
+"Logging and Analytics" : {
+  "How do you want to handle application and web logs?" : [
+    {"Use the _spartan recommended platforms (kibana and grafana). I understand that this may require some additional set up and configuration":
+      {
+        "Kibana Config" : {
+          "How long (in weeks) do you want to retain logs? (integer)" : ,
+          "What port do you want kibana to listen on? (integer)" :
+        },
+        "Grafana Config" : {
+          "What database do you have set up? (default: telegraf)" : "",
+          "What port do you want grafana to listen on? (integer)" :
+        }
+      }
+    }
+    {"Use local storage." : "(default /var/log/{\"$applicationName\"})"},
+    "This is handled elsewhere in the technology stack (compensatingControl)",
+    "I do not want to deal with this right now (No logging or analytics). I understand that this may expose details of application failure states and configuration to untrusted parties."
+  ],
+  "What log levels do you want to have?\n {
+        \"trace\" : \"Only when I would be \"tracing\" the code and trying to find one part of a function specifically.\",
+        \"info\" : \"Generally useful information to log (service start/stop, configuration assumptions, etc)\",
+        \"warn\" : \"Anything that can potentially cause application oddities, but for which I am automatically recovering.\",
+        \"debug\" : \"Information that is diagnostically helpful to people more than just developers (IT, sysadmins, etc.)\",
+        \"error\" : \"Any error which is fatal to the operation, but not the service or application (can't open a required file, missing data, etc.).\n These errors will force user (administrator, or direct user) intervention\",
+        \"fatal\" : \"Any error that is forcing a shutdown of the service or application to prevent data loss (or further data loss)\",
+        \"verbose\" : \"show everything, regardless of log level\"
+      }" : []
+}
