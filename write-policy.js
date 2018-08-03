@@ -154,8 +154,8 @@ function setValue(obj, key, subkey, value){
 }
 
 function writePolicy(input) {
-  var secJson = fs.createWriteStream("./security.json"); // <- create security.json
-  var tmp = JSON.parse(fs.readFileSync("security-default.json")); // <- open the default file
+  var secJson = fs.createWriteStream("./security/security.json"); // <- create security.json
+  var tmp = JSON.parse(fs.readFileSync("./security/security-default.json")); // <- open the default file
   tmp._policyId = uniqid(); // <- create & populate a policy id
   try {
       var pkg = fs.readFileSync("package.json"); //check to see if package.json exists & read
