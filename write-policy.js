@@ -153,97 +153,119 @@ function setValue(obj, key, subkey, value){
   return obj;
 }
 
-function writePolicy(input) {
-  var secJson = fs.createWriteStream("./security/security.json"); // <- create security.json
-  var tmp = JSON.parse(fs.readFileSync("./security/security-default.json")); // <- open the default file
-  tmp._policyId = uniqid(); // <- create & populate a policy id
-  try {
-      var pkg = fs.readFileSync("package.json"); //check to see if package.json exists & read
-      var pkgJson = JSON.parse(pkg); // <- parse package.json and pass to an object
-      tmp.applicationName = pkgJson.name; // <- add application name to the policy
-  } catch (err){
-    console.log("Could not find package.json file. Please run 'npm init' and build package.json first\n"); // <- if unable to find the package.json file, return an error
-    console.log (err.code + " : " + err.path);
-  }
-  /* now that I have the tmp object I need to be able to:
-  1. Identify the appropriate changes in security.json based upon the answers provided from the questionnaire (passed in as the object 'input')
-  2. Look up the applicable keys  and change the corresponding value to match what makes sense for the (presumably something like: for (const key in tmp) {if key == 'blah', change tmp[key] to 'blah blah'})
-  3. Write the whole thing to security.json **remember: tmp is STILL a JSON object, so there's no need to convert the whole thing to JSON. It MIGHT be worthwhile to convert it to a string using JSON.stringify(tmp)**
-  4. Close the stream
-  */
-try {  //Administrative Stuff
-    tmp.applicationType = input.type;
-    tmp.internetFacing = input.exposure;
-    if (input.hostname){
-      tmp.hostname = input.hostname;
-    } else {
-      tmp.hostname = "none";
-    }
-    //App Dependencies
-    if (!input.exposure){
-      tmp.appDependencies = removeSection(tmp.appDependencies);
-    }
-    //Access Controls
-    if(!input.access){
-      tmp.accessControlsPolicy = removeSection(tmp.accessControlsPolicy);
-    } else {
-      sbAccess(input, tmp);
+function writePolicy(input = {}, opt = "init") {
+  var pkg = fs.readFileSync("package.json");
+  var pkgJson = JSON.parse(pkg);
+
+  if (opt == "init"){
+    var secJson = fs.createWriteStream("./security/security.json"); // <- create security.json
+    var tmp = JSON.parse(fs.readFileSync("./security/security-default.json")); // <- open the default file
+    // 1. Identify the appropriate changes in security.json based upon the answers provided from the questionnaire (passed in as the object 'input')
+    tmp._policyId = uniqid(); // <- create & populate a policy id
+    try {
+        // var pkg = fs.readFileSync("package.json"); //check to see if package.json exists & read
+        // var pkgJson = JSON.parse(pkg); // <- parse package.json and pass to an object
+        tmp.applicationName = pkgJson.name; // <- add application name to the policy
+    } catch (err){
+      console.log("Could not find package.json file. Please run 'npm init' and build package.json first\n"); // <- if unable to find the package.json file, return an error
+      console.log (err.code + " : " + err.path);
     }
 
-    //Session Management
-    if (input.sessions !== "User sessions have a set timeout"){
-      tmp.sessionPolicy = removeSection(tmp.sessionPolicy)
+    // 2. Look up the applicable keys and change the corresponding value to match
+    try {
+          //Administrative Stuff
+          tmp.applicationType = input.type;
+          tmp.internetFacing = input.exposure;
+          if (input.hostname){
+            tmp.hostname = input.hostname;
+          } else {
+            tmp.hostname = "none";
+          }
+          //App Dependencies
+          if (!input.exposure){
+            tmp.appDependencies = removeSection(tmp.appDependencies);
+          }
+          //Access Controls
+          if(!input.access){
+            tmp.accessControlsPolicy = removeSection(tmp.accessControlsPolicy);
+          } else {
+            sbAccess(input, tmp);
+          }
+
+          //Session Management
+          if (input.sessions !== "User sessions have a set timeout"){
+            tmp.sessionPolicy = removeSection(tmp.sessionPolicy)
+          } else {
+            sbSessions(input, tmp);
+          }
+          //Connection Security
+          if(!input.secureTransport){
+            tmp.connectionPolicy = removeSection(tmp.connectionPolicy);
+            setValue(tmp.securityHeaders, "directives", "blockAllMixedContent", false);
+            setValue(tmp.securityHeaders, "directives", "upgradeInsecureRequests", false);
+            setValue(tmp.securityHeaders, "config", "strictTransportSecurity", {});
+          } else {
+            //tmp.connectionPolicy = sbConnections(input, tmp);
+          }
+          //Content Security
+          if(input.content == "All of the data and content comes from sources that I own or control"){
+            setValue(tmp.securityHeaders, "directives", "default", ["self"]);
+            setValue(tmp.securityHeaders, "directives", "media", ["self"]);
+            setValue(tmp.securityHeaders, "directives", "images", ["self"]);
+            setValue(tmp.securityHeaders, "directives", "fonts", ["self"]);
+            setValue(tmp.securityHeaders, "directives", "media", ["self"]);
+            setValue(tmp.securityHeaders, "directives", "frame-ancestors", ["self"]);
+            setValue(tmp.securityHeaders, "directives", "child-sources", ["none"]);
+            setValue(tmp.resourceSharingPolicy, "corsSettings", "config", {});
+          } else {
+            sbCors(input, tmp);
+          }
+          //Form Protection
+          if (!input.forms) {
+            tmp.formProtection = removeSection(tmp.formProtection);
+            setValue(tmp.securityHeaders, "sandbox", "allowForms", false);
+          } else {
+            sbForms(input, tmp);
+          }
+          //Caching Strategy
+          if (!input.cacheStrategy){
+            tmp.securityHeaders.caching = removeSection(tmp.securityHeaders.caching);
+          } else {
+            sbCache(input, tmp);
+          }
+          //Logging Policy
+          if (input.logging){
+            setValue(tmp.loggingPolicy, "logCollection", "storage", input.logging);
+          } else {
+            var logs = "/var/log"+tmp.appName+"/";
+            setValue(tmp.loggingPolicy, "logCollection", "storage", logs);
+          }
+          tmp.deployment = input.deployment;
+          // 3. Write the whole thing to security.json **remember: tmp is STILL a JSON object, so there's no need to convert the whole thing to JSON. It MIGHT be worthwhile to convert it to a string using JSON.stringify(tmp)
+          var convert = JSON.stringify(tmp,null, "  ");
+          secJson.write(convert);
+          //  4. Close the stream
+          secJson.close();
+      } catch (e){
+        console.log("Something went terribly wrong : " + e);
+      }
+    } else if (opt == "default"){
+        var secJson = fs.createWriteStream("./security/security.json");
+        var tmp = JSON.parse(fs.readFileSync("./security/security-default.json"));
+        tmp._policyId = uniqid();
+        try {
+            tmp.applicationName = pkgJson.name;
+            tmp.applicationType = "Not Specified";
+            tmp.internetFacing = true;
+        } catch (err){
+          console.log("Could not find package.json file. Please run 'npm init' and build package.json first\n");
+          console.log (err.code + " : " + err.path);
+        }
+        var convert = JSON.stringify(tmp,null, "  ");
+        secJson.write(convert);
+        secJson.close();
     } else {
-      sbSessions(input, tmp);
+      console.error("Option: " + opt + " is not an available choice.");
     }
-    //Connection Security
-    if(!input.secureTransport){
-      tmp.connectionPolicy = removeSection(tmp.connectionPolicy);
-      setValue(tmp.securityHeaders, "directives", "blockAllMixedContent", false);
-      setValue(tmp.securityHeaders, "directives", "upgradeInsecureRequests", false);
-      setValue(tmp.securityHeaders, "config", "strictTransportSecurity", {});
-    } else {
-      //tmp.connectionPolicy = sbConnections(input, tmp);
-    }
-    //Content Security
-    if(input.content == "All of the data and content comes from sources that I own or control"){
-      setValue(tmp.securityHeaders, "directives", "default", ["self"]);
-      setValue(tmp.securityHeaders, "directives", "media", ["self"]);
-      setValue(tmp.securityHeaders, "directives", "images", ["self"]);
-      setValue(tmp.securityHeaders, "directives", "fonts", ["self"]);
-      setValue(tmp.securityHeaders, "directives", "media", ["self"]);
-      setValue(tmp.securityHeaders, "directives", "frame-ancestors", ["self"]);
-      setValue(tmp.securityHeaders, "directives", "child-sources", ["none"]);
-      setValue(tmp.resourceSharingPolicy, "corsSettings", "config", {});
-    } else {
-      sbCors(input, tmp);
-    }
-    //Form Protection
-    if (!input.forms) {
-      tmp.formProtection = removeSection(tmp.formProtection);
-      setValue(tmp.securityHeaders, "sandbox", "allowForms", false);
-    } else {
-      sbForms(input, tmp);
-    }
-    //Caching Strategy
-    if (!input.cacheStrategy){
-      tmp.securityHeaders.caching = removeSection(tmp.securityHeaders.caching);
-    } else {
-      sbCache(input, tmp);
-    }
-    //Logging Policy
-    if (input.logging){
-      setValue(tmp.loggingPolicy, "logCollection", "storage", input.logging);
-    } else {
-      var logs = "/var/log"+tmp.appName+"/";
-      setValue(tmp.loggingPolicy, "logCollection", "storage", logs);
-    }
-    tmp.deployment = input.deployment;
-    var convert = JSON.stringify(tmp,null, "  ");
-    secJson.write(convert);
-    secJson.close();
-  } catch (e){
-    console.log("Something went terribly wrong : " + e);
-  }
 }
 module.exports.writePolicy = writePolicy;
