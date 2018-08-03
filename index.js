@@ -54,10 +54,11 @@ commander
   .option('[--set-as-default]', 'Sets the latest policy as the default. Any future policies generated with the default option will reference this policy.')
   .parse(process.argv);
 
-  if (commander.args.length === 0) {commander.help();}
-  else if(commander.init){
+  if(commander.init){
     console.log("Thanks for using _spartan! Here's how it works: \n * After answering a few questions, _spartan will generate a policy file (security.json).\n * Based upon the contents, _spartan generates the basic boilerplate code (security.js) which can be referenced in your application.\n * _spartan will also update the application's package.json file if additional dependencies are required.\n");
     begin();
-  } else {
-    console.error("Unexpected input encountered. Exiting now");
+  }
+  else if (commander.args.length == 0) {commander.help();}
+  else {
+    //something
   }
