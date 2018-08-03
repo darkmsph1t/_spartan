@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-
 'use strict';
+
 var start = require("./start.js");
-//var spartan = require("./spartan.js");
 const text = require("cfonts");
 var wp = require('./write-policy.js');
 var path = require('path');
@@ -65,6 +64,7 @@ commander
   }
   else if (commander.default){
     //copy security-default.json && add a policy number
+    console.log("you selected "+ commander.default +". Excellent choice!")
   }
   else if (commander.force){
       //parse security.json and re-write security.js

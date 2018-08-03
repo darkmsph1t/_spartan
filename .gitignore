@@ -1,3 +1,7 @@
+# System files & folders
+.DS_Store
+images/
+
 # Logs
 logs
 *.log

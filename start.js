@@ -1,5 +1,5 @@
 'use strict';
-var ask = require("./questions.js");
+var ask = require("./questions/questions.js");
 var fs = require("fs");
 var inquirer = require("inquirer");
 var nq = [
