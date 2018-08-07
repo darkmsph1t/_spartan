@@ -133,6 +133,10 @@ function removeSection(section){
   return section;
 }
 
+function addSection(section, key, value){
+    section[key] = value;
+}
+
 function setValue(obj, key, subkey, value){
   for (var k in obj){
     if (k !== key){
@@ -154,7 +158,7 @@ function setValue(obj, key, subkey, value){
 }
 
 function writePolicy(input = {}, opt = "init") {
-  var pkg = fs.readFileSync("package.json");
+  var pkg = fs.readFileSync("./package.json");
   var pkgJson = JSON.parse(pkg);
 
   if (opt == "init"){
@@ -179,31 +183,93 @@ function writePolicy(input = {}, opt = "init") {
           if (input.hostname){
             tmp.hostname = input.hostname;
           } else {
-            tmp.hostname = "none";
+            tmp.hostname = "localhost";
           }
           //App Dependencies
           if (!input.exposure){
-            tmp.appDependencies = removeSection(tmp.appDependencies);
+            addSection(tmp.appDependencies, "enabled", false);
+            addSection(tmp.appDependencies, "compensatingControl", "unknown");
+            addSection(tmp.appDependencies, "auditOptions", []);
+            addSection(tmp.appDependencies, "autoFix", null);
+            addSection(tmp.appDependencies, "pathToReport", null);
           }
           //Access Controls
           if(!input.access){
-            tmp.accessControlsPolicy = removeSection(tmp.accessControlsPolicy);
+            addSection(tmp.accessControlsPolicy, "enabled", false);
+            addSection(tmp.accessControlsPolicy, "compensatingControl", "unknown");
+            addSection(tmp.accessControlsPolicy, "authenticationPolicy", {});
+            addSection(tmp.accessControlsPolicy.authenticationPolicy, "authenticationRequired", false);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy, "supportedMethods", []);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy, "passwords", {});
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "minLength", null);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "expires", null);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "supportedHashes", []);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "lockout", {});
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "attempts", null);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "automaticReset", null);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "tarpitDefault", null);
+            addSection(tmp.accessControlsPolicy.authenticationPolicy, "mfaRequired", null);
+            addSection(tmp.accessControlsPolicy, "authorization", {});
+            addSection(tmp.accessControlsPolicy.authorization, "authorizationRequired", false);
+            addSection(tmp.accessControlsPolicy.authorization, "supportedTypes", []);
+            addSection(tmp.accessControlsPolicy.authorization, "rbacPolicy", {});
+            addSection(tmp.accessControlsPolicy.authorization.rbacPolicy, "roles", []);
+            addSection(tmp.accessControlsPolicy.authorization.rbacPolicy, "permissions", []);
+            //tmp.accessControlsPolicy = removeSection(tmp.accessControlsPolicy);
           } else {
             sbAccess(input, tmp);
           }
 
           //Session Management
           if (input.sessions !== "User sessions have a set timeout"){
-            tmp.sessionPolicy = removeSection(tmp.sessionPolicy)
+            addSection(tmp.sessionPolicy, "enabled", false);
+            addSection(tmp.sessionPolicy, "compensatingControl", "unknown");
+            addSection(tmp.sessionPolicy, "config", {});
+            addSection(tmp.sessionPolicy.config, "id", {});
+            addSection(tmp.sessionPolicy.config.id, "length", null);
+            addSection(tmp.sessionPolicy.config.id, "entropy", null);
+            addSection(tmp.sessionPolicy.config.id, "invalidOnLogout", null);
+            addSection(tmp.sessionPolicy.config.id, "regenerateOnAuth", null);
+            addSection(tmp.sessionPolicy.config.id, "forceLogoutOnWindowClose", null);
+            addSection(tmp.sessionPolicy.config, "duration", {});
+            addSection(tmp.sessionPolicy.config.duration, "idle", null);
+            addSection(tmp.sessionPolicy.config.duration, "ttl", null);
+            addSection(tmp.sessionPolicy.config.duration, "automaticRenewal", null);
+            addSection(tmp.sessionPolicy.config, "cookies", {});
+            addSection(tmp.sessionPolicy.config.cookies, "prefixes", []);
+            addSection(tmp.sessionPolicy.config.cookies, "maxAge", null);
+            addSection(tmp.sessionPolicy.config.cookies, "httpOnly", null);
+            addSection(tmp.sessionPolicy.config.cookies, "secure", null);
+            addSection(tmp.sessionPolicy.config.cookies, "sameSite", null);
+            addSection(tmp.sessionPolicy.config.cookies, "domain", null);
+            addSection(tmp.sessionPolicy.config.cookies, "path", null);
+            addSection(tmp.sessionPolicy.config, "csrfSettings", {});
+            addSection(tmp.sessionPolicy.config.csrfSettings, "secretLength", null);
+            addSection(tmp.sessionPolicy.config.csrfSettings, "saltLength", null);
+            addSection(tmp.sessionPolicy.config.csrfSettings, "ignoreMethods", []);
+            addSection(tmp.sessionPolicy.config.csrfSettings, "allowHiddenToken", null);
+            addSection(tmp.sessionPolicy.config.csrfSettings, "validateToken", null);
+            addSection(tmp.sessionPolicy.config, "concurrentLogins", null);
+            //tmp.sessionPolicy = removeSection(tmp.sessionPolicy)
           } else {
             sbSessions(input, tmp);
           }
           //Connection Security
           if(!input.secureTransport){
-            tmp.connectionPolicy = removeSection(tmp.connectionPolicy);
+            //tmp.connectionPolicy = removeSection(tmp.connectionPolicy);
+            addSection(tmp.connectionPolicy, "enabled", false);
+            addSection(tmp.connectionPolicy, "compensatingControl", "unknown");
+            addSection(tmp.connectionPolicy, "redirectSecure", null);
+            addSection(tmp.connectionPolicy, "rejectWeakCiphers", null);
+            addSection(tmp.connectionPolicy, "rejectInsecureTLS", null);
+            addSection(tmp.connectionPolicy, "forceHttps", false);
             setValue(tmp.securityHeaders, "directives", "blockAllMixedContent", false);
             setValue(tmp.securityHeaders, "directives", "upgradeInsecureRequests", false);
             setValue(tmp.securityHeaders, "config", "strictTransportSecurity", {});
+            addSection(tmp.securityHeaders.config.strictTransportSecurity, "enabled", false);
+            addSection(tmp.securityHeaders.config.strictTransportSecurity, "includeSubDomains", null);
+            addSection(tmp.securityHeaders.config.strictTransportSecurity, "preload", null);
+            addSection(tmp.securityHeaders.config.strictTransportSecurity, "maxAge", null);
           } else {
             //tmp.connectionPolicy = sbConnections(input, tmp);
           }
@@ -216,28 +282,51 @@ function writePolicy(input = {}, opt = "init") {
             setValue(tmp.securityHeaders, "directives", "media", ["self"]);
             setValue(tmp.securityHeaders, "directives", "frame-ancestors", ["self"]);
             setValue(tmp.securityHeaders, "directives", "child-sources", ["none"]);
-            setValue(tmp.resourceSharingPolicy, "corsSettings", "config", {});
+            setValue(tmp.resourceSharingPolicy, "corsSettings", "enabled", false);
+            addSection(tmp.resourceSharingPolicy.corsSettings.config, "whitelist", ["same-origin"]);
+            addSection(tmp.resourceSharingPolicy.corsSettings.config, "preflightRequests", {});
+            addSection(tmp.resourceSharingPolicy.corsSettings.config.preflightRequests, "onMethod", []);
+            addSection(tmp.resourceSharingPolicy.corsSettings.config.preflightRequests, "onHeader", []);
+            addSection(tmp.resourceSharingPolicy.corsSettings.config.preflightRequests, "maxAge", null);
+            addSection(tmp.resourceSharingPolicy.corsSettings.config, "responseHeaders", {});
+            addSection(tmp.resourceSharingPolicy.corsSettings.config.responseHeaders, "allowCredentials", null);
+            addSection(tmp.resourceSharingPolicy.corsSettings.config.responseHeaders, "validateHeaders", null);
           } else {
             sbCors(input, tmp);
           }
           //Form Protection
           if (!input.forms) {
-            tmp.formProtection = removeSection(tmp.formProtection);
+            //tmp.formProtection = removeSection(tmp.formProtection);
+            addSection(tmp.formProtection, "enable", false);
+            addSection(tmp.formProtection, "compensatingControl", "unknown");
+            addSection(tmp.formProtection, "config", {});
+            addSection(tmp.formProtection.config, "autocompleteAllowed", null);
+            addSection(tmp.formProtection.config, "acceptJsonContent", null);
+            addSection(tmp.formProtection.config, "allowMethodOverride", null);
             setValue(tmp.securityHeaders, "sandbox", "allowForms", false);
           } else {
             sbForms(input, tmp);
           }
           //Caching Strategy
           if (!input.cacheStrategy){
-            tmp.securityHeaders.caching = removeSection(tmp.securityHeaders.caching);
+            addSection(tmp.securityHeaders.caching, "enabled", false);
+            addSection(tmp.securityHeaders.caching, "compensatingControl", "unknown");
+            addSection(tmp.securityHeaders.caching, "routeOverload", null);
+            addSection(tmp.securityHeaders.caching, "cacheControl", []);
+            addSection(tmp.securityHeaders.caching, "pragma", null);
+            addSection(tmp.securityHeaders.caching, "eTags", {});
+            addSection(tmp.securityHeaders.caching.eTags, "enabled", false);
+            addSection(tmp.securityHeaders.caching.eTags, "strength", null);
+            addSection(tmp.securityHeaders.caching, "vary", []);
+            //tmp.securityHeaders.caching = removeSection(tmp.securityHeaders.caching);
           } else {
             sbCache(input, tmp);
           }
           //Logging Policy
           if (input.logging){
-            setValue(tmp.loggingPolicy, "logCollection", "storage", input.logging);
+            setValue(tmp.loggingPolicy, "logCollection", "storage","/var/log/"+tmp.applicationName+"/");
           } else {
-            var logs = "/var/log"+tmp.appName+"/";
+            var logs = input.logging;
             setValue(tmp.loggingPolicy, "logCollection", "storage", logs);
           }
           tmp.deployment = input.deployment;

@@ -6,7 +6,8 @@ const text = require("cfonts");
 var wp = require('./write-policy.js');
 var bp = require('./write-bp.js');
 var fs = require('fs');
-var pkg = fs.readFileSync("package.json");
+var fse = require('fs-extra');
+var pkg = fs.readFileSync("./package.json");
 var pkgJson = JSON.parse(pkg);
 var path = require('path');
 var commander = require('commander');
@@ -51,13 +52,13 @@ text.say('by @darkmsph1t', {
 //spartan.banner("_spartan");
 commander
   .version(pkgJson.version, '-v, --version')
-  .option('init [y][yes]', 'Runs the configuration wizard, unless you also use the \'y\' or \'yes\' flag to just accept the policy defaults')
+  .option('init [y][yes]', 'Runs the configuration wizard, unless you also use the \'--y\' or \'--yes\' flag to just accept the policy defaults')
   .option('-d, --default', 'Builds a preconfigured, default security policy and security.js')
   .option('-f, --force', 'Force a complete regeneration of the boilerplate code defined in security.js. Typically used after making a manual adjustment to the security.json file')
-  .option('-u, --update [L]', 'Updates the latest policy as defined in security.json using the configuration wizard. Use \'L\' to use long-form questions.')
+  .option('-u, --update [--L]', 'Updates the latest policy as defined in security.json using the configuration wizard. Use \'--L\' to use long-form questions.')
   .option('-n, --no-overwrite', 'Creates a new policy and security.js file without overwriting the previous files. The filename will have the policy number appended')
-  .option('--del, --delete [F]', 'Deletes the most recent security.json AND the security.js files. It does not remove any of the dependencies from package.json, unless it is run with the \'-F\' flag')
-  .option('[--set-as-default]', 'Sets the latest policy as the default. Any future policies generated with the default option will reference this policy.')
+  .option('--del, --delete [--F]', 'Deletes the most recent security.json AND the security.js files. It does not remove any of the dependencies from package.json, unless it is run with the \'--F\' flag')
+  .option('--set-as-default', 'Sets the latest policy as the default. Any future policies generated with the default option will reference this policy.')
   .parse(process.argv);
 
   /*coming soon!
@@ -128,10 +129,33 @@ commander
   }
   else if (commander.setAsDefault){
     opt = "setAsDefault";
-    //check to see if security.json exists. If it doesn't, throw an error ("policy file not found. Run `_spartan init` to build your policy and try again") and exit
-    //run a 'mv security.json security-default.json' (in the correct folder)
-  }
-  else if (commander.args.length == 0) {commander.help();}
+    var secDefaultPath = './security/security-default.json';
+    console.log("You selected: Set As Default\n");
+    async function setAsDefault(){
+        var s = await start.changeDefault();
+        if (s){
+            fs.copyFile(secJsonPath, secDefaultPath, function(err){
+            if(err) { console.log("There was a problem with your request: " + err.code, err.path);}
+            //return console.log("User selected to continue copy");
+          });
+          var woot = JSON.parse(fs.readFileSync(secDefaultPath));
+          woot._policyId = "";
+          woot.applicationName = "";
+          woot.applicationType = "";
+          woot.internetFacing = false;
+          woot.hostname = "";
+          woot.deployment = "";
+          var toow = JSON.stringify(woot, null, ' ');
+          await fs.writeFile(secDefaultPath, toow, function (err){
+            if(err) throw err;
+            console.log("The file has been saved");
+          });
+        } else {
+          return console.log("User selected not to continue");
+        }
+      }
+    setAsDefault();
+} else if (commander.args.length == 0) {commander.help();}
   else {
     console.error(commander.args + " is not an available option. Please try again.");
   }
