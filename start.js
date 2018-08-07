@@ -154,6 +154,13 @@ var confirmPolicy = [{
       message : 'Are you sure? This action is not reversable.',
       default : true
     }];
+
+    var confirmDefault = [{
+        type : 'confirm',
+        name : 'confirmDefault',
+        message : 'Are you sure? This will completely overwrite your existing default policy and this action is not reversable.',
+        default : true
+      }];
 /*
 1. Ask the user the questions and store in a temporary variable, tmp. Should this be a function?
 2. Ask the user if this is ok
@@ -195,7 +202,17 @@ async function deleteSecurity () {
   try {
     return bar.confirmDelete;
   } catch (err) {
-    console.log("Sad Face! :-( something went wrong\n");
+    console.log("Sad Face! :-( something went wrong deleting the policy\n");
+    console.log (err.code, err.path);
+  }
+}
+
+async function changeDefault() {
+  var moo = await ask.question(confirmDefault);
+  try {
+    return moo.confirmDefault;
+  } catch (err) {
+    console.log("Sad Face! :-( something went wrong overwriting the default policy\n");
     console.log (err.code, err.path);
   }
 }
@@ -203,3 +220,4 @@ async function deleteSecurity () {
 module.exports.ans = ans;
 module.exports.confirm = confirm;
 module.exports.deleteSecurity = deleteSecurity;
+module.exports.changeDefault = changeDefault;
