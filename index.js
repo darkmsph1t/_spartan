@@ -99,7 +99,8 @@ commander
   }
   else if (!commander.overwrite){
     opt = "no-overwrite";
-    //run the short-form questionnaire , but open a NEW security.json with policy number appended like this: security-123456.json
+    begin(opt);
+    //// IDEA: Add option to run through the long-form questionnaire
   }
   else if (commander.delete){
     opt = "delete";
@@ -135,20 +136,19 @@ commander
         var s = await start.changeDefault();
         if (s){
             fs.copyFile(secJsonPath, secDefaultPath, function(err){
-            if(err) { console.log("There was a problem with your request: " + err.code, err.path);}
+              if(err) { console.log("There was a problem with your request: " + err.code, err.path);}
             //return console.log("User selected to continue copy");
-          });
-          var woot = JSON.parse(fs.readFileSync(secDefaultPath));
-          woot._policyId = "";
-          woot.applicationName = "";
-          woot.applicationType = "";
-          woot.internetFacing = false;
-          woot.hostname = "";
-          woot.deployment = "";
-          var toow = JSON.stringify(woot, null, ' ');
-          await fs.writeFile(secDefaultPath, toow, function (err){
-            if(err) throw err;
-            console.log("The file has been saved");
+            var woot = JSON.parse(fs.readFileSync(secDefaultPath));
+            woot._policyId = "";
+            woot.applicationName = "";
+            woot.applicationType = "";
+            woot.hostname = "";
+            woot.deployment = "";
+            var toow = JSON.stringify(woot, null, ' ');
+            fs.writeFile(secDefaultPath, toow, function (err){
+              if(err) throw err;
+              console.log("The file has been saved");
+            });
           });
         } else {
           return console.log("User selected not to continue");
