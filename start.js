@@ -155,10 +155,17 @@ var confirmPolicy = [{
       default : true
     }];
 
-    var confirmDefault = [{
+  var confirmDefault = [{
+      type : 'confirm',
+      name : 'confirmDefault',
+      message : 'Are you sure? This will completely overwrite your existing default policy and this action is not reversable.',
+      default : true
+    }];
+
+    var confirmPkgRemoval = [{
         type : 'confirm',
-        name : 'confirmDefault',
-        message : 'Are you sure? This will completely overwrite your existing default policy and this action is not reversable.',
+        name : 'confirmPkgRemoval',
+        message : 'These packages will be uninstalled locally and will be removed from package.json.',
         default : true
       }];
 /*
@@ -217,7 +224,18 @@ async function changeDefault() {
   }
 }
 
+async function confirmPkgRemove() {
+  var cow = await ask.question(confirmPkgRemoval);
+  try {
+    return cow.confirmPkgRemoval;
+  } catch (err) {
+    console.log("Sad Face! :-( something went wrong removing these packages\n");
+    console.error(err.code, err.path);
+  }
+}
+
 module.exports.ans = ans;
 module.exports.confirm = confirm;
 module.exports.deleteSecurity = deleteSecurity;
 module.exports.changeDefault = changeDefault;
+module.exports.confirmPkgRemove = confirmPkgRemove;
