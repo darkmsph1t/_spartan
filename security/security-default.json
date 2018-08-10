@@ -99,7 +99,8 @@
           "frame-ancestors" : ["none"],
           "worker-sources" : ["none"],
           "scripts" : ["self"],
-          "styles" : ["self"],
+          "styles" : ["self"]
+        },
           "upgradeInsecureRequests" : true,
           "blockAllMixedContent" : true,
           "subResourceIntegrity" : {
@@ -124,8 +125,7 @@
             "default" : "enabled",
             "uriLocation" : "/cspviolations",
             "port" : 3030
-          }
-        },
+          },
         "reportOnly" : true,
         "useNonce" : false,
         "useHash" : false
