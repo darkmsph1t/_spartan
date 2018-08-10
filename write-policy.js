@@ -29,10 +29,6 @@ function sbForms(obj, tmp){
 
 function sbSessions(obj, tmp){
   if (obj.exposure){
-    if(!obj.access && obj.type == 'Web' || !obj.access && obj.type == 'API'){
-      console.log("Access Control Policy cannot be disabled for this application type and exposure")
-      sbAccess(obj, tmp);
-    }
     //idle time
     if(obj.type == 'Desktop'){
       setValue(tmp.sessionPolicy, "duration", "idle", (15*60));
@@ -110,7 +106,7 @@ function sbCors(obj, tmp){
   }
 }
 function sbCache(obj, tmp){
-  var cache = tmp.securityHeaders.caching.cacheControl;
+  var cache = tmp.securityHeaders.caching.cacheControl; //<-- I'm not doing anything with this variable. I need to populate max-age directive with the cache TTL
   if (!obj.exposure){
     if (obj.type == 'Desktop' || obj.type == 'Mobile'){
       setValue(tmp.securityHeaders, "caching", "cacheControl", ["private", "max-age=2592000"]);
@@ -178,26 +174,33 @@ function transformer(input, tmp){
   }
   //Access Controls
   if(!input.access){
-    addSection(tmp.accessControlsPolicy, "enabled", false);
-    addSection(tmp.accessControlsPolicy, "compensatingControl", "unknown");
-    addSection(tmp.accessControlsPolicy, "authenticationPolicy", {});
-    addSection(tmp.accessControlsPolicy.authenticationPolicy, "authenticationRequired", false);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy, "supportedMethods", []);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy, "passwords", {});
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "minLength", null);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "expires", null);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "supportedHashes", []);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "lockout", {});
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "attempts", null);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "automaticReset", null);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "tarpitDefault", null);
-    addSection(tmp.accessControlsPolicy.authenticationPolicy, "mfaRequired", null);
-    addSection(tmp.accessControlsPolicy, "authorization", {});
-    addSection(tmp.accessControlsPolicy.authorization, "authorizationRequired", false);
-    addSection(tmp.accessControlsPolicy.authorization, "supportedTypes", []);
-    addSection(tmp.accessControlsPolicy.authorization, "rbacPolicy", {});
-    addSection(tmp.accessControlsPolicy.authorization.rbacPolicy, "roles", []);
-    addSection(tmp.accessControlsPolicy.authorization.rbacPolicy, "permissions", []);
+    if(input.type == 'Web' || input.type == 'API'){
+      console.log("Access Control Policy cannot be disabled for this application type and exposure, so the default settings have been added");
+      input.access = true;
+      sbAccess(input, tmp);
+    }
+    else {
+      addSection(tmp.accessControlsPolicy, "enabled", false);
+      addSection(tmp.accessControlsPolicy, "compensatingControl", "unknown");
+      addSection(tmp.accessControlsPolicy, "authenticationPolicy", {});
+      addSection(tmp.accessControlsPolicy.authenticationPolicy, "authenticationRequired", false);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy, "supportedMethods", []);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy, "passwords", {});
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "minLength", null);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "expires", null);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "supportedHashes", []);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords, "lockout", {});
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "attempts", null);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "automaticReset", null);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy.passwords.lockout, "tarpitDefault", null);
+      addSection(tmp.accessControlsPolicy.authenticationPolicy, "mfaRequired", null);
+      addSection(tmp.accessControlsPolicy, "authorization", {});
+      addSection(tmp.accessControlsPolicy.authorization, "authorizationRequired", false);
+      addSection(tmp.accessControlsPolicy.authorization, "supportedTypes", []);
+      addSection(tmp.accessControlsPolicy.authorization, "rbacPolicy", {});
+      addSection(tmp.accessControlsPolicy.authorization.rbacPolicy, "roles", []);
+      addSection(tmp.accessControlsPolicy.authorization.rbacPolicy, "permissions", []);
+  }
     //tmp.accessControlsPolicy = removeSection(tmp.accessControlsPolicy);
   } else {
     sbAccess(input, tmp);
@@ -318,7 +321,7 @@ function writePolicy(input = {}, opt = "init") {
       var pkg = fs.readFileSync("./package.json"); //check to see if package.json exists & read
       var pkgJson = JSON.parse(pkg); // <- parse package.json and pass to an object
       var tmp = JSON.parse(fs.readFileSync("./security/security-default.json")); // <- open the default file
-      tmp._policyId = uniqid(); // <- create & populate a policy id
+      //tmp._policyId = uniqid(); // <- create & populate a policy id
       tmp.applicationName = pkgJson.name; // <- add application name to the policy
   } catch (err) {
     console.log("Could not find package.json file. Please run 'npm init' and build package.json first\n"); // <- if unable to find the package.json file, return an error
@@ -327,6 +330,7 @@ function writePolicy(input = {}, opt = "init") {
 
   if (opt == "init"){
     try {
+        tmp._policyId = uniqid(); // <- create & populate a policy id
         var convert = JSON.stringify(transformer(input, tmp),null, "  ");
         var secJson = fs.createWriteStream("./security/security.json"); // <- create security.json
         secJson.write(convert);
@@ -336,7 +340,8 @@ function writePolicy(input = {}, opt = "init") {
       }
     } else if (opt == "default"){
       try {
-        tmp.applicationType = "Not Specified";
+        tmp._policyId = uniqid(); // <- create & populate a policy id
+        tmp.applicationType = "Web";
         tmp.internetFacing = true;
         var secJson = fs.createWriteStream("./security/security.json");
         var convert = JSON.stringify(tmp,null, "  ");
@@ -347,6 +352,7 @@ function writePolicy(input = {}, opt = "init") {
       }
     } else if (opt == "no-overwrite"){
       try {
+        tmp._policyId = uniqid(); // <- create & populate a policy id
         var converted = JSON.stringify(transformer(input, tmp), null, "  ");
         var secJsonModified = fs.createWriteStream("./security/security-" + tmp._policyId + ".json");
         secJsonModified.write(converted);
@@ -354,6 +360,28 @@ function writePolicy(input = {}, opt = "init") {
       } catch (e) {
         console.error("There was a problem creating a new security.json file: " + e.code, e.path);
       }
+    } else if (opt == "update"){
+      try {
+        // 1. open the existing security.json file
+        var tmp2 = JSON.parse(fs.readFileSync('./security/security.json'));
+        // 2. get the existing policy id and set it to tmp._policyId
+        tmp._policyId = tmp2._policyId;
+        // 3. run existing transformer on the input and tmp variables
+        var u = JSON.stringify(transformer(input, tmp), null, '  ');
+        // 4. create a **new** policy file called security2.json
+        var newSecJson = fs.createWriteStream('./security/security2.json');
+        // 5. write the values from the transformer to the new file
+        newSecJson.write(u);
+        //6. close the file
+        newSecJson.close();
+        //copy the old file to security.json
+        fs.rename('./security/security2.json', './security/security.json', function(err){
+          if(err) console.log("something went wrong with your request: ", err.code, err.path);
+        });
+      } catch (e) {
+        console.error("something went wrong updating the policy: " + e.code, e.path);
+      }
+
     } else {
       console.error("Option: " + opt + " is not an available choice.");
     }

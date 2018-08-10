@@ -5,6 +5,7 @@ var start = require("./start.js");
 const text = require("cfonts");
 var wp = require('./write-policy.js');
 var bp = require('./write-bp.js');
+var up = require('./update-policy.js');
 var fs = require('fs');
 var fse = require('fs-extra');
 var pkg = fs.readFileSync("./package.json");
@@ -35,9 +36,8 @@ async function begin (opt){
       console.log ("there was a problem with this request, yo!");
     }
   } catch (e) {
-    console.log ("no work\n" + e);
+    console.log ("no work\n" + e.code, e.path);
   }
-
 }
 text.say('_spartan', {
   font : 'simple',
@@ -92,12 +92,11 @@ commander
   }
   else if (commander.update){
     opt = "update";
-    if ("--L"){
+    if (commander.update[0] == 'L'){
       //populate the questionnaire defaults with the answers from existing security.json
       //run the long-form questionnaire using these defaults
     } else {
-      //populate the questionnaire defaults with the answers from existing security.json
-      //re-run the short questionnaire using these defaults
+      up.updatePolicy();
     }
   }
   else if (!commander.overwrite){
@@ -121,21 +120,28 @@ commander
           var f = await start.confirmPkgRemove();
           if (f){
               for (var j = 0; j < m.length; j++){
-              //const child = spawn('npm', ['uninstall', m[j]]);
+              const child = spawn('npm', ['uninstall', m[j]]);
               console.log(m[j] + ' has been uninstalled');
-              // child.stdout.on('data', (data) => {
-              //   deleteLog.write(data);
-              // });
-              //
-              // child.stderr.on('data', (data) => {
-              //   errorLog.write(data);
-              // });
+              child.stdout.on('data', (data) => {
+                deleteLog.write(data);
+              });
+
+              child.stderr.on('data', (data) => {
+                errorLog.write(data);
+              });
             }
+            fs.unlink(secJsonPath, function(err){
+              if(err) {return console.log("File was not deleted " + err.code, err.path);}
+              else { return console.log(secJsonPath + " was deleted successfully.");}
+            });
+            fs.unlink(secJsPath, function(err){
+              if(err) {return console.log("File was not deleted " + err.code, err.path);}
+              else { return console.log(secJsPath + " was deleted successfully.");}
+            });
           } else {
             console.log("These packages were not removed");
           }
         } else {
-          //remove security.json and security.js;
           fs.unlink(secJsonPath, function(err){
             if(err) {return console.log("File was not deleted " + err.code, err.path);}
             else { return console.log(secJsonPath + " was deleted successfully.");}
