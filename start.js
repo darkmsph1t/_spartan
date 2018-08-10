@@ -2,6 +2,7 @@
 var ask = require("./questions/questions.js");
 var fs = require("fs");
 var inquirer = require("inquirer");
+
 var nq = [
   {
     type : 'list',
@@ -30,7 +31,15 @@ var nq = [
     type : 'confirm',
     name : 'exposure',
     message : "Q2. Application Accessibility : Will the application be accessible over the Internet? \n * Tip : if this is a possibility in the future, say 'Yes'",
-    default : true
+    default : true,
+    validate : function (answers) {
+      if (answers.exposure !== 'Y' || answers.exposure !== 'N' || answers.exposure !== 'yes' || answers.exposure !== 'no'){
+        return "Invalid input. Please try again."
+      } else {
+        return answers.exposure
+      }
+    },
+    filter: Boolean
   },
   {
     type : 'confirm',
@@ -148,25 +157,33 @@ var confirmPolicy = [{
     default : true
   }];
 
-  var confirmDelete = [{
-      type : 'confirm',
-      name : 'confirmDelete',
-      message : 'Are you sure? This action is not reversable.',
-      default : true
-    }];
+var confirmDelete = [{
+    type : 'confirm',
+    name : 'confirmDelete',
+    message : 'Are you sure? This action is not reversable.',
+    default : true
+  }];
 
-    var confirmDefault = [{
-        type : 'confirm',
-        name : 'confirmDefault',
-        message : 'Are you sure? This will completely overwrite your existing default policy and this action is not reversable.',
-        default : true
-      }];
+var confirmDefault = [{
+    type : 'confirm',
+    name : 'confirmDefault',
+    message : 'Are you sure? This will completely overwrite your existing default policy and this action is not reversable.',
+    default : true
+  }];
+
+var confirmPkgRemoval = [{
+    type : 'confirm',
+    name : 'confirmPkgRemoval',
+    message : 'These packages will be uninstalled locally and will be removed from package.json.',
+    default : true
+  }];
 /*
 1. Ask the user the questions and store in a temporary variable, tmp. Should this be a function?
 2. Ask the user if this is ok
   - if it is ok, then begin the process of transposing the answers
   - if it is not ok, then ask the users the questions again
 */
+
 async function ans () {
     try {
         var a = ask.question(nq);
@@ -217,7 +234,18 @@ async function changeDefault() {
   }
 }
 
+async function confirmPkgRemove() {
+  var cow = await ask.question(confirmPkgRemoval);
+  try {
+    return cow.confirmPkgRemoval;
+  } catch (err) {
+    console.log("Sad Face! :-( something went wrong removing these packages\n");
+    console.error(err.code, err.path);
+  }
+}
+
 module.exports.ans = ans;
 module.exports.confirm = confirm;
 module.exports.deleteSecurity = deleteSecurity;
 module.exports.changeDefault = changeDefault;
+module.exports.confirmPkgRemove = confirmPkgRemove;

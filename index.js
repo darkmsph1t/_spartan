@@ -5,6 +5,7 @@ var start = require("./start.js");
 const text = require("cfonts");
 var wp = require('./write-policy.js');
 var bp = require('./write-bp.js');
+var up = require('./update-policy.js');
 var fs = require('fs');
 var fse = require('fs-extra');
 var pkg = fs.readFileSync("./package.json");
@@ -14,6 +15,9 @@ var commander = require('commander');
 var opt = "";
 var secJsonPath = path.resolve("./security/security.json");
 var secJsPath = path.resolve("./security/security.js");
+var deleteLog = fs.createWriteStream('./logs/system/systemLogs');
+var errorLog = fs.createWriteStream('./logs/errors/errorLog');
+const { spawn } = require("child_process");
 
 async function begin (opt){
   try {
@@ -32,9 +36,8 @@ async function begin (opt){
       console.log ("there was a problem with this request, yo!");
     }
   } catch (e) {
-    console.log ("no work\n" + e);
+    console.log ("no work\n" + e.code, e.path);
   }
-
 }
 text.say('_spartan', {
   font : 'simple',
@@ -57,7 +60,7 @@ commander
   .option('-f, --force', 'Force a complete regeneration of the boilerplate code defined in security.js. Typically used after making a manual adjustment to the security.json file')
   .option('-u, --update [--L]', 'Updates the latest policy as defined in security.json using the configuration wizard. Use \'--L\' to use long-form questions.')
   .option('-n, --no-overwrite', 'Creates a new policy and security.js file without overwriting the previous files. The filename will have the policy number appended')
-  .option('--del, --delete [--F]', 'Deletes the most recent security.json AND the security.js files. It does not remove any of the dependencies from package.json, unless it is run with the \'--F\' flag')
+  .option('--del, --delete [F]', 'Deletes the most recent security.json AND the security.js files. It does not remove any of the dependencies from package.json, unless it is run with the \'F\' flag')
   .option('--set-as-default', 'Sets the latest policy as the default. Any future policies generated with the default option will reference this policy.')
   .parse(process.argv);
 
@@ -89,39 +92,66 @@ commander
   }
   else if (commander.update){
     opt = "update";
-    if ("--L"){
+    if (commander.update[0] == 'L'){
       //populate the questionnaire defaults with the answers from existing security.json
       //run the long-form questionnaire using these defaults
     } else {
-      //populate the questionnaire defaults with the answers from existing security.json
-      //re-run the short questionnaire using these defaults
+      up.updatePolicy();
     }
   }
   else if (!commander.overwrite){
     opt = "no-overwrite";
-    //run the short-form questionnaire , but open a NEW security.json with policy number appended like this: security-123456.json
+    begin(opt);
+    //// IDEA: Add option to run through the long-form questionnaire
   }
   else if (commander.delete){
     opt = "delete";
-    //ask the user if they are sure they want to do this: "Are you sure? This action is not reversable"
     async function del(){
+      //ask the user if they are sure they want to do this: "Are you sure? This action is not reversable"
       var d = await start.deleteSecurity();
       if (d){
         if (commander.delete[0] == 'F'){
-          //Identify all dependencies that were added by parsing security.js. Remove dependencies from package.json using 'npm uninstall <package name> --save'. Remove security.json and security.js.
+          //Identify all dependencies that were added. Remove dependencies from package.json using 'npm uninstall <package name> --save'. Remove security.json and security.js.
+          var m = bp.addMiddleware();
+          console.log("These are the packages that were installed by _spartan and will be removed: \n");
+          for (var i = 0; i < m.length; i++){
+            console.log(m[i]);
+          }
+          var f = await start.confirmPkgRemove();
+          if (f){
+              for (var j = 0; j < m.length; j++){
+              const child = spawn('npm', ['uninstall', m[j]]);
+              console.log(m[j] + ' has been uninstalled');
+              child.stdout.on('data', (data) => {
+                deleteLog.write(data);
+              });
+
+              child.stderr.on('data', (data) => {
+                errorLog.write(data);
+              });
+            }
+            fs.unlink(secJsonPath, function(err){
+              if(err) {return console.log("File was not deleted " + err.code, err.path);}
+              else { return console.log(secJsonPath + " was deleted successfully.");}
+            });
+            fs.unlink(secJsPath, function(err){
+              if(err) {return console.log("File was not deleted " + err.code, err.path);}
+              else { return console.log(secJsPath + " was deleted successfully.");}
+            });
+          } else {
+            console.log("These packages were not removed");
+          }
         } else {
-          //remove security.json and security.js;
           fs.unlink(secJsonPath, function(err){
-            if(err) {return console.log("Files were not deleted " + err.code, err.path);}
+            if(err) {return console.log("File was not deleted " + err.code, err.path);}
             else { return console.log(secJsonPath + " was deleted successfully.");}
           });
           fs.unlink(secJsPath, function(err){
-            if(err) {return console.log("Files were not deleted " + err.code, err.path);}
+            if(err) {return console.log("File was not deleted " + err.code, err.path);}
             else { return console.log(secJsPath + " was deleted successfully.");}
           });
         }
       } else {
-        //if the answer is no, exit with a message that the files were not deleted
         console.log("Files were not deleted");
       }
     }
@@ -135,20 +165,19 @@ commander
         var s = await start.changeDefault();
         if (s){
             fs.copyFile(secJsonPath, secDefaultPath, function(err){
-            if(err) { console.log("There was a problem with your request: " + err.code, err.path);}
+              if(err) { console.log("There was a problem with your request: " + err.code, err.path);}
             //return console.log("User selected to continue copy");
-          });
-          var woot = JSON.parse(fs.readFileSync(secDefaultPath));
-          woot._policyId = "";
-          woot.applicationName = "";
-          woot.applicationType = "";
-          woot.internetFacing = false;
-          woot.hostname = "";
-          woot.deployment = "";
-          var toow = JSON.stringify(woot, null, ' ');
-          await fs.writeFile(secDefaultPath, toow, function (err){
-            if(err) throw err;
-            console.log("The file has been saved");
+            var woot = JSON.parse(fs.readFileSync(secDefaultPath));
+            woot._policyId = "";
+            woot.applicationName = "";
+            woot.applicationType = "";
+            woot.hostname = "";
+            woot.deployment = "";
+            var toow = JSON.stringify(woot, null, ' ');
+            fs.writeFile(secDefaultPath, toow, function (err){
+              if(err) throw err;
+              console.log("The file has been saved");
+            });
           });
         } else {
           return console.log("User selected not to continue");
