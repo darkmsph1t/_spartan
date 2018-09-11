@@ -4,7 +4,7 @@
   "description": "npm project to package and configure common security middleware. Adds security.js file to code repo",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "snyk test",
     "snyk-protect": "snyk protect",
     "prepare": "npm run snyk-protect"
   },
