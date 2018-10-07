@@ -1,0 +1,41 @@
+{
+  "type": "Web",
+  "hostname": "myapp.io",
+  "exposure": true,
+  "access": true,
+  "sessions": "User sessions have a set timeout",
+  "sessionLength": 1234567,
+  "secureTransport": false,
+  "content": "Some of the data and content comes from sources that I don't own or control",
+  "contentSources": {
+    "default": [
+      "self",
+      "www.redit.com"
+    ],
+    "media": [
+      "self",
+      "*.pinterest.com",
+      "https://*.flickr.com",
+      "ftp://video.domain.com:21"
+    ],
+    "images": [
+      "self"
+    ],
+    "styles": [
+      "*.bootstrap.com",
+      "https://materializecss.com",
+      "self"
+    ],
+    "scripts": [
+      "self"
+    ],
+    "frames": [
+      "none"
+    ]
+  },
+  "forms": true,
+  "cacheStrategy": true,
+  "cacheTtl": 15780000,
+  "deployment": "Heroku",
+  "logging": "/var/log/appName/"
+}

@@ -1,5 +1,5 @@
 # \_spartan
-node application to package &amp; configure common security middleware into your application
+npm command line utility to package &amp; configure common security middleware into your application
 
 ## AUDIENCE
 \_spartan was created for developers of node.js applications, not security people. I am 100% convinced that no developer wants to be the one to write the line(s) of code that leads to innocent people having their credit ruined (amongst other things). I'm also 100% convinced that developers don't always know what they need to add/change/remove in their applications to make it "secure". And, selfishly, I made \_spartan for me, because I'm tired of "whack-a-mole" security, "hope-and-pray" security and playing the "is it a risk _really_?" game with developers.

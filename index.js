@@ -1,190 +1,235 @@
-#!/usr/bin/env node
-'use strict';
+#! /usr/bin/env node
+'use strict'
+var commander = require('commander')
+const text = require('cfonts')
+var { spawn, spawnSync } = require('child_process')
+var chalk = require('chalk')
+var hash
+var p = require('./policy')
+var a = p.read('./answers.json')
+var pkg = p.read('./package.json')
+var short = require('./question').nq
+var long = require('./question').lnq
+var confirmDelete = require('./question').confirmDelete
+var confirmSettings = require('./question').confirmSettings
+var confirmDeleteForce = require('./question').confirmDeleteForce
+var restoreDefault = require('./question').restoreDefault
+var inquirer = require('inquirer')
+var bp = require('./boilerplate')
+var all = ['snyk', 'bcrypt', 'passport', 'rbac', 'cors', 'winston', 'mime-types', 'js-cookie', 'cookie-parser', 'helmet', 'mongodb', 'csurf', 'validator', 'joi', 'redis', 'forms']
 
-var start = require("./start.js");
-const text = require("cfonts");
-var wp = require('./write-policy.js');
-var bp = require('./write-bp.js');
-var up = require('./update-policy.js');
-var fs = require('fs');
-var fse = require('fs-extra');
-var pkg = fs.readFileSync("./package.json");
-var pkgJson = JSON.parse(pkg);
-var path = require('path');
-var commander = require('commander');
-var opt = "";
-var secJsonPath = path.resolve("./security/security.json");
-var secJsPath = path.resolve("./security/security.js");
-var deleteLog = fs.createWriteStream('./logs/system/systemLogs');
-var errorLog = fs.createWriteStream('./logs/errors/errorLog');
-const { spawn } = require("child_process");
-
-async function begin (opt){
+async function ask (q) {
+  var answers = await inquirer.prompt(q)
+  return answers
+}
+function integrity (p) {
   try {
-    var a = await start.ans();
-    if (typeof a == 'object'){
-      var b = JSON.stringify(a, null, "  ");
-      console.log(b);
-      var c = await start.confirm();
-      if (!c) {
-        await begin(opt);
-      } else {
-        wp.writePolicy(a, opt);
-        console.log("Security artifacts are located in: "+ secJsonPath);
-      }
-    } else {
-      console.log ("there was a problem with this request, yo!");
-    }
+    const sha = spawn('shasum', ['-b', '-a', '384', p])
+    const xxd = spawn('xxd', ['-r', '-p'])
+    const b = spawn('base64')
+    sha.stdout.pipe(xxd.stdin)
+    xxd.stdout.pipe(b.stdin)
+    b.stdout.on('data', (data) => {
+      console.log((`SHA-384 hash of ${chalk.yellow(p)}: ${chalk.magenta(data)}`))
+      hash = data
+      return hash
+    })
+    b.stderr.on('data', (data) => {
+      console.error(`Error hashing security.json: ${data}`)
+    })
   } catch (e) {
-    console.log ("no work\n" + e.code, e.path);
+    throw new Error(`Could not calculate hash of security.json, ${e}`)
+  }
+}
+function nextSteps (modules) {
+  var npmCommand = chalk.bold.yellow(`npm install ${modules}`)
+  var url = chalk.green(`https://github.com/darkmsph1t/_spartan/wiki`)
+  var conf = chalk.bold.cyan(`javascriptEnabled: false`)
+  var whatsNext = `Next steps: \n\t1. Install necessary packages (copy/paste at command prompt inside project directory): \n\t\t\`${npmCommand}\n\t\t${chalk.cyan.dim('Psst! If you haven\'t already, install eslint-plugin-security to prevent vulnerabilties from being written into your code')}\`\n\t2.Disable Javascript execution in Mongo. \n\t\tAdd the following line inside the ${chalk.red('security section')} to \`${chalk.red.underline('mongod.conf')}\`: ${conf}\n\t\t${chalk.red.dim('Psst! Be sure to save the file and restart mongod!')}\n\t3.Wire in \`security.js\` components to your app. \n\t\tCheck ${url} for additional information\n`
+  return whatsNext
+}
+
+async function begin (cmd, opt = []) {
+  // default
+  if ((cmd === 'init' && opt === 'y') || (cmd === 'init' && opt === 'Y') || cmd === 'default') {
+    var basic = p.create('default')
+    console.log(basic[1])
+    integrity(basic[2])
+    var boiler = await bp.writeBoilerplate(basic[0])
+    // console.log(`The following modules were installed: \n`);
+    // for (var bin = 0; bin < (basicBp.modules).length; bin ++){
+    //   console.log(`${chalk.yellow(basicBp.modules[bin])}`);
+    // }
+    console.log(boiler.message + '\n')
+    integrity(boiler.pathToFile)
+    await console.log(nextSteps(boiler.modules))
+  } else if (cmd === 'update') { // update
+    if (opt === 'L') {
+      var l = await ask(long)
+      console.log(l)
+      var cl = await ask(confirmSettings)
+      if (cl.settingsConfirm) { p.create(cmd, l) } else { begin(cmd, 'L') }
+    } else {
+      var k = await ask(short)
+      //  p.create(cmd, k);
+      console.log(k)
+      var ck = await ask(confirmSettings)
+      if (ck.settingsConfirm) {
+        var up = await p.create(cmd, k)
+        console.log(up[1])
+        integrity(up[2])
+        var upBp = await bp.writeBoilerplate(up[0])
+        integrity(upBp.pathToFile)
+      } else { begin(cmd) }
+    }
+  } else if (cmd === 'force') { // force
+    try {
+      var pathToPolicy = require('./security.json')
+      var f = await bp.writeBoilerplate(pathToPolicy)
+      console.log('The following modules were installed as a result of the force command:')
+      console.log(chalk.yellow(bp.matches(all, f.modules)))
+      // removeModules(oldModules);
+      console.log('The following modules were removed as a result of the force command: ')
+      console.log(chalk.red(bp.diff(all, f.modules)))
+      integrity('security.js')
+    } catch (e) {
+      console.log('No policy file found. Please run `_spartan init` to build your policy first.', e.code, e.path)
+    }
+  } else if (cmd === 'delete') { // delete
+    if (opt === 'F') {
+      var forceConfirm = await ask(confirmDeleteForce)
+      if (forceConfirm.deleteForceConfirm) {
+        p.deletePolicy()
+        bp.removeModules()
+      } else { console.log('Policy Not deleted\n') }
+    } else {
+      var d = await ask(confirmDelete)
+      if (d.deleteConfirm) { p.deletePolicy() } else { console.log('Policy Not deleted\n') }
+    }
+  } else if (cmd === 'no-overwrite') { // no-overwrite
+    try {
+      var nope = await ask(short)
+      console.log(nope)
+      var bop = await ask(confirmSettings)
+      if (bop.settingsConfirm) {
+        p.create(cmd, a)
+      } else {
+        begin(cmd)
+      }
+    } catch (e) {
+      throw new Error('Could not create a separate policy file')
+    }
+  } else if (cmd === 'set-as-default') { // set-as-default
+    try {
+      var newPolicy = p.strip(p.read('./security.json'))
+      p.wp(newPolicy, './security-default.json')
+      var successMessage = 'Successfully replaced default policy'
+      integrity('./security-default.json')
+      console.log(successMessage)
+      return successMessage
+    } catch (e) {
+      console.error('No policy file found. Please run `_spartan init` to build your policy first.')
+    }
+  } else if (cmd === 'integrity') {
+    integrity('security.json')
+    integrity('security.js')
+  } else if (cmd === 'resetDefault') {
+    var r = await ask(restoreDefault)
+    if (r.restore) {
+      const downloadUrl = 'https://raw.githubusercontent.com/darkmsph1t/_spartan-factory-default/master/security-default.json'
+      const checkHashUrl = 'https://github.com/darkmsph1t/_spartan-factory-default'
+      console.log(`Restoring security-default.json from ${chalk.yellow(downloadUrl)}...`)
+      try {
+        var reset = spawnSync('wget', [downloadUrl, '-O', './security-default.json'], { stdio: 'pipe' })
+        console.log(reset.output[2].toString())
+        integrity('./security-default.json')
+        console.log(`Default file has been restored. Check ${chalk.yellow(checkHashUrl)} to validate integrity of the file before proceeding`)
+      } catch (err) {
+        console.log(`There was a problem restoring the default policy to factory settings, ${err}. Download the policy directly from ${downloadUrl}`)
+      }
+    }
+  } else {
+    var i = await ask(short)
+    console.log(i)
+    var z = await ask(confirmSettings)
+    if (!z.settingsConfirm) {
+      begin('init')
+    } else {
+      var full = p.create('init', i)
+      console.log(full[1])
+      integrity(full[2])
+      var fullBp = await bp.writeBoilerplate(full[0])
+      // console.log(`The following modules were installed: \n`);
+      // for (var fin = 0; fin < (fullBp.modules).length; fin ++){
+      //   console.log(`${chalk.yellow(fullBp.modules[fin])}`);
+      // }
+      console.log(fullBp.message + '\n')
+      integrity(fullBp.pathToFile)
+      console.log(nextSteps(fullBp.modules))
+    }
   }
 }
 text.say('_spartan', {
-  font : 'simple',
-  align : 'left',
-  colors : ['red'],
-  space : false
-});
+  font: 'simple',
+  align: 'left',
+  colors: ['red'],
+  space: false
+})
 text.say('by @darkmsph1t', {
-  font : 'console',
-  align : 'center',
-  colors : ['cyan'],
-  space : false
-});
+  font: 'console',
+  align: 'center',
+  colors: ['cyan'],
+  space: false
+})
 
-//spartan.banner("_spartan");
 commander
-  .version(pkgJson.version, '-v, --version')
-  .option('init [y][yes]', 'Runs the configuration wizard, unless you also use the \'--y\' or \'--yes\' flag to just accept the policy defaults')
-  .option('-d, --default', 'Builds a preconfigured, default security policy and security.js')
-  .option('-f, --force', 'Force a complete regeneration of the boilerplate code defined in security.js. Typically used after making a manual adjustment to the security.json file')
-  .option('-u, --update [--L]', 'Updates the latest policy as defined in security.json using the configuration wizard. Use \'--L\' to use long-form questions.')
-  .option('-n, --no-overwrite', 'Creates a new policy and security.js file without overwriting the previous files. The filename will have the policy number appended')
-  .option('--del, --delete [F]', 'Deletes the most recent security.json AND the security.js files. It does not remove any of the dependencies from package.json, unless it is run with the \'F\' flag')
-  .option('--set-as-default', 'Sets the latest policy as the default. Any future policies generated with the default option will reference this policy.')
-  .parse(process.argv);
+  .version(pkg.version, '-v, --version')
+  .option('init, [y][Y][L]', 'Initialize a new policy. Use y | Y for defaults. Use L for long-form questions\n')
+  .option('-D, --default', 'Builds a preconfigured, default security policy and security.js installed modules\n')
+  .option('-u, --update [L]', 'Update the existing policy. Use the L flag to update using long-form questions\n')
+  .option('-f, --force ', 'Force a complete regeneration of the boilerplate code defined in security.js. \n' +
+                                 '\t\t\t Typically used after making a manual adjustment to the security.json file.\n')
+  .option('--no-overwrite [L]', 'Creates a new policy without overwriting the existing policy. \n' +
+                                  '\t\t\t Use L for long-form questions\n')
+  .option('--del, --delete [F]', 'Remove the policy and boilerplate code. Use F option to remove any installed modules\n')
+  .option('--set-as-default', 'Sets the current policy as the default policy\n')
+  .option('-R, --reset-default', 'Restores the default policy to factory settings. Requires wget\n')
+  .option('-i, --integrity', 'SHA-384 hash of existing policy')
+  .option('--deploy', 'Deploys the app using the specification from security.json')
+  .parse(process.argv)
 
-  /*coming soon!
-  .option('--audit [check]', 'Runs a basic code audit and fuzzer to see if the application is actually enforcing the policy')
-  */
-
-  if(commander.init){
-    if(!commander.init[0]){
-      console.log("Thanks for using _spartan! Here's how it works: \n* After answering a few questions, _spartan will generate a policy file (security.json).\n* Based upon the contents, _spartan generates the basic boilerplate code (security.js) which can be referenced in your application.\n* _spartan will also update the application's package.json file if additional dependencies are required.\n");
-      opt = "init";
-      begin(opt);
-    } else {
-      opt = "default";
-      wp.writePolicy(undefined, opt);
-      console.log("\n\nYour policy is located in: " + secJsonPath);
-    }
-    //may want to add something that also tells the user what modules were installed and which dependencies were added to package.json...wonder if we can keep this in a variable somewhere for easy reference later
+if (commander.init) {
+  if (commander.init === 'y' || commander.init === 'Y' || commander.init === 'L') {
+    begin('init', commander.init)
+  } else {
+    begin('init')
   }
-  else if (commander.default){
-    opt = "default";
-    wp.writePolicy(undefined, opt);
-    console.log("\n\nYou selected "+ opt +". Excellent choice!\nYour policy is located in: "+ secJsonPath);
+} else if (commander.default) {
+  begin('default')
+} else if (commander.update) {
+  if (!p.read('./security.json')) {
+    throw new Error('No policy file found')
+  } else {
+    begin('update')
   }
-  else if (commander.force){
-      //parse security.json and re-write security.js
-      opt = "force";
-      bp.writeBp(opt);
+} else if (commander.force) {
+  begin('force')
+} else if (!commander.overwrite) {
+  begin('no-overwrite')
+} else if (commander.delete) {
+  begin('delete')
+  if (commander.delete[0] === 'F') {
+    begin('delete', 'F')
   }
-  else if (commander.update){
-    opt = "update";
-    if (commander.update[0] == 'L'){
-      //populate the questionnaire defaults with the answers from existing security.json
-      //run the long-form questionnaire using these defaults
-    } else {
-      up.updatePolicy();
-    }
-  }
-  else if (!commander.overwrite){
-    opt = "no-overwrite";
-    begin(opt);
-    //// IDEA: Add option to run through the long-form questionnaire
-  }
-  else if (commander.delete){
-    opt = "delete";
-    async function del(){
-      //ask the user if they are sure they want to do this: "Are you sure? This action is not reversable"
-      var d = await start.deleteSecurity();
-      if (d){
-        if (commander.delete[0] == 'F'){
-          //Identify all dependencies that were added. Remove dependencies from package.json using 'npm uninstall <package name> --save'. Remove security.json and security.js.
-          var m = bp.addMiddleware();
-          console.log("These are the packages that were installed by _spartan and will be removed: \n");
-          for (var i = 0; i < m.length; i++){
-            console.log(m[i]);
-          }
-          var f = await start.confirmPkgRemove();
-          if (f){
-              for (var j = 0; j < m.length; j++){
-              const child = spawn('npm', ['uninstall', m[j]]);
-              console.log(m[j] + ' has been uninstalled');
-              child.stdout.on('data', (data) => {
-                deleteLog.write(data);
-              });
-
-              child.stderr.on('data', (data) => {
-                errorLog.write(data);
-              });
-            }
-            fs.unlink(secJsonPath, function(err){
-              if(err) {return console.log("File was not deleted " + err.code, err.path);}
-              else { return console.log(secJsonPath + " was deleted successfully.");}
-            });
-            fs.unlink(secJsPath, function(err){
-              if(err) {return console.log("File was not deleted " + err.code, err.path);}
-              else { return console.log(secJsPath + " was deleted successfully.");}
-            });
-          } else {
-            console.log("These packages were not removed");
-          }
-        } else {
-          fs.unlink(secJsonPath, function(err){
-            if(err) {return console.log("File was not deleted " + err.code, err.path);}
-            else { return console.log(secJsonPath + " was deleted successfully.");}
-          });
-          fs.unlink(secJsPath, function(err){
-            if(err) {return console.log("File was not deleted " + err.code, err.path);}
-            else { return console.log(secJsPath + " was deleted successfully.");}
-          });
-        }
-      } else {
-        console.log("Files were not deleted");
-      }
-    }
-    del();
-  }
-  else if (commander.setAsDefault){
-    opt = "setAsDefault";
-    var secDefaultPath = './security/security-default.json';
-    console.log("You selected: Set As Default\n");
-    async function setAsDefault(){
-        var s = await start.changeDefault();
-        if (s){
-            fs.copyFile(secJsonPath, secDefaultPath, function(err){
-              if(err) { console.log("There was a problem with your request: " + err.code, err.path);}
-            //return console.log("User selected to continue copy");
-            var woot = JSON.parse(fs.readFileSync(secDefaultPath));
-            woot._policyId = "";
-            woot.applicationName = "";
-            woot.applicationType = "";
-            woot.hostname = "";
-            woot.deployment = "";
-            var toow = JSON.stringify(woot, null, ' ');
-            fs.writeFile(secDefaultPath, toow, function (err){
-              if(err) throw err;
-              console.log("The file has been saved");
-            });
-          });
-        } else {
-          return console.log("User selected not to continue");
-        }
-      }
-    setAsDefault();
-} else if (commander.args.length == 0) {commander.help();}
-  else {
-    console.error(commander.args + " is not an available option. Please try again.");
-  }
+} else if (commander.setAsDefault) {
+  begin('set-as-default')
+} else if (commander.integrity) {
+  begin('integrity')
+} else if (commander.resetDefault) {
+  begin('resetDefault')
+} else if (commander.args.length === 0) { commander.help() } else {
+  console.log('That is not an avaiable option')
+}
+module.exports.ask = ask
+module.exports.begin = begin
+module.exports.integrity = integrity
