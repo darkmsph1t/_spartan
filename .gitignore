@@ -1,6 +1,8 @@
 # System files & folders
 .DS_Store
 images/
+security.json
+security.js
 
 # Logs
 logs
