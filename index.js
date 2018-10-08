@@ -93,7 +93,7 @@ async function begin (cmd, opt = []) {
       console.log(chalk.red(bp.diff(all, f.modules)))
       integrity('security.js')
     } catch (e) {
-      console.log('No policy file found. Please run `_spartan init` to build your policy first.', e.code, e.path)
+      console.log('No policy file found. Please run `_spartan init` to build your policy first.')
     }
   } else if (cmd === 'delete') { // delete
     if (opt === 'F') {
