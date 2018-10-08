@@ -8,7 +8,6 @@ const security = require('./security')
 let sessionizer = security.sessions.sessioner
 const csrf = require('csurf')
 let cookieMaker = security.sessions.cookieMaker
-let cookieMonster = security.sessions.cookieMonster
 const User = security.auth.model
 const cors = security.cors
 const cache = require('./security').cache
@@ -178,7 +177,6 @@ app.get('/profile', function (request, response, next) {
   }
 })
 app.get('/logout', function (request, response, next) {
-
   if (request.session) {
     request.session.destroy(function (err) {
       if (err) return next(err)

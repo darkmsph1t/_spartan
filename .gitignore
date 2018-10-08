@@ -1,5 +1,8 @@
 # System files & folders
 .DS_Store
+example/example.com/node_modules/
+_spartan_old/
+node_modules/
 images/
 security.json
 security.js

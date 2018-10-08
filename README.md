@@ -20,7 +20,7 @@ node application to package &amp; configure common security middleware into your
 ## USAGE!
 1. **\_installation**
 Installing \_spartan is straightforward:
-    1. First install the utility: `$ npm i _spartan -g`
+    1. First install the utility: `$ npm install -g spartan_shield`
        * Note : this assumes you have already built your app (and package.json) with `npm init`
     1. Next, invoke \_spartan from the command line with options: `$ _spartan [keywords][flags][options]`
 1. **\_keywords**
