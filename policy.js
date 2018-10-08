@@ -1,12 +1,12 @@
 'use strict';
 var chalk = require('chalk');
 var uniqid = require('uniqid');
-var t = require('./transpose.js');
+var t = require(`${__dirname}/transpose.js`);
 var fs = require('fs');
 var path = require('path');
 const uniqueString = require('unique-string');
 var pkgJson = require('./package.json');
-var pathToDefault = path.resolve('./security-default.json');
+var pathToDefault = path.resolve(`${__dirname}/security-default.json`);
 
   /* POLICY METADATA INFO (IDs, STRUCTURE) */
 function keyCount(p){
