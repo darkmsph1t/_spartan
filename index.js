@@ -6,16 +6,16 @@ var { spawn, spawnSync } = require('child_process')
 var chalk = require('chalk')
 var hash
 var p = require('./policy')
-var a = p.read('./answers.json')
+var a = p.read(__dirname +'/answers.json')
 var pkg = p.read('./package.json')
-var short = require('./question').nq
-var long = require('./question').lnq
-var confirmDelete = require('./question').confirmDelete
-var confirmSettings = require('./question').confirmSettings
-var confirmDeleteForce = require('./question').confirmDeleteForce
-var restoreDefault = require('./question').restoreDefault
+var short = require(__dirname + '/question').nq
+var long = require(__dirname + '/question').lnq
+var confirmDelete = require(__dirname + '/question').confirmDelete
+var confirmSettings = require(__dirname + '/question').confirmSettings
+var confirmDeleteForce = require(__dirname + '/question').confirmDeleteForce
+var restoreDefault = require(__dirname + '/question').restoreDefault
 var inquirer = require('inquirer')
-var bp = require('./boilerplate')
+var bp = require(__dirname + '/boilerplate')
 var all = ['snyk', 'bcrypt', 'passport', 'rbac', 'cors', 'winston', 'mime-types', 'js-cookie', 'cookie-parser', 'helmet', 'mongodb', 'csurf', 'validator', 'joi', 'redis', 'forms']
 
 async function ask (q) {
@@ -122,17 +122,17 @@ async function begin (cmd, opt = []) {
   } else if (cmd === 'set-as-default') { // set-as-default
     try {
       var newPolicy = p.strip(p.read('./security.json'))
-      p.wp(newPolicy, './security-default.json')
+      p.wp(newPolicy, `${__dirname}/security-default.json`)
       var successMessage = 'Successfully replaced default policy'
-      integrity('./security-default.json')
+      integrity(`${__dirname}/security-default.json`)
       console.log(successMessage)
       return successMessage
     } catch (e) {
       console.error('No policy file found. Please run `_spartan init` to build your policy first.')
     }
   } else if (cmd === 'integrity') {
-    integrity('security.json')
-    integrity('security.js')
+    integrity('./security.json')
+    integrity('./security.js')
   } else if (cmd === 'resetDefault') {
     var r = await ask(restoreDefault)
     if (r.restore) {
@@ -140,9 +140,9 @@ async function begin (cmd, opt = []) {
       const checkHashUrl = 'https://github.com/darkmsph1t/_spartan-factory-default'
       console.log(`Restoring security-default.json from ${chalk.yellow(downloadUrl)}...`)
       try {
-        var reset = spawnSync('wget', [downloadUrl, '-O', './security-default.json'], { stdio: 'pipe' })
+        var reset = spawnSync('wget', [downloadUrl, '-O', `${__dirname}/security-default.json`], { stdio: 'pipe' })
         console.log(reset.output[2].toString())
-        integrity('./security-default.json')
+        integrity(__dirname + '/security-default.json')
         console.log(`Default file has been restored. Check ${chalk.yellow(checkHashUrl)} to validate integrity of the file before proceeding`)
       } catch (err) {
         console.log(`There was a problem restoring the default policy to factory settings, ${err}. Download the policy directly from ${downloadUrl}`)
