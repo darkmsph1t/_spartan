@@ -1,6 +1,6 @@
 {
-  "name": "-spartan",
-  "version": "1.0.0",
+  "name": "spartan-shield",
+  "version": "1.0.1",
   "description": "nodejs project to package and configure common security middleware.",
   "main": "index.js",
   "scripts": {
