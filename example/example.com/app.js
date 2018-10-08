@@ -2,45 +2,27 @@
 // required middleware
 let express = require('express')
 let bodyParser = require('body-parser')
-let session = require('express-session')
-let MongoStore = require('connect-mongo')(session)
-// let csrf = require('csurf')
 let cookieParser = require('cookie-parser')
 // local modules and variables
 const security = require('./security')
+let sessionizer = security.sessions.sessioner
+const csrf = require('csurf')
+let cookieMaker = security.sessions.cookieMaker
+let cookieMonster = security.sessions.cookieMonster
 const User = security.auth.model
 const cors = security.cors
 const cache = require('./security').cache
-const { registerRules, loginRules } = require('./schemas/formSchema')
+// const { loginRules } = require('./schemas/formSchema')
 // application plumbing
 const database = require('./security').database
 let secureConnection = security.connections.secureServer
 let redirectSecure = security.connections.redirectHttp
-
 // connect to the db
 database()
 
-// const csrfMiddleware = csrf({
-//   cookie: true
-// })
 let app = express()
-app.use(session({
-  secret: security.secrets.fetchSecret('SESSION_SECRET'),
-  resave: true,
-  saveUninitialized: false,
-  cookie: {
-    path: '/',
-    httpOnly: true,
-    secure: true,
-    sameSite: true,
-    maxAge: 6000
-  },
-  // store: new MongoStore({
-  //   mongooseConnection: database,
-  //   ttl: (600)
-  // }),
-  name: 'spartan'
-}))
+app.use(sessionizer())
+
 app.use(bodyParser.json({
   type: ['json', 'application/cspviolations']
 }))
@@ -48,23 +30,27 @@ app.use(express.json())
 app.use(express.urlencoded({
   extended: true
 }))
+const csrfMiddleware = csrf({
+  cookie: true
+})
 app.use(cookieParser())
-// app.use(csrfMiddleware)
+app.use(csrfMiddleware)
 app.use(cors())
 app.use(security.headers.setHeaders({ csp: true, cdp: true, sts: { usePolicy: true }, hidePower: { setTo: 'Your Mom\'s House' } }))
 
 app.get('/', function (request, response) {
   let cacheHeaders = cache()
   response.set(cacheHeaders)
+  // let test = request.csrfToken()
   // response.send(`
   //   <h1>Hello World</h1>
-  //   <form action="/entry" method="POST">
+  //   <form action="/entry" method="post">
   //     <div>
   //       <label for="message">Enter a message</label>
   //       <input id="message" name="message" type="text" />
   //     </div>
   //     <input type="submit" value="Submit" />
-  //     <input type="hidden" name="_csrf" value="${request.csrfToken()}" />
+  //     <input type="hidden" name="_csrf" value="${test}" />
   //   </form>
   // `)
   response.render('index.ejs')
@@ -74,12 +60,31 @@ app.post('/entry', function (request, response) {
   response.send(`CSRF token used: ${request.body._csrf}, Message received: ${request.body.message}`)
 })
 
-app.get('/register', function (request, response) {
+app.get('/register', function (request, response, next) {
   let registrationForm = security.forms
-  response.send(registrationForm(request).generateForm(registerRules))
+  response.send(` <h1>Registration</h1>
+    <form action="/register" autocomplete=${registrationForm(request).autocomplete} method="post">
+      <div>
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" />
+      </div>
+      <div>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="text" />
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" />
+      </div>
+      <div>
+        <label for="confirm">Confirm Password</label>
+        <input id="confirm" name="confirm" type="password" />
+      </div>
+      <input type="submit" value="Submit" />
+      <input type="hidden" name="_csrf" value="${request.csrfToken()}" />
+    </form>`)
   // response.render('register.ejs')
 })
-
 app.post('/register', function (request, response, next) {
   if (request.body.username && request.body.email && request.body.password && request.body.confirm) {
     if (request.body.password !== request.body.confirm) {
@@ -107,15 +112,36 @@ app.post('/register', function (request, response, next) {
   }
 })
 app.get('/thanks', function (request, response, next) {
-  response.send(`Thanks for registering ${app.locals.username}`)
+  let options = {
+    name: 'floopy',
+    value: 1928347,
+    options: { expires: new Date(Date.now() + 900000), path: '/' }
+  }
+  cookieMaker(request, response, options, function (err) {
+    if (err) {
+      next(err)
+    } else {
+      response.send(`Thanks for registering ${app.locals.username}.`)
+    }
+  })
 })
 app.get('/login', function (request, response) {
   let loginForm = security.forms
   // should also include some form parameters to ensure that no one is overloading the field
-  response.send(loginForm(request).generateForm(loginRules))
+  response.send(` <h1>Login</h1> <form action="/login" autocomplete="${loginForm(request).autocomplete}" method="post">
+                  <div> <label for="email">Email</label>
+                  <input id="email" name="email" type="text" /></div>
+                  <div> <label for="password">Password</label>
+                  <input id="password" name="password" type="password" /></div>
+                  <input type="submit" value="Submit" /><input type="hidden" name="_csrf" value="${request.csrfToken()}" />
+                  </form>`)
   // response.render('login.ejs')
 })
 app.post('/login', function (request, response, next) {
+  // check to see if the user is already authenticated
+  // if (request.session && request.body.email) {
+  //   response.redirect('/profile')
+  // } else {
   if (request.body.password && request.body.email) {
     // authenticate
     User.getAuthenticated(request.body.email, request.body.password, function (err, user, reason) {
@@ -137,23 +163,28 @@ app.post('/login', function (request, response, next) {
     error.status = 401
     next(error)
   }
+  // }
 })
 app.get('/profile', function (request, response, next) {
   if (!request.session.userId) {
     let err = new Error('You need to be logged in to access this page')
     err.status = 403
     next(err)
+  } else {
+    User.findById(request.session.userId, function (error, user) {
+      if (error) return next(error)
+      else return response.send(`Welcome back, ${user.username}! We missed you!`)
+    })
   }
-  User.findById(request.session.userId, function (error, user) {
-    if (error) return next(error)
-    else return response.send(`Welcome back, ${user.username}! We missed you!`)
-  })
 })
 app.get('/logout', function (request, response, next) {
+
   if (request.session) {
     request.session.destroy(function (err) {
       if (err) return next(err)
-      else return request.redirect('/')
+      else {
+        response.redirect('/')
+      }
     })
   }
 })

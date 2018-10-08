@@ -18,7 +18,7 @@ schema.pre('save', function (next) {
 
   // generate a salt
   const ROUNDS = require('./secrets').fetchSecret('HASH_ROUNDS') || 10
-  bcrypt.genSalt(ROUNDS, function (err, salt) {
+  bcrypt.genSalt(10, function (err, salt) {
     if (err) return next(err)
 
     bcrypt.hash(user.password, salt, function (err, hash) {
