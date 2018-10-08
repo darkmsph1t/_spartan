@@ -36,7 +36,7 @@ const registrationFormSchema = {
       }
     }
   },
-  action: '/register',
+  action: '/test',
   submit: 'Submit'
 }
 
