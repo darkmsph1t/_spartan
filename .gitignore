@@ -8,9 +8,8 @@ node_modules/
 images/
 security.json
 security.js
-node_modules/
-_spartan_old
-example/example.com/node_modules/
+errors.json
+audit.js
 
 # Logs
 logs
