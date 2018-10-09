@@ -2,7 +2,8 @@
 var chalk = require('chalk');
 var uniqid = require('uniqid');
 var t = require(`${__dirname}/transpose.js`);
-var fs = require('fs');
+// var fs = require('fs');
+var fs = require('fs-extra')
 var path = require('path');
 const uniqueString = require('unique-string');
 var pkgJson = require('./package.json');
@@ -132,17 +133,17 @@ function deletePolicy() {
   try {
     var pathToPolicy = path.resolve('./security.json');
     var pathToBoilerPlate = path.resolve('./security.js');
+    var pathToCodeFolder = path.resolve('./security/')
     var m = JSON.parse(fs.readFileSync(pathToPolicy));
     var policyNumber = m.policyId;
     fs.unlink(pathToBoilerPlate, function (err){
-      if (err) { throw new Error (err) } else {
-        //do some stuff to record the error
-      }
+      if (err) { throw new Error (`Couldn't remove ${pathToBoilerPlate}: ${err}`) } 
     });
     fs.unlink(pathToPolicy, function (err){
-      if (err) {  throw new Error (err);} else {
-        //do some stuff to record the deletion in a file
-      }
+      if (err) {  throw new Error (`Couldn't remove ${pathToPolicy} : ${err}`);} 
+    });
+    fs.remove(pathToCodeFolder, function (err) {
+      if (err) { throw new Error(`Couldn't remove folder ${pathToCodeFolder}: ${err}`)}
     });
     var msg = chalk.magenta(`All artifacts related to policy ${policyNumber} have been removed from the file system.\n`);
     console.log(msg);
