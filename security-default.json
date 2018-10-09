@@ -1,5 +1,5 @@
 {
-  "policyId": "d8d4c7e22fa437daccc507e90b514329",
+  "policyId": "d5e76fc7b59ee0ce6aed70d7a6ac9a92",
   "applicationType": "Web",
   "internetFacing": true,
   "hostname": "localhost",
@@ -31,9 +31,8 @@
         "jwt"
       ],
       "passwords": {
-        "minLen": 12,
-        "maxLen": 24,
-        "regex": "/[a-z]{3}[A-Z]{3}[0-9]{3}[! @#$%^&*<`]{3}/",
+        "length": 12,
+        "matches": "^[a-zA-Z0-9!@#$%^&*()_\\-+=]$",
         "expires": 0,
         "supportedHashes": [
           "bcrypt",
@@ -42,7 +41,7 @@
         ],
         "lockout": {
           "attempts": 3,
-          "automaticReset": 60000,
+          "automaticReset": false,
           "tarpitDefault": 1000
         }
       },
@@ -72,6 +71,17 @@
       }
     }
   },
+  "secretStorage": {
+    "enabled": true,
+    "compensatingControl": false,
+    "config": {
+      "environmentVariables": null,
+      "sourceControl": {
+        "enabled": false,
+        "expires": 600
+      }
+    }
+  },
   "formProtection": {
     "enabled": true,
     "compensatingControl": false,
@@ -97,8 +107,8 @@
         "forceLogoutOnWindowClose": true
       },
       "duration": {
-        "idle": 900,
-        "ttl": 3600,
+        "idle": 300000,
+        "ttl": 600000,
         "automaticRenewal": false
       },
       "cookies": {
@@ -106,12 +116,12 @@
           "_Host",
           "_Secure"
         ],
-        "name": "ex",
         "maxAge": 600000,
         "httpOnly": true,
         "secure": true,
+        "hostOnly": true,
         "sameSite": "strict",
-        "domain": null,
+        "domain": false,
         "path": "/"
       },
       "csrfSettings": {
@@ -149,10 +159,7 @@
       "csp": {
         "directives": {
           "default-src": [
-            "'self'",
-            "//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css",
-            "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css",
-            "'sha256-oDvGfLggf2wgchTO+aYM3DS6uWFoJ4lO+9FZhrId/rM='"
+            "'self'"
           ],
           "media-src": [
             "'self'"
@@ -164,10 +171,7 @@
             "'self'"
           ],
           "font-src": [
-            "'self'", "https://netdna.bootstrapcdn.com/bootstrap/3.0.2/fonts/glyphicons-halflings-regular.woff",
-            "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.woff?v=4.0.3",
-            "https://netdna.bootstrapcdn.com/bootstrap/3.0.2/fonts/glyphicons-halflings-regular.ttf",
-            "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.ttf?v=4.0.3"
+            "'self'"
           ],
           "connect-src": [
             "'self'"
@@ -194,12 +198,10 @@
             "'none'"
           ],
           "script-src": [
-            "'self'", "'sha256-mFk0pxAPYdPqajE94Zgp/eiUkB1QNehaPCv6Fbwp63Y='"
+            "'self'"
           ],
           "style-src": [
-            "'self'", "'sha256-oDvGfLggf2wgchTO+aYM3DS6uWFoJ4lO+9FZhrId/rM='",
-            "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css",
-            "https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"
+            "'self'"
           ]
         },
         "upgradeInsecureRequests": true,
@@ -271,6 +273,7 @@
       "enabled": true,
       "compensatingControl": false,
       "routeOverload": false,
+      "ttl": 600,
       "cacheControl": [
         "no-cache",
         "no-store",
@@ -326,11 +329,7 @@
     "enabled": true,
     "compensatingControl": false,
     "supportedDatabases": [
-      "mongodb",
-      "ravendb",
-      "postgres",
-      "sqlite",
-      "couchdb/pouchdb"
+      "mongodb"
     ],
     "config": {
       "disableJsExecution": true,
@@ -374,7 +373,7 @@
     "default": "same-origin",
     "compensatingControl": false,
     "corsSettings": {
-      "enabled": true,
+      "enabled": false,
       "config": {
         "whitelist": [],
         "preflightRequests": {
