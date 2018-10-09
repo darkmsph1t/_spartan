@@ -1,28 +1,13 @@
-# \_spartan
+## THIS. IS.\_SPARTAN!
 node application to package &amp; configure common security middleware into your application
 
-## AUDIENCE
-\_spartan was created for developers of node.js applications, not security people. I am 100% convinced that no developer wants to be the one to write the line(s) of code that leads to innocent people having their credit ruined (amongst other things). I'm also 100% convinced that developers don't always know what they need to add/change/remove in their applications to make it "secure". And, selfishly, I made \_spartan for me, because I'm tired of "whack-a-mole" security, "hope-and-pray" security and playing the "is it a risk _really_?" game with developers.
-
-## THIS. IS.\_SPARTAN!
-1. You define and configure your application's security policy by answering a series of questions about the app
-1. \_spartan generates a `security.json` file which essentially serves as the technical specification of your application's security policy. This file ultimately serves three purposes:
-    * It is the basis upon which the `security.js` file is created. More on that below.
-    * It _is_ your application's security policy. This is a really quick, easy thing you can show to auditors or push into your org's downstream auditing engines.
-    * It is the entry-level requirement to use with `_phlanax`. I won't belabor the point here, but if your app is a microservice operating as part of a larger web application _platform_, \_phlanax ensures that all of the other apps in the platform are operating at a common security level.
-1. We parse the policy file and generate `security.js` which contains the boilerplate code that you will actually wire up in your app.
-1. We update the `package.json` file with any/all modules required to make this whole thing work. All you have to do is: `require($PATH/security.js)`
-
-### THIS. IS. NOT.\_SPARTAN!
-1. \_spartan is not intended to make your app completely 'breach proof'. After all, if your app's business logic is such that it creates or introduces a vulnerability, \_spartan will not be able to influence that. \_spartan _will_ allow your app to be built from a 'secure by default' baseline so that developers, architects and product owners can make _**deliberate, measurable**_ security risk decisions.  
-1. While the security.json file serves as a great way to describe and _attest_ to your application's security policies, it _is not_ the only thing you need to have or present in order to pass an audit. Stay tuned for a PR that includes an audit-only role which will not only produce the security.json policy, but also the `.snyk` vulnerability report and a **basic** code review.  
-
-## USAGE!
-1. **\_installation**
+## QUICK START!
+**\_installation**
 Installing \_spartan is straightforward:
     1. First install the utility: `$ npm install -g spartan-shield`
        * Note : this assumes you have already built your app (and package.json) with `npm init`
     1. Next, invoke \_spartan from the command line with options: `$ _spartan [keywords][flags][options]`
+
 1. **\_keywords**
     * There's really only one keyword: `init`. This will run the configuration wizard, unless you also use the `-y | -yes` flag to just accept the defaults and use the canned policy like this: `$ _spartan init -y` OR `$ _spartan init -yes`
 1. **\_flags**
