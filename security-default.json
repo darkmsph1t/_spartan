@@ -1,11 +1,13 @@
 {
-  "policyId": "",
-  "applicationName": "",
-  "applicationType": "",
-  "internetFacing": "",
+  "policyId": "d5e76fc7b59ee0ce6aed70d7a6ac9a92",
+  "applicationType": "Web",
+  "internetFacing": true,
   "hostname": "localhost",
   "deployment": "locally hosted",
-  "integrityService" : ["openssl", "shasum"],
+  "integrityService": [
+    "openssl",
+    "shasum"
+  ],
   "appDependencies": {
     "enabled": true,
     "compensatingControl": false,
@@ -30,7 +32,7 @@
       ],
       "passwords": {
         "length": 12,
-        "matches" : "^[a-zA-Z0-9!@#$%^&*()_\\-+=]$",
+        "matches": "^[a-zA-Z0-9!@#$%^&*()_\\-+=]$",
         "expires": 0,
         "supportedHashes": [
           "bcrypt",
@@ -69,14 +71,14 @@
       }
     }
   },
-  "secretStorage" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "config" : {
-      "environmentVariables" : null,
-      "sourceControl" : {
-        "enabled" : false,
-        "expires" : 600
+  "secretStorage": {
+    "enabled": true,
+    "compensatingControl": false,
+    "config": {
+      "environmentVariables": null,
+      "sourceControl": {
+        "enabled": false,
+        "expires": 600
       }
     }
   },
@@ -136,18 +138,18 @@
       "concurrentLogins": false
     }
   },
-  "apiPolicy" : {
-    "enabled" : null,
-    "compensatingControl" : null,
-    "rateLimiting" : {
-      "maxRequests" : 500,
-      "withinTimeframe" : 60
+  "apiPolicy": {
+    "enabled": null,
+    "compensatingControl": null,
+    "rateLimiting": {
+      "maxRequests": 500,
+      "withinTimeframe": 60
     },
-    "jwt" : {
-      "issuer" : null,
-      "audience" : null,
-      "exp" : 600,
-      "nbf" : null
+    "jwt": {
+      "issuer": null,
+      "audience": null,
+      "exp": 600,
+      "nbf": null
     }
   },
   "securityHeaders": {
@@ -157,41 +159,49 @@
       "csp": {
         "directives": {
           "default-src": [
-            "self"
+            "'self'"
           ],
           "media-src": [
-            "self"
+            "'self'"
           ],
-          "base-uri" : ["self"],
+          "base-uri": [
+            "'self'"
+          ],
           "img-src": [
-            "self"
+            "'self'"
           ],
           "font-src": [
-            "self"
+            "'self'"
           ],
           "connect-src": [
-            "self"
+            "'self'"
           ],
           "object-src": [
-            "self"
+            "'self'"
           ],
-          "plugin-types" : ["not.set.if.obj-src.is.not.set"],
+          "plugin-types": [
+            "'not.set.if.obj-src.is.not.set'"
+          ],
           "child-src": [
-            "self"
+            "'self'"
           ],
-          "frame-src" : ["self"],
+          "frame-src": [
+            "'self'"
+          ],
           "frame-ancestors": [
-            "none"
+            "'none'"
           ],
-          "manifest-src" : ["self"],
+          "manifest-src": [
+            "'self'"
+          ],
           "worker-src": [
-            "none"
+            "'none'"
           ],
           "script-src": [
-            "self"
+            "'self'"
           ],
           "style-src": [
-            "self"
+            "'self'"
           ]
         },
         "upgradeInsecureRequests": true,
@@ -202,12 +212,12 @@
         },
         "sandbox": {
           "enable": true,
-          "allowPopUps": true,
-          "allowTopNavigation": true,
-          "allowSameOrigin": true,
-          "allowForms": true,
-          "allowPointerLock": true,
-          "allowScripts": true
+          "allow-popups": true,
+          "allow-top-navigation": true,
+          "allow-same-origin": true,
+          "allow-forms": false,
+          "allow-pointer-lock": true,
+          "allow-scripts": true
         },
         "reflectedXSS": {
           "allow": false,
@@ -263,7 +273,7 @@
       "enabled": true,
       "compensatingControl": false,
       "routeOverload": false,
-      "ttl" : 600,
+      "ttl": 600,
       "cacheControl": [
         "no-cache",
         "no-store",
@@ -318,40 +328,42 @@
   "dbSecurityPolicy": {
     "enabled": true,
     "compensatingControl": false,
-    "supportedDatabases" : ["mongodb"],
+    "supportedDatabases": [
+      "mongodb"
+    ],
     "config": {
       "disableJsExecution": true,
       "globalOperatorsDisabled": true,
       "encryptBeforeStore": true,
-      "dataClassification" : [
+      "dataClassification": [
         {
           "tag": "public",
           "decayRate": "never"
         },
         {
           "tag": "internal",
-          "decayRate" : 180
+          "decayRate": 180
         },
         {
           "tag": "confidential",
           "decayRate": 90
         },
         {
-          "tag" : "private",
+          "tag": "private",
           "decayRate": 30
         }
-        ]
+      ]
     }
   },
   "connectionPolicy": {
     "enabled": true,
     "compensatingControl": false,
-    "data" : {
-      "key" : "/path/to/key",
-      "cert" : "/path/to/cert",
-      "keyExchange" : "/path/to/strong/exchange/key"
+    "data": {
+      "key": "/path/to/key",
+      "cert": "/path/to/cert",
+      "keyExchange": "/path/to/strong/exchange/key"
     },
-    "ciphers" : [],
+    "ciphers": [],
     "redirectSecure": true,
     "rejectWeakCiphers": true,
     "rejectInsecureTLS": true,
@@ -385,12 +397,12 @@
           "maxAge": 3600
         },
         "responseHeaders": {
-          "allowOrigin" : true,
+          "allowOrigin": true,
           "allowCredentials": true,
-          "allowedHeaders" : false,
-          "allowMethod" : true,
-          "exposeHeaders" : false,
-          "setMaxAge" : true
+          "allowedHeaders": false,
+          "allowMethod": true,
+          "exposeHeaders": false,
+          "setMaxAge": true
         }
       }
     }
@@ -398,19 +410,46 @@
   "loggingPolicy": {
     "enabled": true,
     "compensatingControl": false,
-    "levelsSupported" : ["npm", "syslog", "cli", "custom"],
-    "levels": [
-      {"trace": 6},
-      {"info": 3},
-      {"warn" : 2},
-      {"error": 1},
-      {"fatal": 0},
-      {"debug": 4},
-      {"verbose" : 5}
+    "levelsSupported": [
+      "npm",
+      "syslog",
+      "cli",
+      "custom"
     ],
-    "logEvents" : ["securityEvents", "appErrors", "systemEvents"],
+    "levels": [
+      {
+        "trace": 6
+      },
+      {
+        "info": 3
+      },
+      {
+        "warn": 2
+      },
+      {
+        "error": 1
+      },
+      {
+        "fatal": 0
+      },
+      {
+        "debug": 4
+      },
+      {
+        "verbose": 5
+      }
+    ],
+    "logEvents": [
+      "securityEvents",
+      "appErrors",
+      "systemEvents"
+    ],
     "logCollection": {
-      "options" : ["logstash", "file/disk", "other"],
+      "options": [
+        "logstash",
+        "file/disk",
+        "other"
+      ],
       "storage": "/var/log/${appName}/",
       "retentionPeriod": 4,
       "port": 5601

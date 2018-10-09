@@ -136,7 +136,7 @@ function accessCtrlBp(p) {
     const authPolicy = require('../security.json').accessControlsPolicy.authenticationPolicy
     const MAX_LOGIN_ATTEMPTS = authPolicy.passwords.lockout.attempts
     const LOCK_TIME = authPolicy.passwords.lockout.automaticReset
-    let schema = require('../schemas/userSchema').UserSchema
+    // let schema = require('../schemas/userSchema').UserSchema
     let name = 'User'
 
     // Initialize Firebase
@@ -151,98 +151,98 @@ function accessCtrlBp(p) {
     firebase.initializeApp(config)
     /* --------------------------------------- normal auth ---------------------------------------- */
 
-    schema.virtual('isLocked').get(function () {
-      // check for a future lockUntil timestamp
-      return !!(this.lockUntil && this.lockUntil > Date.now())
-    })
-    schema.pre('save', function (next) {
-      var user = this
-      // only hash the password if it has been modified (or is new)
-      if (!user.isModified('password')) return next()
+    // schema.virtual('isLocked').get(function () {
+    //   // check for a future lockUntil timestamp
+    //   return !!(this.lockUntil && this.lockUntil > Date.now())
+    // })
+    // schema.pre('save', function (next) {
+    //   var user = this
+    //   // only hash the password if it has been modified (or is new)
+    //   if (!user.isModified('password')) return next()
 
-      // generate a salt
-      const ROUNDS = require('./secrets').fetchSecret('HASH_ROUNDS') || 10
-      bcrypt.genSalt(10, function (err, salt) {
-        if (err) return next(err)
+    //   // generate a salt
+    //   const ROUNDS = require('./secrets').fetchSecret('HASH_ROUNDS') || 10
+    //   bcrypt.genSalt(10, function (err, salt) {
+    //     if (err) return next(err)
 
-        bcrypt.hash(user.password, salt, function (err, hash) {
-          if (err) return next(err)
-          user.password = hash
-          next()
-        })
-      })
-    })
-    schema.methods.comparePassword = function (candidatePassword, cb) {
-      bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
-        if (err) return cb(err)
-        cb(null, isMatch)
-      })
-    }
-    schema.methods.incLoginAttempts = function (cb) {
-      // if we have a previous lock that has expired, restart at 1
-      if (this.lockUntil && this.lockUntil < Date.now()) {
-        return this.update({
-          $set: { loginAttempts: 1 },
-          $unset: { lockUntil: 1 }
-        }, cb)
-      }
-      // otherwise we're incrementing
-      var updates = { $inc: { loginAttempts: 1 } }
-      // lock the account if we've reached max attempts and it's not locked already
-      if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
-        updates.$set = { lockUntil: Date.now() + LOCK_TIME }
-      }
-      return this.update(updates, cb)
-    }
+    //     bcrypt.hash(user.password, salt, function (err, hash) {
+    //       if (err) return next(err)
+    //       user.password = hash
+    //       next()
+    //     })
+    //   })
+    // })
+    // schema.methods.comparePassword = function (candidatePassword, cb) {
+    //   bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+    //     if (err) return cb(err)
+    //     cb(null, isMatch)
+    //   })
+    // }
+    // schema.methods.incLoginAttempts = function (cb) {
+    //   // if we have a previous lock that has expired, restart at 1
+    //   if (this.lockUntil && this.lockUntil < Date.now()) {
+    //     return this.update({
+    //       $set: { loginAttempts: 1 },
+    //       $unset: { lockUntil: 1 }
+    //     }, cb)
+    //   }
+    //   // otherwise we're incrementing
+    //   var updates = { $inc: { loginAttempts: 1 } }
+    //   // lock the account if we've reached max attempts and it's not locked already
+    //   if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
+    //     updates.$set = { lockUntil: Date.now() + LOCK_TIME }
+    //   }
+    //   return this.update(updates, cb)
+    // }
 
-    let reasons = schema.statics = {
-      failedLogin: {
-        NOT_FOUND: 0,
-        PASSWORD_INCORRECT: 1,
-        MAX_ATTEMPTS: 2
-      }
-    }
-    schema.statics.getAuthenticated = function (email, password, cb) {
-      this.findOne({ email: email }, function (err, user) {
-        if (err) return cb(err)
+    // let reasons = schema.statics = {
+    //   failedLogin: {
+    //     NOT_FOUND: 0,
+    //     PASSWORD_INCORRECT: 1,
+    //     MAX_ATTEMPTS: 2
+    //   }
+    // }
+    // schema.statics.getAuthenticated = function (email, password, cb) {
+    //   this.findOne({ email: email }, function (err, user) {
+    //     if (err) return cb(err)
 
-        // make sure the user exists
-        if (!user) {
-          return cb(null, null, reasons.NOT_FOUND)
-        }
-        // check if the account is currently locked
-        if (user.isLocked) {
-          // just increment login attempts if account is already locked
-          return user.incLoginAttempts(function (err) {
-            if (err) return cb(err)
-            return cb(null, null, reasons.MAX_ATTEMPTS)
-          })
-        } // test for a matching password
-        user.comparePassword(password, function (err, isMatch) {
-          if (err) return cb(err)
+    //     // make sure the user exists
+    //     if (!user) {
+    //       return cb(null, null, reasons.NOT_FOUND)
+    //     }
+    //     // check if the account is currently locked
+    //     if (user.isLocked) {
+    //       // just increment login attempts if account is already locked
+    //       return user.incLoginAttempts(function (err) {
+    //         if (err) return cb(err)
+    //         return cb(null, null, reasons.MAX_ATTEMPTS)
+    //       })
+    //     } // test for a matching password
+    //     user.comparePassword(password, function (err, isMatch) {
+    //       if (err) return cb(err)
 
-          // check if the password was a match
-          if (isMatch) {
-            // if there's no lock or failed attempts, just return the user
-            if (!user.loginAttempts && !user.lockUntil) return cb(null, user)
-            // reset attempts and lock info
-            var updates = {
-              $set: { loginAttempts: 0 },
-              $unset: { lockUntil: 1 }
-            }
-            return user.update(updates, function (err) {
-              if (err) return cb(err)
-              return cb(null, user)
-            })
-          }
-          // password is incorrect, so increment login attempts before responding
-          user.incLoginAttempts(function (err) {
-            if (err) return cb(err)
-            return cb(null, reasons.PASSWORD_INCORRECT)
-          })
-        })
-      })
-    }
+    //       // check if the password was a match
+    //       if (isMatch) {
+    //         // if there's no lock or failed attempts, just return the user
+    //         if (!user.loginAttempts && !user.lockUntil) return cb(null, user)
+    //         // reset attempts and lock info
+    //         var updates = {
+    //           $set: { loginAttempts: 0 },
+    //           $unset: { lockUntil: 1 }
+    //         }
+    //         return user.update(updates, function (err) {
+    //           if (err) return cb(err)
+    //           return cb(null, user)
+    //         })
+    //       }
+    //       // password is incorrect, so increment login attempts before responding
+    //       user.incLoginAttempts(function (err) {
+    //         if (err) return cb(err)
+    //         return cb(null, reasons.PASSWORD_INCORRECT)
+    //       })
+    //     })
+    //   })
+    // }
 
     module.exports = {
       model: mongoose.model(name, schema),
@@ -449,7 +449,7 @@ return {
 function headersBp (p) {
   try {
     modules.push('helmet')
-    modules.push('uuid/v4')
+    modules.push('uuidv4')
     let code = `'use strict'
 const secJson = require('../security.json')
 // const valid = require('./validation')
@@ -925,9 +925,26 @@ function contentValidation(obj, rules) {
 module.exports = {
   validated: validated
 }`
+    let code2 = `{
+    "origin": ["'https://localhost:8080'"],
+    "host": ["'localhost:8080'"],
+    "referers": [ "'http://localhost:3000'", 
+                    "'https://localhost:8080/'", 
+                    "'https://localhost:8080/login'",
+                    "'http://localhost:3000/login'",
+                    "'https://localhost:8080/register'",
+                    "'http://localhost:3000/register'",
+                    "'https://localhost:8080/thanks'",
+                    "'http://localhost:3000/thanks'",
+                    "'https://localhost:8080/profile'",
+                    "'http://localhost:3000/profile'"
+                ],
+    "csp": "'secJson.securityHeaders.config.csp'"
+}`
   return {
     modules: modules,
-    code: code
+    code: code,
+    code2: code2
   }
   } catch (e) {
     console.log('Could not write validation file')
@@ -1251,7 +1268,7 @@ function wbp (code, pathToFile) {
   if(!fs.existsSync(secFolder)){
     fs.mkdir(secFolder, function(err) {
       if (err) {
-        console.log('Could not create security file')
+        // console.log('Could not create security file')
         return err
       }
     })
@@ -1277,54 +1294,81 @@ module.exports = {\n`
     if (policy.appDependencies.enabled === true) {
       securityFile = securityFile + `dependencies: require('./security/dependencies'),\n`
       await wbp(appDepBp(policy.appDependencies).code, './security/dependencies.js')
+    } else {
+      console.log('Skipping app dependencies')
     }
     if (policy.accessControlsPolicy.enabled === true) {
       securityFile = securityFile + `auth: require('./security/authentication'),\n`
       await wbp(accessCtrlBp(policy.accessControlsPolicy).code, './security/authentication.js')
+    } else {
+      console.log('Skipping access controls')
     }
     if (policy.secretStorage.enabled === true) {
       securityFile = securityFile + `secrets: require('./security/secrets'),\n`
       await wbp(secretBp(policy.secretStorage).code, './security/secrets.js')
+    } else {
+      console.log('Skipping secrets management')
     }
     if (policy.formProtection.enabled === true) {
       securityFile = securityFile + `forms: require('./security/forms'),\n`
       await wbp(formBp(policy.formProtection).code, './security/forms.js')
+    } else {
+      console.log('Skipping forms protection')
     }
     if (policy.sessionPolicy.enabled === true) {
       securityFile = securityFile + `sessions: require('./security/sessions'),\n`
       await wbp(sessionBp(policy.sessionPolicy).code, './security/sessions.js')
+    } else {
+      console.log('Skipping session management')
     }
     if (policy.apiPolicy.enabled === true) {
       securityFile = securityFile + `api: require('./security/api'),\n`
       await wbp(apiBp(policy.apiPolicy).code, './security/api.js')
+    } else {
+      console.log('Skipping api management')
     }
     if (policy.securityHeaders.enabled === true) {
       securityFile = securityFile + `headers: require('./security/headers'),\n`
       await wbp(headersBp(policy.securityHeaders).code, './security/headers.js')
+    } else {
+      console.log('Skipping headers')
     }
     if (policy.securityHeaders.caching.enabled === true) {
       securityFile = securityFile + `cache: require('./security/cache'),\n`
       await wbp(cacheBp(policy.securityHeaders.caching).code, './security/cache.js')
+    } else {
+      console.log('Skipping caching')
     }
     if (policy.contentValidationPolicy.enabled === true) {
       securityFile = securityFile + `validation: require('./security/validation'),\n`
-      await wbp(valiateBp(policy.contentValidationPolicy).code, './security/valiation.js')
+      await wbp(valiateBp(policy.contentValidationPolicy).code, './security/validation.js')
+      await wbp(valiateBp(policy.contentValidationPolicy).code2, './security/.whitelists.json')
+    } else {
+      console.log('Skipping validation')
     }
     if (policy.dbSecurityPolicy.enabled === true) {
       securityFile = securityFile + `database: require('./security/database'),\n`
       await wbp(dbBp(policy.dbSecurityPolicy).code, './security/database.js')
+    } else {
+      console.log('Skipping databases')
     }
     if (policy.connectionPolicy.enabled === true) {
       securityFile = securityFile + `connections: require('./security/connections'),\n`
       await wbp(connectBp(policy.connectionPolicy).code, './security/connections.js')
+    } else {
+      console.log('Skipping secure connections')
     }
     if (policy.resourceSharingPolicy.corsSettings.enabled === true) {
       securityFile = securityFile + `cors: require('./security/cors'),`
       await wbp(corsBp(policy.resourceSharingPolicy).code, './security/cors.js')
+    } else {
+      console.log('Skipping cors')
     }
     if (policy.loggingPolicy.enabled === true) {
       securityFile = securityFile + `logging: require('./security/logging'),\n`
       await wbp(logBp(policy.loggingPolicy).code, './security/logging.js')
+    } else {
+      console.log('Skipping logging')
     }
     await wbp(securityFile, './security.js')
     var msg = chalk.magenta(`Successfully wrote boilerplate code for policy ${policy.policyId}\n`)
