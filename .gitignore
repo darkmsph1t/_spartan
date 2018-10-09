@@ -1,5 +1,10 @@
 # System files & folders
 .DS_Store
+example/example.com/node_modules/
+example/example.com/certificates/
+example/example.com/security/tmp.js
+_spartan_old/
+node_modules/
 images/
 security.json
 security.js
