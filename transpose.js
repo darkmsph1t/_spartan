@@ -29,7 +29,7 @@ function sbCors (obj, tmp) {
     var zing = tmp.securityHeaders.config.csp.directives
     for (var h in zing) {
       if (h === 'default-src') {
-        setValue(tmp.securityHeaders, 'directives', 'default-src', ["'self'"])
+        setValue(tmp.securityHeaders, 'directives', 'default-src', ["\'self\'"])
       } else {
         setValue(tmp.securityHeaders, 'directives', h, false)
       }
