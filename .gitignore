@@ -8,6 +8,8 @@ node_modules/
 images/
 security.json
 security.js
+errors.json
+audit.js
 
 # Logs
 logs
