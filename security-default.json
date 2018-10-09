@@ -1,11 +1,13 @@
 {
-  "policyId": "",
-  "applicationName": "",
-  "applicationType": "",
-  "internetFacing": "",
+  "policyId": "d8d4c7e22fa437daccc507e90b514329",
+  "applicationType": "Web",
+  "internetFacing": true,
   "hostname": "localhost",
   "deployment": "locally hosted",
-  "integrityService" : ["openssl", "shasum"],
+  "integrityService": [
+    "openssl",
+    "shasum"
+  ],
   "appDependencies": {
     "enabled": true,
     "compensatingControl": false,
@@ -29,8 +31,9 @@
         "jwt"
       ],
       "passwords": {
-        "length": 12,
-        "matches" : "^[a-zA-Z0-9!@#$%^&*()_\\-+=]$",
+        "minLen": 12,
+        "maxLen": 24,
+        "regex": "/[a-z]{3}[A-Z]{3}[0-9]{3}[! @#$%^&*<`]{3}/",
         "expires": 0,
         "supportedHashes": [
           "bcrypt",
@@ -39,7 +42,7 @@
         ],
         "lockout": {
           "attempts": 3,
-          "automaticReset": false,
+          "automaticReset": 60000,
           "tarpitDefault": 1000
         }
       },
@@ -69,17 +72,6 @@
       }
     }
   },
-  "secretStorage" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "config" : {
-      "environmentVariables" : null,
-      "sourceControl" : {
-        "enabled" : false,
-        "expires" : 600
-      }
-    }
-  },
   "formProtection": {
     "enabled": true,
     "compensatingControl": false,
@@ -105,8 +97,8 @@
         "forceLogoutOnWindowClose": true
       },
       "duration": {
-        "idle": 300000,
-        "ttl": 600000,
+        "idle": 900,
+        "ttl": 3600,
         "automaticRenewal": false
       },
       "cookies": {
@@ -114,12 +106,12 @@
           "_Host",
           "_Secure"
         ],
+        "name": "ex",
         "maxAge": 600000,
         "httpOnly": true,
         "secure": true,
-        "hostOnly": true,
         "sameSite": "strict",
-        "domain": false,
+        "domain": null,
         "path": "/"
       },
       "csrfSettings": {
@@ -136,18 +128,18 @@
       "concurrentLogins": false
     }
   },
-  "apiPolicy" : {
-    "enabled" : null,
-    "compensatingControl" : null,
-    "rateLimiting" : {
-      "maxRequests" : 500,
-      "withinTimeframe" : 60
+  "apiPolicy": {
+    "enabled": null,
+    "compensatingControl": null,
+    "rateLimiting": {
+      "maxRequests": 500,
+      "withinTimeframe": 60
     },
-    "jwt" : {
-      "issuer" : null,
-      "audience" : null,
-      "exp" : 600,
-      "nbf" : null
+    "jwt": {
+      "issuer": null,
+      "audience": null,
+      "exp": 600,
+      "nbf": null
     }
   },
   "securityHeaders": {
@@ -157,41 +149,57 @@
       "csp": {
         "directives": {
           "default-src": [
-            "self"
+            "'self'",
+            "//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css",
+            "//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css",
+            "'sha256-oDvGfLggf2wgchTO+aYM3DS6uWFoJ4lO+9FZhrId/rM='"
           ],
           "media-src": [
-            "self"
+            "'self'"
           ],
-          "base-uri" : ["self"],
+          "base-uri": [
+            "'self'"
+          ],
           "img-src": [
-            "self"
+            "'self'"
           ],
           "font-src": [
-            "self"
+            "'self'", "https://netdna.bootstrapcdn.com/bootstrap/3.0.2/fonts/glyphicons-halflings-regular.woff",
+            "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.woff?v=4.0.3",
+            "https://netdna.bootstrapcdn.com/bootstrap/3.0.2/fonts/glyphicons-halflings-regular.ttf",
+            "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/fonts/fontawesome-webfont.ttf?v=4.0.3"
           ],
           "connect-src": [
-            "self"
+            "'self'"
           ],
           "object-src": [
-            "self"
+            "'self'"
           ],
-          "plugin-types" : ["not.set.if.obj-src.is.not.set"],
+          "plugin-types": [
+            "'not.set.if.obj-src.is.not.set'"
+          ],
           "child-src": [
-            "self"
+            "'self'"
           ],
-          "frame-src" : ["self"],
+          "frame-src": [
+            "'self'"
+          ],
           "frame-ancestors": [
-            "none"
+            "'none'"
           ],
-          "manifest-src" : ["self"],
+          "manifest-src": [
+            "'self'"
+          ],
           "worker-src": [
-            "none"
+            "'none'"
           ],
           "script-src": [
-            "self"
+            "'self'", "'sha256-mFk0pxAPYdPqajE94Zgp/eiUkB1QNehaPCv6Fbwp63Y='"
           ],
           "style-src": [
-            "self"
+            "'self'", "'sha256-oDvGfLggf2wgchTO+aYM3DS6uWFoJ4lO+9FZhrId/rM='",
+            "https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css",
+            "https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css"
           ]
         },
         "upgradeInsecureRequests": true,
@@ -202,12 +210,12 @@
         },
         "sandbox": {
           "enable": true,
-          "allowPopUps": true,
-          "allowTopNavigation": true,
-          "allowSameOrigin": true,
-          "allowForms": true,
-          "allowPointerLock": true,
-          "allowScripts": true
+          "allow-popups": true,
+          "allow-top-navigation": true,
+          "allow-same-origin": true,
+          "allow-forms": false,
+          "allow-pointer-lock": true,
+          "allow-scripts": true
         },
         "reflectedXSS": {
           "allow": false,
@@ -263,7 +271,6 @@
       "enabled": true,
       "compensatingControl": false,
       "routeOverload": false,
-      "ttl" : 600,
       "cacheControl": [
         "no-cache",
         "no-store",
@@ -318,40 +325,46 @@
   "dbSecurityPolicy": {
     "enabled": true,
     "compensatingControl": false,
-    "supportedDatabases" : ["mongodb"],
+    "supportedDatabases": [
+      "mongodb",
+      "ravendb",
+      "postgres",
+      "sqlite",
+      "couchdb/pouchdb"
+    ],
     "config": {
       "disableJsExecution": true,
       "globalOperatorsDisabled": true,
       "encryptBeforeStore": true,
-      "dataClassification" : [
+      "dataClassification": [
         {
           "tag": "public",
           "decayRate": "never"
         },
         {
           "tag": "internal",
-          "decayRate" : 180
+          "decayRate": 180
         },
         {
           "tag": "confidential",
           "decayRate": 90
         },
         {
-          "tag" : "private",
+          "tag": "private",
           "decayRate": 30
         }
-        ]
+      ]
     }
   },
   "connectionPolicy": {
     "enabled": true,
     "compensatingControl": false,
-    "data" : {
-      "key" : "/path/to/key",
-      "cert" : "/path/to/cert",
-      "keyExchange" : "/path/to/strong/exchange/key"
+    "data": {
+      "key": "/path/to/key",
+      "cert": "/path/to/cert",
+      "keyExchange": "/path/to/strong/exchange/key"
     },
-    "ciphers" : [],
+    "ciphers": [],
     "redirectSecure": true,
     "rejectWeakCiphers": true,
     "rejectInsecureTLS": true,
@@ -361,7 +374,7 @@
     "default": "same-origin",
     "compensatingControl": false,
     "corsSettings": {
-      "enabled": false,
+      "enabled": true,
       "config": {
         "whitelist": [],
         "preflightRequests": {
@@ -385,12 +398,12 @@
           "maxAge": 3600
         },
         "responseHeaders": {
-          "allowOrigin" : true,
+          "allowOrigin": true,
           "allowCredentials": true,
-          "allowedHeaders" : false,
-          "allowMethod" : true,
-          "exposeHeaders" : false,
-          "setMaxAge" : true
+          "allowedHeaders": false,
+          "allowMethod": true,
+          "exposeHeaders": false,
+          "setMaxAge": true
         }
       }
     }
@@ -398,19 +411,46 @@
   "loggingPolicy": {
     "enabled": true,
     "compensatingControl": false,
-    "levelsSupported" : ["npm", "syslog", "cli", "custom"],
-    "levels": [
-      {"trace": 6},
-      {"info": 3},
-      {"warn" : 2},
-      {"error": 1},
-      {"fatal": 0},
-      {"debug": 4},
-      {"verbose" : 5}
+    "levelsSupported": [
+      "npm",
+      "syslog",
+      "cli",
+      "custom"
     ],
-    "logEvents" : ["securityEvents", "appErrors", "systemEvents"],
+    "levels": [
+      {
+        "trace": 6
+      },
+      {
+        "info": 3
+      },
+      {
+        "warn": 2
+      },
+      {
+        "error": 1
+      },
+      {
+        "fatal": 0
+      },
+      {
+        "debug": 4
+      },
+      {
+        "verbose": 5
+      }
+    ],
+    "logEvents": [
+      "securityEvents",
+      "appErrors",
+      "systemEvents"
+    ],
     "logCollection": {
-      "options" : ["logstash", "file/disk", "other"],
+      "options": [
+        "logstash",
+        "file/disk",
+        "other"
+      ],
       "storage": "/var/log/${appName}/",
       "retentionPeriod": 4,
       "port": 5601
