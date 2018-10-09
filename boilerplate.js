@@ -4,7 +4,7 @@ var { spawn } = require('child_process')
 var fs = require('fs')
 var path = require('path')
 var pathToBoilerPlate = path.resolve('./security.js')
-
+let modules = []
 // should add in a function to validate security.json before writing boilerplate
 function validatePolicy () {
 
@@ -28,9 +28,12 @@ function removeModules (modules) {
 function installModules (modules) {
   var install = spawn('npm'['install', '--save', modules])
 }
+
 function appDepBp (p) {
   try {
-    return `'use strict'
+    modules.push('gulp')
+    modules.push('synk')
+    let code =  `'use strict'
     let gulp = require('gulp')
     let { spawn } = require('child_process')
     /* this module is designed and written to identify vulnerabilities associated with application dependencies. The most opportune time to discover these vulnerabilities is PRIOR to application deployment (e.g. as part of your CI/CD pipeline) as such, this module utilizes \`synk\` for this purpose (with the \`synk test\` command ideally included early in the package.json test parameter). Assuming you have already installed the synk module and signed up for an account, the following tasks can be included in your gulpfile OR run as a separate gulpfile by using \`gulp --gulpfile <path to this file>\` at the command line
@@ -56,14 +59,18 @@ function appDepBp (p) {
       console.log('Application Dependency Check Complete!')
       done()
     }))`
-    
+    return {
+      code: code,
+      modules: modules
+    }
   } catch (e) {
     console.log('Could not write application dependencies file')
   }
 }
 function apiBp(p) {
   try {
-    return `'use strict'
+    modules.push('express-rate-limiter')
+    let code2 = `'use strict'
 
 /* The purpose of this module is to ensure that APIs are designed, built, maintained and sustained. This is done by achieving the following objectives:
   1. Ensure that all endpoints are provided over a secure connection (HTTPS)
@@ -99,158 +106,169 @@ module.exports = function apiSec () {
   function validator () {
 
   }
+}`
+return {
+  code: code,
+  modules: modules
 }
-`
   } catch (e) {
     console.log('Could not write api security file')
   }
 }
-function accessCtrlBp (p) {
+function accessCtrlBp(p) {
   try {
-    return `'use strict'
-let firebase = require('firebase')
-require('firebase/auth')
-require('firebase/database')
-// firebase environment variables
-const FIREBASE_API_KEY =require('./secrets').fetchSecret('FIREBASE_API_KEY')
-const FIREBASE_AUTH_DOMAIN = require('./secrets').fetchSecret('FIREBASE_AUTH_DOMAIN')
-const FIREBASE_DB_URL = require('./secrets').fetchSecret('FIREBASE_DB_URL')
-const FIREBASE_PROJECT_ID = require('./secrets').fetchSecret('FIREBASE_PROJECT_ID')
-const FIREBASE_STORAGE_BUCKET = require('./secrets').fetchSecret('FIREBASE_STORAGE_BUCKET')
-const FIREBASE_SENDER_ID = require('./secrets').fetchSecret('FIREBASE_SENDER_ID')
-let mongoose = require('mongoose')
-const bcrypt = require('bcrypt')
-const authPolicy = require('../security.json').accessControlsPolicy.authenticationPolicy
-const MAX_LOGIN_ATTEMPTS = authPolicy.passwords.lockout.attempts
-const LOCK_TIME = authPolicy.passwords.lockout.automaticReset
-let schema = require('../schemas/userSchema').UserSchema
-let name = 'User'
+    modules.push('firebase')
+    modules.push('mongoose')
+    modules.push('bcrypt')
+    let code = `'use strict'
+    let firebase = require('firebase')
+    require('firebase/auth')
+    require('firebase/database')
+    // firebase environment variables
+    const FIREBASE_API_KEY = require('./secrets').fetchSecret('FIREBASE_API_KEY')
+    const FIREBASE_AUTH_DOMAIN = require('./secrets').fetchSecret('FIREBASE_AUTH_DOMAIN')
+    const FIREBASE_DB_URL = require('./secrets').fetchSecret('FIREBASE_DB_URL')
+    const FIREBASE_PROJECT_ID = require('./secrets').fetchSecret('FIREBASE_PROJECT_ID')
+    const FIREBASE_STORAGE_BUCKET = require('./secrets').fetchSecret('FIREBASE_STORAGE_BUCKET')
+    const FIREBASE_SENDER_ID = require('./secrets').fetchSecret('FIREBASE_SENDER_ID')
+    let mongoose = require('mongoose')
+    const bcrypt = require('bcrypt')
+    const authPolicy = require('../security.json').accessControlsPolicy.authenticationPolicy
+    const MAX_LOGIN_ATTEMPTS = authPolicy.passwords.lockout.attempts
+    const LOCK_TIME = authPolicy.passwords.lockout.automaticReset
+    let schema = require('../schemas/userSchema').UserSchema
+    let name = 'User'
 
-// Initialize Firebase
-var config = {
-  apiKey: FIREBASE_API_KEY,
-  authDomain: FIREBASE_AUTH_DOMAIN,
-  databaseURL: FIREBASE_DB_URL,
-  projectId: FIREBASE_PROJECT_ID,
-  storageBucket: FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: FIREBASE_SENDER_ID
-}
-firebase.initializeApp(config)
-/* --------------------------------------- normal auth ---------------------------------------- */
-
-schema.virtual('isLocked').get(function () {
-  // check for a future lockUntil timestamp
-  return !!(this.lockUntil && this.lockUntil > Date.now())
-})
-schema.pre('save', function (next) {
-  var user = this
-  // only hash the password if it has been modified (or is new)
-  if (!user.isModified('password')) return next()
-
-  // generate a salt
-  const ROUNDS = require('./secrets').fetchSecret('HASH_ROUNDS') || 10
-  bcrypt.genSalt(10, function (err, salt) {
-    if (err) return next(err)
-
-    bcrypt.hash(user.password, salt, function (err, hash) {
-      if (err) return next(err)
-      user.password = hash
-      next()
-    })
-  })
-})
-schema.methods.comparePassword = function (candidatePassword, cb) {
-  bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
-    if (err) return cb(err)
-    cb(null, isMatch)
-  })
-}
-schema.methods.incLoginAttempts = function (cb) {
-  // if we have a previous lock that has expired, restart at 1
-  if (this.lockUntil && this.lockUntil < Date.now()) {
-    return this.update({
-      $set: { loginAttempts: 1 },
-      $unset: { lockUntil: 1 }
-    }, cb)
-  }
-  // otherwise we're incrementing
-  var updates = { $inc: { loginAttempts: 1 } }
-  // lock the account if we've reached max attempts and it's not locked already
-  if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
-    updates.$set = { lockUntil: Date.now() + LOCK_TIME }
-  }
-  return this.update(updates, cb)
-}
-
-let reasons = schema.statics = {
-  failedLogin: {
-    NOT_FOUND: 0,
-    PASSWORD_INCORRECT: 1,
-    MAX_ATTEMPTS: 2
-  }
-}
-schema.statics.getAuthenticated = function (email, password, cb) {
-  this.findOne({ email: email }, function (err, user) {
-    if (err) return cb(err)
-
-    // make sure the user exists
-    if (!user) {
-      return cb(null, null, reasons.NOT_FOUND)
+    // Initialize Firebase
+    var config = {
+      apiKey: FIREBASE_API_KEY,
+      authDomain: FIREBASE_AUTH_DOMAIN,
+      databaseURL: FIREBASE_DB_URL,
+      projectId: FIREBASE_PROJECT_ID,
+      storageBucket: FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: FIREBASE_SENDER_ID
     }
-    // check if the account is currently locked
-    if (user.isLocked) {
-      // just increment login attempts if account is already locked
-      return user.incLoginAttempts(function (err) {
-        if (err) return cb(err)
-        return cb(null, null, reasons.MAX_ATTEMPTS)
-      })
-    } // test for a matching password
-    user.comparePassword(password, function (err, isMatch) {
-      if (err) return cb(err)
+    firebase.initializeApp(config)
+    /* --------------------------------------- normal auth ---------------------------------------- */
 
-      // check if the password was a match
-      if (isMatch) {
-        // if there's no lock or failed attempts, just return the user
-        if (!user.loginAttempts && !user.lockUntil) return cb(null, user)
-        // reset attempts and lock info
-        var updates = {
-          $set: { loginAttempts: 0 },
-          $unset: { lockUntil: 1 }
-        }
-        return user.update(updates, function (err) {
-          if (err) return cb(err)
-          return cb(null, user)
+    schema.virtual('isLocked').get(function () {
+      // check for a future lockUntil timestamp
+      return !!(this.lockUntil && this.lockUntil > Date.now())
+    })
+    schema.pre('save', function (next) {
+      var user = this
+      // only hash the password if it has been modified (or is new)
+      if (!user.isModified('password')) return next()
+
+      // generate a salt
+      const ROUNDS = require('./secrets').fetchSecret('HASH_ROUNDS') || 10
+      bcrypt.genSalt(10, function (err, salt) {
+        if (err) return next(err)
+
+        bcrypt.hash(user.password, salt, function (err, hash) {
+          if (err) return next(err)
+          user.password = hash
+          next()
         })
-      }
-      // password is incorrect, so increment login attempts before responding
-      user.incLoginAttempts(function (err) {
-        if (err) return cb(err)
-        return cb(null, reasons.PASSWORD_INCORRECT)
       })
     })
-  })
-}
-
-module.exports = {
-  model: mongoose.model(name, schema),
-  isAuthenticated: function (req, res, next) {
-    var user = firebase.auth().currentUser
-    if (user !== null) {
-      req.user = user
-      next()
-    } else {
-      res.redirect('/login')
+    schema.methods.comparePassword = function (candidatePassword, cb) {
+      bcrypt.compare(candidatePassword, this.password, function (err, isMatch) {
+        if (err) return cb(err)
+        cb(null, isMatch)
+      })
     }
-  }
-}
-`
-  } catch (e) {
+    schema.methods.incLoginAttempts = function (cb) {
+      // if we have a previous lock that has expired, restart at 1
+      if (this.lockUntil && this.lockUntil < Date.now()) {
+        return this.update({
+          $set: { loginAttempts: 1 },
+          $unset: { lockUntil: 1 }
+        }, cb)
+      }
+      // otherwise we're incrementing
+      var updates = { $inc: { loginAttempts: 1 } }
+      // lock the account if we've reached max attempts and it's not locked already
+      if (this.loginAttempts + 1 >= MAX_LOGIN_ATTEMPTS && !this.isLocked) {
+        updates.$set = { lockUntil: Date.now() + LOCK_TIME }
+      }
+      return this.update(updates, cb)
+    }
+
+    let reasons = schema.statics = {
+      failedLogin: {
+        NOT_FOUND: 0,
+        PASSWORD_INCORRECT: 1,
+        MAX_ATTEMPTS: 2
+      }
+    }
+    schema.statics.getAuthenticated = function (email, password, cb) {
+      this.findOne({ email: email }, function (err, user) {
+        if (err) return cb(err)
+
+        // make sure the user exists
+        if (!user) {
+          return cb(null, null, reasons.NOT_FOUND)
+        }
+        // check if the account is currently locked
+        if (user.isLocked) {
+          // just increment login attempts if account is already locked
+          return user.incLoginAttempts(function (err) {
+            if (err) return cb(err)
+            return cb(null, null, reasons.MAX_ATTEMPTS)
+          })
+        } // test for a matching password
+        user.comparePassword(password, function (err, isMatch) {
+          if (err) return cb(err)
+
+          // check if the password was a match
+          if (isMatch) {
+            // if there's no lock or failed attempts, just return the user
+            if (!user.loginAttempts && !user.lockUntil) return cb(null, user)
+            // reset attempts and lock info
+            var updates = {
+              $set: { loginAttempts: 0 },
+              $unset: { lockUntil: 1 }
+            }
+            return user.update(updates, function (err) {
+              if (err) return cb(err)
+              return cb(null, user)
+            })
+          }
+          // password is incorrect, so increment login attempts before responding
+          user.incLoginAttempts(function (err) {
+            if (err) return cb(err)
+            return cb(null, reasons.PASSWORD_INCORRECT)
+          })
+        })
+      })
+    }
+
+    module.exports = {
+      model: mongoose.model(name, schema),
+      isAuthenticated: function (req, res, next) {
+        var user = firebase.auth().currentUser
+        if (user !== null) {
+          req.user = user
+          next()
+        } else {
+          res.redirect('/login')
+        }
+      }
+    }`
+    return {
+      modules: modules,
+      code: code
+    }
+  } 
+ catch (e) {
     console.log('Could not write access control file')
   }
 }
 function secretBp(p) {
   try {
-    return `'use strict'
+    modules.push('dotenv')
+    let code = `'use strict'
 require('dotenv').config()
 /* Pretty much, the only purpose of this file is to safely load environment variables.
    By default, will only load if the environment HAS NOT been identified as production (e.g. stage, dev, uat). To use this, module effectively, run \`npm install dotenv--save\` and create a .env file.
@@ -267,13 +285,17 @@ function fetchSecret (variable) {
 }
 
 module.exports.fetchSecret = fetchSecret`
+  return {
+    modules: modules,
+    code: code
+  }
   } catch (e) {
     console.log('Could not write secrets management file')
   }
 }
 function formBp (p) {
   try {
-  return `'use strict'
+    let code = `'use strict'
 const secJson = require('../security.json')
 
 module.exports = function formSec (request, response, callback) {
@@ -299,13 +321,19 @@ module.exports = function formSec (request, response, callback) {
     }
   }
 }`
+  return {
+    code: code
+  }
 } catch (e) {
     console.log('Could not write forms protection file')
   }
 }
 function sessionBp (p) {
   try {
-    return `'use strict'
+    modules.push('express-session')
+    modules.push('redis')
+    modules.push('connect-redis')
+    let code = `'use strict'
 const secJson = require('../security.json').sessionPolicy
 const secrets = require('./secrets')
 const session = require('express-session')
@@ -410,13 +438,19 @@ module.exports.sessioner = sessioner
 module.exports.cookieMonster = cookieMonster
 module.exports.cookieMaker = cookieMaker
 `
+return {
+  code: code,
+  modules: modules
+}
   } catch (e) {
     console.log('Could not write session management file')
   }
 }
 function headersBp (p) {
   try {
-    return `'use strict'
+    modules.push('helmet')
+    modules.push('uuid/v4')
+    let code = `'use strict'
 const secJson = require('../security.json')
 // const valid = require('./validation')
 const helmet = require('helmet')
@@ -572,15 +606,19 @@ function setHeaders (options) {
       return helmet(headers)
     }
   }
-module.exports.setHeaders = setHeaders
-`
+module.exports.setHeaders = setHeaders`
+  return {
+    modules: modules,
+    code: code
+  }
   } catch (e) {
     console.log('Could not write security headers file')
   }
 }
-function cacheBp (p) {
+function cacheBp(p) {
   try {
-    `'use strict'
+    modules.push ('redis')
+    let code = `'use strict'
 const secJson = require('../security.json')
 const redis = require('redis')
 // const PORT = require('./secrets').fetchSecret('CACHE_PORT') || 9000
@@ -606,13 +644,13 @@ module.exports = function cacheSec () {
     }
     return cacheHeaders
   }
-  const setCache = async function (route, fetchedThing) {
+  const setCache = function (route, fetchedThing) {
     if (secJson.caching.routeOverload === false && route !== undefined) {
       let error = new Error(\`Sorry! Route overload has been disabled for \${ route }\`)
       return error
     } else {
       try {
-        await client.setex(route, secJson.caching.ttl, fetchedThing)
+        client.setex(route, secJson.caching.ttl, fetchedThing)
       } catch (err) {
         return err
       }
@@ -635,15 +673,20 @@ module.exports = function cacheSec () {
     let cacheHeaders = setCacheHeaders()
     return cacheHeaders
   }
-}
-`
-  } catch (e) {
+}` 
+  return {
+    modules: modules,
+    code: code
+  }
+} catch (e) {
     console.log('Could not write cache file')
   }
 }
 function valiateBp (p) {
   try {
-    return `'use strict'
+    modules.push('validate.js')
+    modules.push('sanitize-html')
+    let code = `'use strict'
 var secJson = require('../security.json')
 let validate = require('validate.js')
 let sanitizeHtml = require('sanitize-html')
@@ -881,15 +924,19 @@ function contentValidation(obj, rules) {
 }
 module.exports = {
   validated: validated
-}
-`
+}`
+  return {
+    modules: modules,
+    code: code
+  }
   } catch (e) {
     console.log('Could not write validation file')
   }
 }
 function dbBp (p) {
   try {
-    return `'use strict'
+    modules.push('mongoose')
+    let code = `'use strict'
 let secJson = require('../security.json')
 const mongoose = require('mongoose')
 const dbConnect = require('./secrets').fetchSecret('DB_CONNECTION')
@@ -922,15 +969,18 @@ module.exports = function dbSec () {
     setSchema: setSchema,
     createRecord: createRecord
   }
+}`
+return {
+  modules: modules,
+  code: code
 }
-`
   } catch (e) {
     console.log('Could not create database security file')
   }
 }
 function connectBp (p) {
   try {
-    return `'use strict'
+    let code = `'use strict'
 require('dotenv').config()
 const secJson = require('../security.json')
 // const validInput = require('./validation').validInput()
@@ -1040,34 +1090,35 @@ const options = {
     // chain. Its common to pin the public key of the issuer on the public
     // internet, while pinning the public key of the service in sensitive
     // environments.
-    do {
-      console.log('Subject Common Name:', cert.subject.CN);
-      console.log('  Certificate SHA256 fingerprint:', cert.fingerprint256);
+      do {
+        console.log('Subject Common Name:', cert.subject.CN);
+        console.log('  Certificate SHA256 fingerprint:', cert.fingerprint256);
 
-      hash = crypto.createHash('sha256');
-      console.log('  Public key ping-sha256:', sha256(cert.pubkey));
+        hash = crypto.createHash('sha256');
+        console.log('  Public key ping-sha256:', sha256(cert.pubkey));
 
-      lastprint256 = cert.fingerprint256;
-      cert = cert.issuerCertificate;
-    } while (cert.fingerprint256 !== lastprint256);
-
-  },
-};
+        lastprint256 = cert.fingerprint256;
+        cert = cert.issuerCertificate;
+      } while (cert.fingerprint256 !== lastprint256);
+    },
+  }
 }
 */
-
 module.exports = {
   secureServer: secureServer,
   redirectHttp: redirectHttp
-}
-`
+}`
+  return {
+    code: code
+  }
   } catch (e) {
     console.log('Could not create connection security file')
   }
 }
 function corsBp (p) {
   try {
-    return `'use strict'
+    modules.push('cors')
+    let code = `'use strict'
 const cors = require('cors')
 const secJson = require('../security.json')
 
@@ -1130,15 +1181,19 @@ module.exports = function corsConfig () {
   }
 
 // ------------------pre-flighting: add options handler ahead of your other unsafe methods-------------*/
-// app.options('*', cors()) // enable pre-flight request for all routes & methods across the board
-`
+// app.options('*', cors()) // enable pre-flight request for all routes & methods across the board`
+  return {
+    modules: modules,
+    code: code
+  }
   } catch (e) {
     console.log('Could not write cors security policy')
   }
 }
 function logBp (p) {
   try {
-    return `'use strict'
+    modules.push('winston')
+    let code = `'use strict'
 let winston = require('winston')
 let p = require('../security.json')
 const tsFormat = () => (new Date()).toLocaleTimeString()
@@ -1175,8 +1230,11 @@ const logger = winston.createLogger({
   exitOnError: false // do not exit on handled exceptions
 })
 
-module.exports.logger = logger
-`
+module.exports.logger = logger`
+  return {
+    modules: modules,
+    code: code
+  }
   } catch (e) {
     console.log('Could not create logging file')
   }
@@ -1189,59 +1247,86 @@ async function interpreter (p, mods) {
 }
 
 function wbp (code, pathToFile) {
-  
-  var wbp = fs.createWriteStream(pathToFile, { flag: 'wx' })
-  var convert = '\'use strict\';\n'
-  wbp.write(convert)
-  for (var c = 0; c < (code.allModules).length; c++) {
-    wbp.write(code.allModules[c])
+  var secFolder = './security'
+  if(!fs.existsSync(secFolder)){
+    fs.mkdir(secFolder, function(err) {
+      if (err) {
+        console.log('Could not create security file')
+        return err
+      }
+    })
   }
-  wbp.write('var secJson = require(\'./security.json\') //may need to adjust this to the actual location of your policy file\n')
-  wbp.write(code.finalCode)
+  let wbp = fs.createWriteStream(pathToFile, { flag: 'wx' })
+  // for (var c = 0; c < (code.allModules).length; c++) {
+  //   wbp.write(code.allModules[c])
+  // }
+  // wbp.write('var secJson = require(\'./security.json\') //may need to adjust this to the actual location of your policy file\n')
+  if (pathToFile === './security.js') {
+    code = code.slice(0, -2)
+    code = code + `\n}\n`
+  }
+  wbp.write(code)
   wbp.close()
 }
 
 async function writeBoilerplate (policy) {
   try {
+    let securityFile = `'use strict'
+
+module.exports = {\n`
     if (policy.appDependencies.enabled === true) {
-      wbp(appDepBp(policy.appDependencies), './security/dependencies.js')
+      securityFile = securityFile + `dependencies: require('./security/dependencies'),\n`
+      await wbp(appDepBp(policy.appDependencies).code, './security/dependencies.js')
     }
-    if (policy.aceessControlsPolicy.enabled === true) {
-      wbp(accessCtrlBp(policy.aceessControlsPolicy), './security/authentication.js')
+    if (policy.accessControlsPolicy.enabled === true) {
+      securityFile = securityFile + `auth: require('./security/authentication'),\n`
+      await wbp(accessCtrlBp(policy.accessControlsPolicy).code, './security/authentication.js')
     }
     if (policy.secretStorage.enabled === true) {
-      wbp(secretBp(policy.secretStorage), './security/secrets.js')
+      securityFile = securityFile + `secrets: require('./security/secrets'),\n`
+      await wbp(secretBp(policy.secretStorage).code, './security/secrets.js')
     }
     if (policy.formProtection.enabled === true) {
-      wbp(formBp(policy.formProtection), './security/forms.js')
+      securityFile = securityFile + `forms: require('./security/forms'),\n`
+      await wbp(formBp(policy.formProtection).code, './security/forms.js')
     }
     if (policy.sessionPolicy.enabled === true) {
-      wbp(sessionBp(policy.sessionPolicy), './security/sessions.js')
+      securityFile = securityFile + `sessions: require('./security/sessions'),\n`
+      await wbp(sessionBp(policy.sessionPolicy).code, './security/sessions.js')
     }
     if (policy.apiPolicy.enabled === true) {
-      wbp(apiBp(policy.apiPolicy), './security/api.js')
+      securityFile = securityFile + `api: require('./security/api'),\n`
+      await wbp(apiBp(policy.apiPolicy).code, './security/api.js')
     }
     if (policy.securityHeaders.enabled === true) {
-      wbp(headersBp(policy.securityHeaders), './security/headers.js')
+      securityFile = securityFile + `headers: require('./security/headers'),\n`
+      await wbp(headersBp(policy.securityHeaders).code, './security/headers.js')
     }
     if (policy.securityHeaders.caching.enabled === true) {
-      wbp(cacheBp(policy.securityHeaders.caching), './security/cache.js')
+      securityFile = securityFile + `cache: require('./security/cache'),\n`
+      await wbp(cacheBp(policy.securityHeaders.caching).code, './security/cache.js')
     }
     if (policy.contentValidationPolicy.enabled === true) {
-      wbp(valiateBp(policy.contentValidationPolicy), './security/valiation.js')
+      securityFile = securityFile + `validation: require('./security/validation'),\n`
+      await wbp(valiateBp(policy.contentValidationPolicy).code, './security/valiation.js')
     }
     if (policy.dbSecurityPolicy.enabled === true) {
-      wbp(dbBp(policy.dbSecurityPolicy), './security/database.js')
+      securityFile = securityFile + `database: require('./security/database'),\n`
+      await wbp(dbBp(policy.dbSecurityPolicy).code, './security/database.js')
     }
     if (policy.connectionPolicy.enabled === true) {
-      wbp(connectBp(policy.connectionPolicy), './security/connections.js')
+      securityFile = securityFile + `connections: require('./security/connections'),\n`
+      await wbp(connectBp(policy.connectionPolicy).code, './security/connections.js')
     }
     if (policy.resourceSharingPolicy.corsSettings.enabled === true) {
-      wbp(corsBp(policy.resourceSharingPolicy), './security/cors.js')
+      securityFile = securityFile + `cors: require('./security/cors'),`
+      await wbp(corsBp(policy.resourceSharingPolicy).code, './security/cors.js')
     }
     if (policy.loggingPolicy.enabled === true) {
-      wbp(logBp(policy.loggingPolicy), './security/logging.js')
+      securityFile = securityFile + `logging: require('./security/logging'),\n`
+      await wbp(logBp(policy.loggingPolicy).code, './security/logging.js')
     }
+    await wbp(securityFile, './security.js')
     var msg = chalk.magenta(`Successfully wrote boilerplate code for policy ${policy.policyId}\n`)
     return {
       'modules': modules,
