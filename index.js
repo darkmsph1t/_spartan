@@ -10,7 +10,6 @@ var a = p.read(__dirname +'/answers.json')
 var pkg = p.read('./package.json')
 var short = require(__dirname + '/question').nq
 var long = require(__dirname + '/question').lnq
-var finishedPolicy = require('./security.json')
 var confirmDelete = require(__dirname + '/question').confirmDelete
 var confirmSettings = require(__dirname + '/question').confirmSettings
 var confirmDeleteForce = require(__dirname + '/question').confirmDeleteForce
@@ -85,6 +84,7 @@ async function begin (cmd, opt = []) {
     }
   } else if (cmd === 'force') { // force
     try {
+      var finishedPolicy = require('./security.json')
       var f = await bp.writeBoilerplate(finishedPolicy)
       console.log('The following modules should be installed as a result of the force command:')
       console.log(chalk.yellow(bp.matches(all, f.modules)))
