@@ -84,7 +84,7 @@ async function begin (cmd, opt = []) {
     }
   } else if (cmd === 'force') { // force
     try {
-      var finishedPolicy = require('./security.json')
+      var finishedPolicy = p.read('./security.json')
       var f = await bp.writeBoilerplate(finishedPolicy)
       console.log('The following modules should be installed as a result of the force command:')
       console.log(chalk.yellow(bp.matches(all, f.modules)))
