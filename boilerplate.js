@@ -108,7 +108,7 @@ module.exports = function apiSec () {
   }
 }`
 return {
-  code: code,
+  code: code2,
   modules: modules
 }
   } catch (e) {
