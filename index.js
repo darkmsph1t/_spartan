@@ -148,6 +148,8 @@ async function begin (cmd, opt = []) {
         console.log(`There was a problem restoring the default policy to factory settings, ${err}. Download the policy directly from ${downloadUrl}`)
       }
     }
+  } else if (cmd === 'deploy') {
+    console.log('So you\'re ready to deploy your app! Awesome! This feature is under development, but check back soon!')
   } else {
     var i = await ask(short)
     console.log(i)
@@ -231,6 +233,8 @@ if (commander.init) {
   begin('integrity')
 } else if (commander.resetDefault) {
   begin('resetDefault')
+} else if (commander.deploy) {
+  begin('deploy')
 } else if (commander.args.length === 0) { commander.help() } else {
   console.log('That is not an avaiable option')
 }
