@@ -1256,12 +1256,6 @@ module.exports.logger = logger`
     console.log('Could not create logging file')
   }
 }
-async function interpreter (p, mods) {
-  try {
-  } catch (e) {
-    console.log(chalk.yellow(`There was a problem interpreting the policy and boilerplate code could not be written, ${e}`))
-  }
-}
 
 function wbp (code, pathToFile) {
   var secFolder = './security'
