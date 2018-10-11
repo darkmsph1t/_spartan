@@ -7,7 +7,7 @@ var chalk = require('chalk')
 var hash
 var p = require('./policy')
 var a = p.read(__dirname +'/answers.json')
-var pkg = p.read('./package.json')
+var pkg = p.read(__dirname +'/package.json')
 var short = require(__dirname + '/question').nq
 var long = require(__dirname + '/question').lnq
 var confirmDelete = require(__dirname + '/question').confirmDelete
@@ -198,6 +198,10 @@ commander
   .option('--deploy', 'Deploys the app using the specification from security.json')
   .parse(process.argv)
 
+if (commander.version && pkg === undefined) {
+  pkg.version = '0.0.1'
+  console.log('Couldn\'t find package.json file. Have you already run `npm init`?')
+}   
 if (commander.init) {
   if (commander.init === 'y' || commander.init === 'Y' || commander.init === 'L') {
     begin('init', commander.init)

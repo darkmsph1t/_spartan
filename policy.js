@@ -6,7 +6,6 @@ var t = require(`${__dirname}/transpose.js`);
 var fs = require('fs-extra')
 var path = require('path');
 const uniqueString = require('unique-string');
-var pkgJson = require('./package.json');
 var pathToDefault = path.resolve(`${__dirname}/security-default.json`);
 
   /* POLICY METADATA INFO (IDs, STRUCTURE) */
@@ -75,7 +74,12 @@ function create(method, answers = {}) {
     var policy = read(pathToDefault);
     var pathToPolicy;
     if (answers.appName === 'Get this from package.json file'){
-      policy.applicationName = pkgJson.name;
+      var pkgJson = read('./package.json')
+      if (pkgJson instanceof Error) {
+        policy.applicationName = 'No name found in package.json'
+      } else {
+        policy.applicationName = pkgJson.name
+      }
     } else {
       policy.applicationName = answers.appName;
     }
@@ -109,7 +113,8 @@ function read(pathToRead) {
     var m = JSON.parse(fs.readFileSync(pathToPolicy));
     return m;
   } catch (e) {
-    console.log(e);
+    let err =  new Error(`Could not find file ${pathToRead}`)
+    return err
   }
 }
 

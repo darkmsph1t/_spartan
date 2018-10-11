@@ -1,5 +1,6 @@
 'use strict'
-let pkgJson = require('./package.json')
+let p = require('./policy')
+let pkgJson = p.read('./package.json')
 
 var nq =
 [{
@@ -149,7 +150,13 @@ var nq =
   type: 'input',
   name: 'logging',
   message: 'Q10. Logging and Auditing: Where will application logs be stored? (absolute path)',
-  default: `/var/log/${pkgJson.name}/`
+  default: function () {
+    if (pkgJson instanceof Error) {
+      return `/var/log/appName`
+    } else {
+      return `/var/log/${pkgJson.name}/`
+    }
+  }
 }]
 
 var confirmDelete = [
