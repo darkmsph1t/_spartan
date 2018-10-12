@@ -7,7 +7,7 @@ var chalk = require('chalk')
 var hash
 var p = require('./policy')
 var a = p.read(__dirname +'/answers.json')
-var pkg = p.read('./package.json')
+var pkg = p.read(__dirname +'/package.json')
 var short = require(__dirname + '/question').nq
 var long = require(__dirname + '/question').lnq
 var confirmDelete = require(__dirname + '/question').confirmDelete
@@ -84,12 +84,12 @@ async function begin (cmd, opt = []) {
     }
   } else if (cmd === 'force') { // force
     try {
-      var pathToPolicy = require('./security.json')
-      var f = await bp.writeBoilerplate(pathToPolicy)
-      console.log('The following modules were installed as a result of the force command:')
+      var finishedPolicy = p.read('./security.json')
+      var f = await bp.writeBoilerplate(finishedPolicy)
+      console.log('The following modules should be installed as a result of the force command:')
       console.log(chalk.yellow(bp.matches(all, f.modules)))
       // removeModules(oldModules);
-      console.log('The following modules were removed as a result of the force command: ')
+      console.log('The following modules should be removed as a result of the force command: ')
       console.log(chalk.red(bp.diff(all, f.modules)))
       integrity('security.js')
     } catch (e) {
@@ -148,6 +148,8 @@ async function begin (cmd, opt = []) {
         console.log(`There was a problem restoring the default policy to factory settings, ${err}. Download the policy directly from ${downloadUrl}`)
       }
     }
+  } else if (cmd === 'deploy') {
+    console.log('So you\'re ready to deploy your app! Awesome! This feature is under development, but check back soon!')
   } else {
     var i = await ask(short)
     console.log(i)
@@ -198,6 +200,10 @@ commander
   .option('--deploy', 'Deploys the app using the specification from security.json')
   .parse(process.argv)
 
+if (commander.version && pkg === undefined) {
+  pkg.version = '0.0.1'
+  console.log('Couldn\'t find package.json file. Have you already run `npm init`?')
+}   
 if (commander.init) {
   if (commander.init === 'y' || commander.init === 'Y' || commander.init === 'L') {
     begin('init', commander.init)
@@ -227,6 +233,8 @@ if (commander.init) {
   begin('integrity')
 } else if (commander.resetDefault) {
   begin('resetDefault')
+} else if (commander.deploy) {
+  begin('deploy')
 } else if (commander.args.length === 0) { commander.help() } else {
   console.log('That is not an avaiable option')
 }

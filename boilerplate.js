@@ -108,7 +108,7 @@ module.exports = function apiSec () {
   }
 }`
 return {
-  code: code,
+  code: code2,
   modules: modules
 }
   } catch (e) {
@@ -1254,12 +1254,6 @@ module.exports.logger = logger`
   }
   } catch (e) {
     console.log('Could not create logging file')
-  }
-}
-async function interpreter (p, mods) {
-  try {
-  } catch (e) {
-    console.log(chalk.yellow(`There was a problem interpreting the policy and boilerplate code could not be written, ${e}`))
   }
 }
 
