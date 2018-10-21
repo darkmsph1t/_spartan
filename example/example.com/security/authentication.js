@@ -1,14 +1,4 @@
 'use strict'
-let firebase = require('firebase')
-require('firebase/auth')
-require('firebase/database')
-// firebase environment variables
-const FIREBASE_API_KEY =require('./secrets').fetchSecret('FIREBASE_API_KEY')
-const FIREBASE_AUTH_DOMAIN = require('./secrets').fetchSecret('FIREBASE_AUTH_DOMAIN')
-const FIREBASE_DB_URL = require('./secrets').fetchSecret('FIREBASE_DB_URL')
-const FIREBASE_PROJECT_ID = require('./secrets').fetchSecret('FIREBASE_PROJECT_ID')
-const FIREBASE_STORAGE_BUCKET = require('./secrets').fetchSecret('FIREBASE_STORAGE_BUCKET')
-const FIREBASE_SENDER_ID = require('./secrets').fetchSecret('FIREBASE_SENDER_ID')
 let mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const authPolicy = require('../security.json').accessControlsPolicy.authenticationPolicy
@@ -17,17 +7,7 @@ const LOCK_TIME = authPolicy.passwords.lockout.automaticReset
 let schema = require('../schemas/userSchema').UserSchema
 let name = 'User'
 
-// Initialize Firebase
-var config = {
-  apiKey: FIREBASE_API_KEY,
-  authDomain: FIREBASE_AUTH_DOMAIN,
-  databaseURL: FIREBASE_DB_URL,
-  projectId: FIREBASE_PROJECT_ID,
-  storageBucket: FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: FIREBASE_SENDER_ID
-}
-firebase.initializeApp(config)
-/* --------------------------------------- normal auth ---------------------------------------- */
+/* --------------------------------------- local auth ---------------------------------------- */
 
 schema.virtual('isLocked').get(function () {
   // check for a future lockUntil timestamp
@@ -123,14 +103,5 @@ schema.statics.getAuthenticated = function (email, password, cb) {
 }
 
 module.exports = {
-  model: mongoose.model(name, schema),
-  isAuthenticated: function (req, res, next) {
-    var user = firebase.auth().currentUser
-    if (user !== null) {
-      req.user = user
-      next()
-    } else {
-      res.redirect('/login')
-    }
-  }
+  model: mongoose.model(name, schema)
 }
