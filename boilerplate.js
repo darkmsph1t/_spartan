@@ -239,7 +239,7 @@ function firebaseBp() {
   try {
     modules.push('firebase-admin')
     modules.push('firebase')
-    code = `'use strict'
+    let code = `'use strict'
 const authPolicy = require('../security.json').accessControlsPolicy.authenticationPolicy
 const MAX_LOGIN_ATTEMPTS = authPolicy.passwords.lockout.attempts
 const LOCK_TIME = authPolicy.passwords.lockout.automaticReset
