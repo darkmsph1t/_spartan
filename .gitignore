@@ -13,7 +13,7 @@ audit.js
 example/example.com/skimmer.js
 example/example.com/views/authentication.html
 example/example.com/app2.js
-
+example/example.com/security/.example-app-aef49-firebase-adminsdk-zyx0c-4f52e6b9dc.json
 # Logs
 logs
 *.log

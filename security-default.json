@@ -1,9 +1,9 @@
 {
-  "policyId": "d5e76fc7b59ee0ce6aed70d7a6ac9a92",
-  "applicationType": "Web",
-  "internetFacing": true,
-  "hostname": "localhost",
-  "deployment": "locally hosted",
+  "policyId": "",
+  "applicationType": "",
+  "internetFacing": ,
+  "hostname": "",
+  "deployment": "",
   "integrityService": [
     "openssl",
     "shasum"

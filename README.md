@@ -1,3 +1,4 @@
+[![Coverage Status](https://coveralls.io/repos/github/darkmsph1t/_spartan/badge.svg?branch=master)](https://coveralls.io/github/darkmsph1t/_spartan?branch=master)
 ## THIS. IS.\_SPARTAN!
 node application to package &amp; configure common security middleware into your application => returns a policy file and boilerplate code
 
