@@ -1,240 +1,465 @@
 {
-  "_policyId" : "",
-  "applicationName" : "from package.json",
-  "appDependencies" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "auditOptions" : ["npm audit", "snyk"],
-    "autoFix" : false,
-    "pathToReport" : "/var/log/npm-audits/"
+  "policyId": "d5e76fc7b59ee0ce6aed70d7a6ac9a92",
+  "applicationType": "Web",
+  "internetFacing": true,
+  "hostname": "localhost",
+  "deployment": "locally hosted",
+  "integrityService": [
+    "openssl",
+    "shasum"
+  ],
+  "appDependencies": {
+    "enabled": true,
+    "compensatingControl": false,
+    "auditOptions": [
+      "npm audit",
+      "snyk"
+    ],
+    "autoFix": false,
+    "pathToReport": "/var/log/npm-audits/"
   },
   "accessControlsPolicy": {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "authenticationPolicy" : {
-      "authenticationRequired" : true,
-      "supportedMethods" : ["uname/passwd", "oauth", "saml"],
-      "passwords" : {
-        "minLen" : 12,
-        "expires?" : false,
-        "supportedHashes" : ["bcrypt", "sha256", "md5"],
-        "lockout" : {
-          "attempts" : 3,
-          "automaticReset" : false,
-          "tarpitDefault" :  1000
+    "enabled": true,
+    "compensatingControl": false,
+    "authenticationPolicy": {
+      "authenticationRequired": true,
+      "supportedMethods": [
+        "uname/passwd",
+        "oauth",
+        "saml",
+        "openid",
+        "jwt"
+      ],
+      "passwords": {
+        "length": 12,
+        "matches": "^[a-zA-Z0-9!@#$%^&*()_\\-+=]$",
+        "expires": 0,
+        "supportedHashes": [
+          "bcrypt",
+          "scrypt",
+          "sha512"
+        ],
+        "lockout": {
+          "attempts": 3,
+          "automaticReset": false,
+          "tarpitDefault": 1000
         }
       },
-      "mfaRequired" : false
+      "mfaRequired": false
     },
-    "authorization" : {
-      "authorizationRequired" : false,
-      "supportedTypes" : ["flat", "rbac", "none"],
-      "rbacPolicy" : {
-        "roles" : ["user", "moderator", "admin"],
-        "permissions" : ["read", "write", "create", "delete", "approve", "reject"]
+    "authorization": {
+      "authorizationRequired": false,
+      "supportedTypes": [
+        "flat",
+        "rbac",
+        "none"
+      ],
+      "rbacPolicy": {
+        "roles": [
+          "user",
+          "moderator",
+          "admin"
+        ],
+        "permissions": [
+          "read",
+          "write",
+          "create",
+          "delete",
+          "approve",
+          "reject"
+        ]
       }
     }
   },
-  "formProtection" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "config" : {
-      "autocompleteAllowed" : false,
-      "acceptJsonContent" : true,
-      "allowMethodOverride" : false,
-      "csrfSettings" : {
-        "secretLength" : 64,
-        "saltLength" : 24,
-        "ignoreMethods" : ["head", "options", "get"],
-        "allowHiddenToken" : true,
-        "validateToken" : true
+  "secretStorage": {
+    "enabled": true,
+    "compensatingControl": false,
+    "config": {
+      "environmentVariables": null,
+      "sourceControl": {
+        "enabled": false,
+        "expires": 600
       }
     }
   },
-  "sessionPolicy" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "config" : {
-      "id" : {
-        "length" : 128,
-        "entropy" : [64, "prng", "sha1"],
-        "invalidOnLogout" : true,
-        "regenerateOnAuth" : true,
-        "forceLogoutOnWindowClose" : true
+  "formProtection": {
+    "enabled": true,
+    "compensatingControl": false,
+    "config": {
+      "autocompleteAllowed": false,
+      "acceptJsonContent": true,
+      "allowMethodOverride": false
+    }
+  },
+  "sessionPolicy": {
+    "enabled": true,
+    "compensatingControl": false,
+    "config": {
+      "id": {
+        "length": 128,
+        "entropy": [
+          64,
+          "prng",
+          "sha1"
+        ],
+        "invalidOnLogout": true,
+        "regenerateOnAuth": true,
+        "forceLogoutOnWindowClose": true
       },
-      "duration" : {
-        "idle" : 300000,
-        "ttl" : 600000,
-        "automaticRenewal" : false
+      "duration": {
+        "idle": 300000,
+        "ttl": 600000,
+        "automaticRenewal": false
       },
       "cookies": {
-        "maxAge" : ,
-        "httpOnly" : true,
-        "secure" : true,
-        "sameSite" : true,
-        "domain" : ["same-origin", "parent"],
-        "path" :["same-origin", "parent"]
+        "prefixes": [
+          "_Host",
+          "_Secure"
+        ],
+        "maxAge": 600000,
+        "httpOnly": true,
+        "secure": true,
+        "hostOnly": true,
+        "sameSite": "strict",
+        "domain": false,
+        "path": "/"
       },
-      "concurrentLogins" : false
+      "csrfSettings": {
+        "secretLength": 64,
+        "saltLength": 24,
+        "ignoreMethods": [
+          "head",
+          "options",
+          "get"
+        ],
+        "allowHiddenToken": true,
+        "validateToken": true
+      },
+      "concurrentLogins": false
     }
   },
-  "securityHeaders" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "config" : {
-      "csp" : {
-        "directives" : {
-          "defaultSrc" : ["self"],
-          "mediaSrc" : ["self"],
-          "imageSrc" : ["self"],
-          "fontSrc" : ["self"],
-          "connectSrc" : ["self"],
-          "objectSrc" : ["self"],
-          "frameSrc" : ["self"],
-          "frameAncestors" : ["none"],
-          "workerSrc" : ["none"],
-          "scriptSrc" : ["self"],
-          "styleSrc" : ["self"],
-          "upgradeInsecureRequests" : true,
-          "blockAllMixedContent" : true,
-          "subResourceIntegrity" : {
-            "scripts" : false,
-            "styles" : false
-          },
-          "sandbox" : {
-            "setAll" : false,
-            "allowPopUps" : true,
-            "allowTopNavigation" : true,
-            "allowSameOrigin" : true,
-            "allowForms" : true,
-            "allowPointerLock" : true,
-            "allowScripts" : true
-          },
-          "reflectedXSS" : {
-            "allow" : false,
-            "block" : true,
-            "filter" : false
-          },
-          "reportUri" : {
-            "default" : "disabled",
-            "uriLocation" : "/cspviolations",
-            "port" : 3030
-          }
+  "apiPolicy": {
+    "enabled": null,
+    "compensatingControl": null,
+    "rateLimiting": {
+      "maxRequests": 500,
+      "withinTimeframe": 60
+    },
+    "jwt": {
+      "issuer": null,
+      "audience": null,
+      "exp": 600,
+      "nbf": null
+    }
+  },
+  "securityHeaders": {
+    "enabled": true,
+    "compensatingControl": false,
+    "config": {
+      "csp": {
+        "directives": {
+          "default-src": [
+            "'self'"
+          ],
+          "media-src": [
+            "'self'"
+          ],
+          "base-uri": [
+            "'self'"
+          ],
+          "img-src": [
+            "'self'"
+          ],
+          "font-src": [
+            "'self'"
+          ],
+          "connect-src": [
+            "'self'"
+          ],
+          "object-src": [
+            "'self'"
+          ],
+          "plugin-types": [
+            "'not.set.if.obj-src.is.not.set'"
+          ],
+          "child-src": [
+            "'self'"
+          ],
+          "frame-src": [
+            "'self'"
+          ],
+          "frame-ancestors": [
+            "'none'"
+          ],
+          "manifest-src": [
+            "'self'"
+          ],
+          "worker-src": [
+            "'none'"
+          ],
+          "script-src": [
+            "'self'"
+          ],
+          "style-src": [
+            "'self'"
+          ]
         },
-        "reportOnly" : true,
-        "useNonce" : false,
-        "useHash" : false
+        "upgradeInsecureRequests": true,
+        "blockAllMixedContent": true,
+        "requireSriFor": {
+          "scripts": true,
+          "styles": true
+        },
+        "sandbox": {
+          "enable": true,
+          "allow-popups": true,
+          "allow-top-navigation": true,
+          "allow-same-origin": true,
+          "allow-forms": false,
+          "allow-pointer-lock": true,
+          "allow-scripts": true
+        },
+        "reflectedXSS": {
+          "allow": false,
+          "block": true,
+          "filter": false
+        },
+        "reportUri": {
+          "default": "enabled",
+          "uriLocation": "/cspviolations",
+          "port": 3030
+        },
+        "reportOnly": true,
+        "useNonce": false,
+        "useHash": true
       },
-      "mimeSettings" : {
-        "mimeTypes" : ["text/html", "application/json", "image/jpg", "image/png"],
-        "contentEncoding" : "gzip",
-        "characterEncoding" : "utf-8",
-        "xContentTypeOptions" : "nosniff"
+      "mimeSettings": {
+        "mimeTypes": [
+          "text/html",
+          "application/json",
+          "image/jpg",
+          "image/png"
+        ],
+        "contentEncoding": "gzip",
+        "characterEncoding": "utf-8",
+        "xContentTypeOptions": "nosniff"
       },
-      "strictTransportSecurity" : {
+      "strictTransportSecurity": {
         "enabled": true,
         "includeSubDomains": true,
-        "preload" : false,
-        "maxAge" : 31536000
+        "preload": false,
+        "maxAge": 31536000
       },
-      "preventClickJacking" : true,
-      "referrals" : {
-        "enabled" : true,
-        "options" : {
-          "noReferer" : true,
-          "noOnDowngrade" : false,
-          "originOnly" : false,
-          "originOnCross" : false,
-          "unsafeUrl" : false
-        },
+      "preventClickJacking": true,
+      "referrals": {
+        "enabled": true,
+        "options": {
+          "noReferer": true,
+          "noOnDowngrade": false,
+          "originOnly": false,
+          "originOnCross": false,
+          "unsafeUrl": false
+        }
       },
-      "xssProtection" : {
-        "enabled" : true,
-        "mode" : [1, "block"],
+      "xssProtection": {
+        "enabled": true,
+        "mode": [
+          1,
+          "block"
+        ]
       }
     },
-    "caching" : {
-      "enabled" : true,
-      "routeOverload" : false,
-      "cacheControl" : ["no-cache", "no-store", "no-transform", "must-revalidate", "max-age=0"],
-      "pragma" : "no-cache",
-      "eTags" : {
-        "enabled" : true,
-        "strength" : "strong"
+    "caching": {
+      "enabled": true,
+      "compensatingControl": false,
+      "routeOverload": false,
+      "ttl": 600,
+      "cacheControl": [
+        "no-cache",
+        "no-store",
+        "no-transform",
+        "must-revalidate",
+        "max-age=0"
+      ],
+      "pragma": "no-cache",
+      "eTags": {
+        "enabled": true,
+        "strength": "strong"
       },
-      "vary" : ["origin", "host", "referer"],
+      "vary": [
+        "origin",
+        "host",
+        "referer"
+      ]
     }
   },
-  "contentValidationPolicy" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "syntaxValidation" : {
-        "checkLength" : true,
-        "checkFormat" : true,
-        "checkType" : true
-      },
-      "semanticValidation" : {
-        "allowBlankValues" : false,
-        "orderMakesSense?" : true,
-        "valueInRange?" : true,
-        "whitelistRequired" : ["cors", "csp", "headers", ""]
-      },
-      "sanitizeValues" : {
-        "enableEncoding" : ["url", "body", "javascript", "html", "css"],
-        "convertToType" : true
-      },
-    "blockOnFail" : true
+  "contentValidationPolicy": {
+    "enabled": true,
+    "compensatingControl": false,
+    "syntaxValidation": {
+      "checkLength": true,
+      "checkFormat": true,
+      "checkType": true
+    },
+    "semanticValidation": {
+      "allowBlankValues": false,
+      "orderMakesSense?": true,
+      "valueInRange?": true,
+      "whitelistRequired": [
+        "cors",
+        "csp",
+        "referer",
+        "origin",
+        "host"
+      ]
+    },
+    "sanitizeValues": {
+      "enableEncoding": [
+        "url",
+        "body",
+        "javascript",
+        "html",
+        "css"
+      ],
+      "convertToType": true
+    },
+    "blockOnFail": true
   },
-  "dbSecurityPolicy" :{
-    "enabled" : true,
-    "compensatingControl" : false,
-    "config" : {
-      "disableJsExecution" : true,
-      "globalOperatorsDisabled" : true,
-      "encryptBeforeStore" : true
-    }
-  },
-  "connectionPolicy" : {
-    "enabled" : true,
-    "redirectSecure" : true,
-    "rejectWeakCiphers" : true,
-    "rejectInsecureTLS" : true,
-    "forceHttps" : true,
-  },
-  "resourceSharingPolicy" : {
-    "default" : "same-origin",
-    "compensatingControl" : false,
-    "corsSettings" : {
-      "enabled" : false,
-      "config" : {
-        "preflightRequests" : {
-          "onMethod" : ["put", "delete", "connect", "options", "trace", "patch"],
-          "onHeader" : ["accept", "accept-language", "content-language", "dpr", "save-data", "viewpot-width", "width"],
-          "maxAge" : 3600
+  "dbSecurityPolicy": {
+    "enabled": true,
+    "compensatingControl": false,
+    "supportedDatabases": [
+      "mongodb"
+    ],
+    "config": {
+      "disableJsExecution": true,
+      "globalOperatorsDisabled": true,
+      "encryptBeforeStore": true,
+      "dataClassification": [
+        {
+          "tag": "public",
+          "decayRate": "never"
         },
-        "responseHeaders" : {
-          "allowCredentials" : true,
-          "validateHeaders" : ["origin", "allow-method","expose-headers"]
+        {
+          "tag": "internal",
+          "decayRate": 180
+        },
+        {
+          "tag": "confidential",
+          "decayRate": 90
+        },
+        {
+          "tag": "private",
+          "decayRate": 30
+        }
+      ]
+    }
+  },
+  "connectionPolicy": {
+    "enabled": true,
+    "compensatingControl": false,
+    "data": {
+      "key": "/path/to/key",
+      "cert": "/path/to/cert",
+      "keyExchange": "/path/to/strong/exchange/key"
+    },
+    "ciphers": [],
+    "redirectSecure": true,
+    "rejectWeakCiphers": true,
+    "rejectInsecureTLS": true,
+    "forceHttps": true
+  },
+  "resourceSharingPolicy": {
+    "default": "same-origin",
+    "compensatingControl": false,
+    "corsSettings": {
+      "enabled": false,
+      "config": {
+        "whitelist": [],
+        "preflightRequests": {
+          "onMethod": [
+            "put",
+            "delete",
+            "connect",
+            "options",
+            "trace",
+            "patch"
+          ],
+          "onHeader": [
+            "accept",
+            "accept-language",
+            "content-language",
+            "dpr",
+            "save-data",
+            "viewport-width",
+            "width"
+          ],
+          "maxAge": 3600
+        },
+        "responseHeaders": {
+          "allowOrigin": true,
+          "allowCredentials": true,
+          "allowedHeaders": false,
+          "allowMethod": true,
+          "exposeHeaders": false,
+          "setMaxAge": true
         }
       }
     }
   },
-  "loggingPolicy" : {
-    "enabled" : true,
-    "compensatingControl" : false,
-    "levels" : ["trace","info", "warn", "error", "fatal","debug", "verbose"],
-    "logCollection" : {
-      "storage" : "/var/log/${appName}/",
-      "retentionPeriod" : 4,
-      "port" : 5601
+  "loggingPolicy": {
+    "enabled": true,
+    "compensatingControl": false,
+    "levelsSupported": [
+      "npm",
+      "syslog",
+      "cli",
+      "custom"
+    ],
+    "levels": [
+      {
+        "trace": 6
+      },
+      {
+        "info": 3
+      },
+      {
+        "warn": 2
+      },
+      {
+        "error": 1
+      },
+      {
+        "fatal": 0
+      },
+      {
+        "debug": 4
+      },
+      {
+        "verbose": 5
+      }
+    ],
+    "logEvents": [
+      "securityEvents",
+      "appErrors",
+      "systemEvents"
+    ],
+    "logCollection": {
+      "options": [
+        "logstash",
+        "file/disk",
+        "other"
+      ],
+      "storage": "/var/log/${appName}/",
+      "retentionPeriod": 4,
+      "port": 5601
     },
-    "analytics" : {
-      "enabled" : false,
-      "config" : {
-        "host" : "localhost",
-        "type" : "telegraf",
-        "port" : 8125
-        }
+    "analytics": {
+      "enabled": false,
+      "config": {
+        "host": "localhost",
+        "type": "telegraf",
+        "port": 8125
       }
     }
   }
