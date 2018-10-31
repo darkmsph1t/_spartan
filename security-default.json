@@ -1,7 +1,7 @@
 {
   "policyId": "",
   "applicationType": "",
-  "internetFacing": ,
+  "internetFacing": "",
   "hostname": "",
   "deployment": "",
   "integrityService": [

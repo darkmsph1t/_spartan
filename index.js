@@ -43,7 +43,7 @@ function integrity (p) {
 }
 function nextSteps (modules) {
   var npmCommand = chalk.bold.yellow(`npm install ${modules}`)
-  var url = chalk.green(`https://github.com/darkmsph1t/_spartan/wiki`)
+  var url = chalk.green(`https://docs.spartan-security.io/`)
   var conf = chalk.bold.cyan(`javascriptEnabled: false`)
   var whatsNext = `Next steps: \n\t1. Install necessary packages (copy/paste at command prompt inside project directory): \n\t\t\`${npmCommand}\n\t\t${chalk.cyan.dim('Psst! If you haven\'t already, install eslint-plugin-security to prevent vulnerabilties from being written into your code')}\`\n\t2.Disable Javascript execution in Mongo. \n\t\tAdd the following line inside the ${chalk.red('security section')} to \`${chalk.red.underline('mongod.conf')}\`: ${conf}\n\t\t${chalk.red.dim('Psst! Be sure to save the file and restart mongod!')}\n\t3.Wire in \`security.js\` components to your app. \n\t\tCheck ${url} for additional information\n`
   return whatsNext
@@ -52,17 +52,21 @@ function nextSteps (modules) {
 async function begin (cmd, opt = []) {
   // default
   if ((cmd === 'init' && opt === 'y') || (cmd === 'init' && opt === 'Y') || cmd === 'default') {
-    var basic = p.create('default')
-    console.log(basic[1])
-    integrity(basic[2])
-    var boiler = await bp.writeBoilerplate(basic[0])
-    // console.log(`The following modules were installed: \n`);
-    // for (var bin = 0; bin < (basicBp.modules).length; bin ++){
-    //   console.log(`${chalk.yellow(basicBp.modules[bin])}`);
-    // }
-    console.log(boiler.message + '\n')
-    integrity(boiler.pathToFile)
-    await console.log(nextSteps(boiler.modules))
+    try{
+      var basic = await p.create('default')
+      console.log(basic[1])
+      integrity(basic[2])
+      var boiler = await bp.writeBoilerplate(basic[0])
+      console.log(boiler.message + '\n')
+      integrity(boiler.pathToFile)
+      await console.log(nextSteps(boiler.modules))
+      // console.log(`The following modules were installed: \n`);
+      // for (var bin = 0; bin < (basicBp.modules).length; bin ++){
+      //   console.log(`${chalk.yellow(basicBp.modules[bin])}`);
+      // }
+    } catch (e){
+      console.log('problem writing files ' + e)
+    }
   } else if (cmd === 'update') { // update
     if (opt === 'L') {
       var l = await ask(long)
