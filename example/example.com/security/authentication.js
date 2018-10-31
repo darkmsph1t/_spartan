@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt')
 const authPolicy = require('../security.json').accessControlsPolicy.authenticationPolicy
 const MAX_LOGIN_ATTEMPTS = authPolicy.passwords.lockout.attempts
 const LOCK_TIME = authPolicy.passwords.lockout.automaticReset
-let schema = require('../schemas/userSchema').UserSchema
+let schema = require('../schemas/userSchema').UserSchema // <--- expects that you have built a user schema
 let name = 'User'
 
 /* --------------------------------------- local auth ---------------------------------------- */
