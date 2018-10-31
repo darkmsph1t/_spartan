@@ -31,8 +31,9 @@
         "jwt"
       ],
       "passwords": {
-        "length": 12,
-        "matches": "^[a-zA-Z0-9!@#$%^&*()_\\-+=]$",
+        "minLen": 12,
+        "maxLen": 24,
+        "regex": "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[`~!@#$%^&*()_ .,[=])",
         "expires": 0,
         "supportedHashes": [
           "bcrypt",
@@ -41,7 +42,7 @@
         ],
         "lockout": {
           "attempts": 3,
-          "automaticReset": false,
+          "automaticReset": 300000,
           "tarpitDefault": 1000
         }
       },
