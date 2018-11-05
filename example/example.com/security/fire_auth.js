@@ -57,6 +57,14 @@ async function register (uname, email, passwd) {
     password: passwd,
     disabled: false
   }).catch(error => { return error })
+  // BETA
+  newRecord.sendEmailVerification().then(() => {
+    console.log(`email verification for user ${newRecord.displayName} has been sent`)
+  }).catch(err => {
+    if (err) {
+      return err
+    }
+  })
   if (!(newRecord instanceof Error)) {
     firebase.auth().signInWithEmailAndPassword(email, passwd).catch(error => console.log(error.code))
     return newRecord
