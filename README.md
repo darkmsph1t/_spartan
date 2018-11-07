@@ -4,10 +4,10 @@ node application to package &amp; configure common security middleware into your
 
 ## QUICK START!
 1. Create a new application: npm init to accept the defaults be sure to use the ‘-y’ flag
-optional: Enable version control w/ git: git init
-1. Install the package: npm install -g spartan-shield _installs spartan as a command line module you can use in any project
-   * There’s some wonkiness installing on Linux using the -g flag as access to /usr/bin/ requires elevated permissions. To overcome this, install as sudo npm install -g spartan-shield. If necessary, you should still be able to install and run it locally without the global flag
-1. Run the package: _spartan init creates a policy based upon your answers to a few questions. Use ‘y’ to generate a default policy and boilerplate code
+optional: Enable version control w/ git: `git init`
+1. Install the package: <h2>`npm install -g spartan-shield`</h2><br> _installs \_spartan as a command line module you can use in any project_
+   * There’s some wonkiness installing on Linux using the -g flag as access to /usr/bin/ requires elevated permissions. To overcome this, install as `sudo npm install -g spartan-shield`. If necessary, you should still be able to install and run it locally without the global flag
+1. Run the package: `_spartan init` creates a policy based upon your answers to a few questions. Use ‘y’ to generate a default policy and boilerplate code
 
 ### HOW YOU KNOW IT WORKED
 Assuming there are no errors, you will see 3 new files/folders in your local directory:
