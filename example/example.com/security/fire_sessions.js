@@ -28,5 +28,4 @@ module.exports = async (request, response, callback) => {
   }).catch(err => { return err })
   // firebase create cookies
   // firebase csrf protections
-
 }
