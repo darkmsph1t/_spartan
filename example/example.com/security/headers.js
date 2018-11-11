@@ -27,12 +27,14 @@ const makeHash = function (object) {
     console.log(hashedSites)
   } catch (e) {
     console.log(e)
-  } 
+  }
 }
-function setHeaders (options) {
-  // if (valid(secJson.securityHeaders.config.csp)) {
-  //  const headers = secJson.securityHeaders.config.csp
-  // }
+module.exports = (options) => {
+  if (secJson.securityHeaders.enabled === false) {
+    let error = new Error('headers/disabled-in-policy')
+    error.message = 'Header settings disabled by policy'
+    return error
+  }
   if (!options) {
     return helmet()
   }
@@ -188,7 +190,6 @@ function setHeaders (options) {
   //   }
   // }
 }
-module.exports.setHeaders = setHeaders
 
 // left to do => nonces and hashes
 //               non-express headers

@@ -51,14 +51,16 @@ module.exports = () => {
       getCache: async (route, fetchedThing, callback) => {
         client.get(route, function (err, data) {
           if (err) {
-            err.code = '(cache/could-not-fetch-data)'
+            err.code = '(\'cache/could-not-fetch-data\')'
             err.message = `Could not fetch data for ${route}`
             callback(err, null)
           }
           if (data !== null) {
             callback(null, data)
           } else {
-            return undefined
+            let error = new Error('cache/ttl-expired')
+            error.message = 'Time to live for this data has expired'
+            callback(error, undefined)
           }
         })
       }
