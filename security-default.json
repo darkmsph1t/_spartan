@@ -44,6 +44,11 @@
           "attempts": 3,
           "automaticReset": 300000,
           "tarpitDefault": 1000
+        }, 
+        "hibpData": {
+          "checkHibp": true,
+          "allowCompromisedPasswords": false,
+          "lockFoundPwns" : true 
         }
       },
       "mfaRequired": false
