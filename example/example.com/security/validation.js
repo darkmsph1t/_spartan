@@ -25,7 +25,7 @@ function policyCheck () {
 }
 function typeCheck (obj, rules) {
   if (!validate.isObj(obj) || !validate.isObj(rules)) {
-    let err = new Error('validation/invalid-type')
+    let err = new TypeError('validation/invalid-type')
     err.message = `Invalid Type Found. Cannot validate ${obj} against ${rules}`
     return err
   }
