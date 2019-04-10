@@ -133,7 +133,7 @@ var nq =
     return answers.cacheStrategy
   },
   validate: function (value) {
-    var valid = !isNaN(parseFloat(value))
+    var valid = !isNaN(parseInt(value))
     return valid || 'Please enter a number'
   },
   filter: Number
