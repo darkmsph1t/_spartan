@@ -1,6 +1,8 @@
 'use strict'
 // required middleware
 let express = require('express')
+let engines = require('consolidate')
+let expressFileUpload = require('express-fileupload')
 let bodyParser = require('body-parser')
 let cookieParser = require('cookie-parser')
 // local modules and variables
@@ -21,10 +23,12 @@ database()
 
 let app = express()
 app.use(sessionizer())
-
-app.use(bodyParser.json({
-  type: ['json', 'application/cspviolations']
-}))
+app.engine('pug', engines.pug)
+app.set('view engine', 'pug')
+app.set('views', './views')
+// app.use(bodyParser.json({
+//   type: ['json', 'application/cspviolations']
+// }))
 app.use(express.json())
 app.use(express.urlencoded({
   extended: true
@@ -35,24 +39,12 @@ const csrfMiddleware = csrf({
 app.use(cookieParser())
 app.use(csrfMiddleware)
 app.use(cors())
-app.use(security.headers.setHeaders({ csp: true, cdp: true, sts: { usePolicy: true }, hidePower: { setTo: 'Your Mom\'s House' } }))
+app.use(security.headers({ csp: true, cdp: true, sts: { usePolicy: true }, hidePower: { setTo: 'Your Mom\'s House' } }))
 
 app.get('/', function (request, response) {
   let cacheHeaders = cache()
-  response.set(cacheHeaders)
-  // let test = request.csrfToken()
-  // response.send(`
-  //   <h1>Hello World</h1>
-  //   <form action="/entry" method="post">
-  //     <div>
-  //       <label for="message">Enter a message</label>
-  //       <input id="message" name="message" type="text" />
-  //     </div>
-  //     <input type="submit" value="Submit" />
-  //     <input type="hidden" name="_csrf" value="${test}" />
-  //   </form>
-  // `)
-  response.render('index.ejs')
+  // response.set(cacheHeaders)
+  response.render('index')
 })
 app.post('/entry', function (request, response) {
   console.log(`Message received: ${request.body.message}`)
@@ -60,29 +52,7 @@ app.post('/entry', function (request, response) {
 })
 
 app.get('/register', function (request, response, next) {
-  let registrationForm = security.forms
-  response.send(` <h1>Registration</h1>
-    <form action="/register" autocomplete=${registrationForm(request).autocomplete} method="post">
-      <div>
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" />
-      </div>
-      <div>
-        <label for="email">Email</label>
-        <input id="email" name="email" type="text" />
-      </div>
-      <div>
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" />
-      </div>
-      <div>
-        <label for="confirm">Confirm Password</label>
-        <input id="confirm" name="confirm" type="password" />
-      </div>
-      <input type="submit" value="Submit" />
-      <input type="hidden" name="_csrf" value="${request.csrfToken()}" />
-    </form>`)
-  // response.render('register.ejs')
+  response.render('register')
 })
 app.post('/register', function (request, response, next) {
   if (request.body.username && request.body.email && request.body.password && request.body.confirm) {

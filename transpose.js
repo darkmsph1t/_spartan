@@ -43,7 +43,7 @@ function sbCors (obj, tmp) {
   } else {
     const result = []
     for (var k in obj.contentSources) {
-      setValue(tmp.securityHeaders, 'directives', k, obj.contentSources[k])
+      setValue(tmp.securityHeaders, 'directives', `${k}-src`, obj.contentSources[k])
       var bloop = Object.values(obj.contentSources[k])
       for (var i = 0; i <= bloop.length; i++) {
         if (bloop[i] === 'self' || bloop[i] === 'none' || bloop[i] === null) {

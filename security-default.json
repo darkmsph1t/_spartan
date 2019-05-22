@@ -185,9 +185,7 @@
           "object-src": [
             "'self'"
           ],
-          "plugin-types": [
-            "'not.set.if.obj-src.is.not.set'"
-          ],
+          "plugin-types": [],
           "child-src": [
             "'self'"
           ],
