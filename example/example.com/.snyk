@@ -15,4 +15,24 @@ ignore:
     - glob-watcher > chokidar > anymatch > micromatch > braces:
         reason: None given
         expires: '2018-11-03T21:26:06.917Z'
+  SNYK-JS-LODASHMERGE-173733:
+    - firebase-admin > @google-cloud/firestore > lodash.merge:
+        reason: no upgrade available
+        expires: '2019-05-09T21:40:17.083Z'
+  'npm:chownr:20180731':
+    - firebase > @firebase/firestore > grpc > node-pre-gyp > tar > chownr:
+        reason: no upgrade available
+        expires: '2019-05-09T21:36:42.646Z'
+  SNYK-JS-LODASHMERGE-173732:
+    - firebase-admin > @google-cloud/firestore > lodash.merge:
+        reason: no upgrade available
+        expires: '2019-05-09T21:40:17.083Z'
+  'npm:validator:20160218':
+    - sanitize > validator:
+        reason: no upgrade available
+        expires: '2019-05-09T21:40:17.083Z'
+  'npm:validator:20180218':
+    - sanitize > validator:
+        reason: no upgrade available
+        expires: '2019-05-09T21:40:17.083Z'
 patch: {}

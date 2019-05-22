@@ -98,7 +98,7 @@ var nq =
   type: 'editor',
   name: 'contentSources',
   message: "Q6.1. Content Sources: Sweet! What are those sources? (JSON)\n * Tip: While specificity is more secure, it's also limiting. Use '*' operand for more flexible options. Use the formatting in the default",
-  default: '{"default" : ["\'self\'", "\'www.redit.com\'"], "media" : ["\'self\'", "\'*.pinterest.com\'", "\'https://*.flickr.com\'", "\'ftp://video.domain.com:21\'"], "images" : ["\'self\'"], "styles" : ["\'*.bootstrap.com\'", "\'https://materializecss.com\'", "\'self\'"], "scripts" : ["\'self\'"], "frames" : ["\'none\'"]}',
+  default: '{"default" : ["\'self\'"], "media" : ["\'self\'", "*.pinterest.com", "https://*.flickr.com", "ftp://video.domain.com:21"], "image" : ["\'self\'"], "style" : ["*.bootstrap.com", "https://materializecss.com", "\'self\'"], "script" : ["\'self\'"], "connect": ["http://localhost:5000", "\'self\'"], "frame" : ["\'none\'"]}',
   when: function (answers) {
     var floop = "Some of the data and content comes from sources that I don't own or control"
     return answers.content === floop
@@ -133,7 +133,7 @@ var nq =
     return answers.cacheStrategy
   },
   validate: function (value) {
-    var valid = !isNaN(parseFloat(value))
+    var valid = !isNaN(parseInt(value))
     return valid || 'Please enter a number'
   },
   filter: Number

@@ -1,0 +1,18 @@
+doctype html
+html(lang='en')
+  head
+    title Example Application : Registration
+    link(href="https://fonts.googleapis.com/css?family=Bangers|Open+Sans|Open+Sans+Condensed:300|Oswald|Poiret+One|Roboto|Raleway|Share+Tech+Mono|Material+Icons" rel="stylesheet")
+    link(rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous")
+    meta(name="viewport" content="width=device-width, initial-scale=1.0")
+    meta(name="viewport" content="height=device-height, initial-scale=1.0")
+  body
+    h2 Register for the Awesomeness
+    .registration-form      
+      form(action='/register' method='post' name='registration-form' id='registration-form')
+        input(type='text' name='firstname' placeholder='first name' id='first-name' minlenth=1 maxlength=30 required)
+        input(type='text' name='lastname' placeholder='last name' id='last-name' minlenth=1 maxlength=30 required)
+        input(type="email", name="email" placeholder='email address' id='email-address' minlenth=1 maxlength=30 required)
+        p Profile Picture
+        input(type="file", name="profile-picture" id='profile-picture')
+        button(type='submit' id='registration-form-submit' form='registration-form') Register For The Awesomeness

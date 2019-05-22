@@ -22,6 +22,12 @@ async function ask (q) {
   var answers = await inquirer.prompt(q)
   return answers
 }
+/**
+ * @name integrity
+ * @description generates a sha-384 hash of the file indicated by the parameter
+ * @param {Object} p policy location
+ * @returns {String} hash string 
+ */
 function integrity (p) {
   try {
     const sha = spawn('shasum', ['-b', '-a', '384', p])
@@ -48,22 +54,25 @@ function nextSteps (modules) {
   var whatsNext = `Next steps: \n\t1. Install necessary packages (copy/paste at command prompt inside project directory): \n\t\t\`${npmCommand}\n\t\t${chalk.cyan.dim('Psst! If you haven\'t already, install eslint-plugin-security to prevent vulnerabilties from being written into your code')}\`\n\t2.Disable Javascript execution in Mongo. \n\t\tAdd the following line inside the ${chalk.red('security section')} to \`${chalk.red.underline('mongod.conf')}\`: ${conf}\n\t\t${chalk.red.dim('Psst! Be sure to save the file and restart mongod!')}\n\t3.Wire in \`security.js\` components to your app. \n\t\tCheck ${url} for additional information\n`
   return whatsNext
 }
-
+/**
+ * @name begin
+ * @description processes given to the commander module
+ * @param {String} cmd 
+ * @param {String} [opt=[]]
+ * @return {void} files are written to disk
+ */
 async function begin (cmd, opt = []) {
   // default
   if ((cmd === 'init' && opt === 'y') || (cmd === 'init' && opt === 'Y') || cmd === 'default') {
+    // if commander.init & commander options are yes/Yes or the user types 'default' a default policy will be created
     try{
-      var basic = await p.create('default')
-      console.log(basic[1])
-      integrity(basic[2])
+      var basic = await p.create('default') // creates security.json in the current directory with default settings
+      console.log(basic[1]) // success message
+      integrity(basic[2]) // generates a sha hash of the policy file indicated by this input
       var boiler = await bp.writeBoilerplate(basic[0])
       console.log(boiler.message + '\n')
       integrity(boiler.pathToFile)
       await console.log(nextSteps(boiler.modules))
-      // console.log(`The following modules were installed: \n`);
-      // for (var bin = 0; bin < (basicBp.modules).length; bin ++){
-      //   console.log(`${chalk.yellow(basicBp.modules[bin])}`);
-      // }
     } catch (e){
       console.log('problem writing files ' + e)
     }
