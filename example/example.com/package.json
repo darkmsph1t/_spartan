@@ -40,7 +40,7 @@
     "formidable": "^1.2.1",
     "helmet": "^3.13.0",
     "moment": "^2.22.2",
-    "mongoose": "^5.3.1",
+    "mongoose": "^5.7.5",
     "redis": "^2.8.0",
     "sanitize": "^2.1.0",
     "sanitize-html": "^1.20.0",
