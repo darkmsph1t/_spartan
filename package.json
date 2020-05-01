@@ -35,7 +35,8 @@
     "mongo": "^0.1.0",
     "request": "^2.88.0",
     "uniqid": "^5.0.3",
-    "unique-string": "^1.0.0"
+    "unique-string": "^1.0.0",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
@@ -46,10 +47,10 @@
     "eslint-plugin-promise": "^4.0.1",
     "eslint-plugin-security": "^1.4.0",
     "eslint-plugin-standard": "^4.0.0",
-    "mocha": "^5.2.0",
-    "snyk": "^1.148.0"
+    "mocha": "^5.2.0"
   },
   "bin": {
     "_spartan": "./index.js"
-  }
+  },
+  "snyk": true
 }
