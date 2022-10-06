@@ -38,7 +38,7 @@
     "npm": "^6.4.1",
     "npm-registry-client": "^8.6.0",
     "sntp": "^3.0.1",
-    "snyk": "^1.88.2",
+    "snyk": "^1.996.0",
     "uniqid": "^5.0.3"
   },
   "snyk": true,
